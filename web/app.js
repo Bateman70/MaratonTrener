@@ -2872,7 +2872,7 @@ function openWorkoutModal(w = null) {
             // Reset expansion state to default (200px) on modal open
             elements.workoutRouteMap.classList.remove('expanded');
             if (elements.btnExpandWorkoutMap) {
-                elements.btnExpandWorkoutMap.innerHTML = '<i class="fa-solid fa-expand"></i> FORSTØRR';
+                elements.btnExpandWorkoutMap.innerHTML = '<i class="fa-solid fa-expand"></i> EXPAND';
             }
             
             // Clear previous map if active
@@ -5486,7 +5486,7 @@ function handleExpandWorkoutMap(e) {
     
     mapEl.classList.toggle('expanded');
     const isExpanded = mapEl.classList.contains('expanded');
-    btn.innerHTML = isExpanded ? '<i class="fa-solid fa-compress"></i> FORMINSK' : '<i class="fa-solid fa-expand"></i> FORSTØRR';
+    btn.innerHTML = isExpanded ? '<i class="fa-solid fa-compress"></i> COLLAPSE' : '<i class="fa-solid fa-expand"></i> EXPAND';
     
     // Invalidate size after height animation completes (transition is 0.3s)
     setTimeout(() => {
