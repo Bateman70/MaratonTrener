@@ -473,40 +473,22 @@ function cacheElements() {
 
 // Setup View-Only or Edit Mode based on URL query parameters
 function initializeModeAndUser() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const viewId = urlParams.get('view') || urlParams.get('runner');
-    const hasEditParam = urlParams.get('edit') === 'true' || urlParams.get('mode') === 'edit';
-    const hasReadOnlyParam = urlParams.get('readOnly') === 'true' || urlParams.get('share') === 'true';
-
-    if (viewId) {
-        appState.userId = viewId.toUpperCase();
-        appState.readOnly = true;
-    } else if (hasReadOnlyParam) {
-        appState.readOnly = true;
-    } else {
-        // Standalone Web App defaults to Edit Mode so users (e.g. on iPhone) can log training
-        appState.readOnly = false;
-        
-        let storedUserId = localStorage.getItem('maratontrener_userId');
-        if (!storedUserId) {
-            storedUserId = generateNewRunnerId();
-            localStorage.setItem('maratontrener_userId', storedUserId);
-        }
-        appState.userId = storedUserId;
-        
-        // Load local profile data from cache
-        loadProfileLocally();
+    // Read-only share views are deprecated. App always defaults to normal Edit/Registration Mode.
+    appState.readOnly = false;
+    
+    let storedUserId = localStorage.getItem('maratontrener_userId');
+    if (!storedUserId) {
+        storedUserId = generateNewRunnerId();
+        localStorage.setItem('maratontrener_userId', storedUserId);
     }
+    appState.userId = storedUserId;
+    
+    // Load local profile data from cache
+    loadProfileLocally();
 
-    if (appState.readOnly) {
-        document.body.classList.add('read-only-mode');
-        document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'block');
-        document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = true);
-    } else {
-        document.body.classList.remove('read-only-mode');
-        document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = false);
-    }
+    document.body.classList.remove('read-only-mode');
+    document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = false);
     
     // Check if user is returning from Strava authorization
     checkStravaCallback();
@@ -2780,20 +2762,38 @@ function showToastNotification(message) {
 
 function copyShareId() {
     const nickname = appState.userName || 'Runner';
-    const inviteText = `Hei! Sjekk ut treningsfremgangen min i den nye appen min - MarathonTrainer!
-Gå til https://www.maratontrener.no/?runner=${appState.userId} for å se min treningsplan!
+    const defaultInviteText = `Hei! Bli med meg på MarathonTrainer!
+Last ned appen eller åpne den på https://www.maratontrener.no/ og legg meg til som Buddy med min ID: ${appState.userId}
 
 Lyst til å prøve selv? Bli med på testen og last ned appen til Android her: https://tinyurl.com/IThoughtTheySaidRum eller https://join.maratontrener.no/ hvis du bruker iPhone.
 
-${nickname}
-------------------------------------------------------------------------------------------------------------
-Hey! Check out my training progress in my new app - MarathonTrainer! 
-Visit https://www.maratontrener.no/?runner=${appState.userId} to see my training plan!
-
-Want to try it yourself? Join the test and download the Android app here: https://tinyurl.com/IThoughtTheySaidRum or visit https://join.maratontrener.no/ if you're on an iPhone.
-
 ${nickname}`;
-    navigator.clipboard.writeText(inviteText)
+
+    // Prompt user to customize the text
+    const editedText = prompt("Customize your invite text before sharing:", defaultInviteText);
+    
+    // If user clicked cancel, stop
+    if (editedText === null) return;
+    
+    const finalShareText = editedText.trim();
+    if (!finalShareText) return;
+
+    // Use Web Share API if supported
+    if (navigator.share) {
+        navigator.share({
+            title: 'MarathonTrainer Invite',
+            text: finalShareText
+        }).catch(err => {
+            console.log("Share cancelled or failed, falling back to copy:", err);
+            copyToClipboardFallback(finalShareText);
+        });
+    } else {
+        copyToClipboardFallback(finalShareText);
+    }
+}
+
+function copyToClipboardFallback(text) {
+    navigator.clipboard.writeText(text)
         .then(() => alert("Your custom invite text was copied to clipboard!"))
         .catch(err => alert("Copy failed. Your ID: " + appState.userId));
 }
