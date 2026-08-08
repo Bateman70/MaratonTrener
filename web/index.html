@@ -538,6 +538,22 @@
                                     <span class="help-text">Connect this dashboard with your Android app by entering your unique Runner ID. <em>(Syncing connects and pulls from the cloud; it does not overwrite your cloud data).</em></span>
                                 </div>
                                 
+                                <!-- Strava Sync Integration Box -->
+                                <div class="sync-id-box profile-only-edit" id="strava-sync-section" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                        <label class="label-lime" style="font-size:0.75rem; color: #FC5200; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-brands fa-strava" style="font-size: 1.1rem;"></i> STRAVA SYNC INTEGRATION
+                                        </label>
+                                        <span id="strava-status-badge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-weight: bold;">Disconnected</span>
+                                    </div>
+                                    <span class="help-text" style="display: block; margin-bottom: 10px;">
+                                        Automatically match and sync completed runs and treadmill sessions directly to your active training calendar.
+                                    </span>
+                                    <button class="btn-solid-android" id="btn-strava-action" style="background: #FC5200; color: white; width: 100%; font-weight: bold; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA
+                                    </button>
+                                </div>
+                                
                                 <!-- Admin Control Panel Box -->
                                 <div class="sync-id-box admin-only-section" id="admin-sync-section" style="display: none; margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
                                     <label class="label-lime" style="font-size:0.75rem; color: #ff9500; font-weight: bold;">ADMIN CONTROL PANEL</label>

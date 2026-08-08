@@ -273,6 +273,9 @@ function cacheElements() {
         // Buddies Page Fields
         textYourId: document.getElementById('text-your-id'),
         btnShareIdCopy: document.getElementById('btn-share-id-copy'),
+        stravaSyncSection: document.getElementById('strava-sync-section'),
+        stravaStatusBadge: document.getElementById('strava-status-badge'),
+        btnStravaAction: document.getElementById('btn-strava-action'),
         formAddBuddyInline: document.getElementById('form-add-buddy-inline'),
         inputBuddyIdInline: document.getElementById('input-buddy-id-inline'),
         leaderboardList: document.getElementById('leaderboard-list'),
@@ -497,6 +500,9 @@ function initializeModeAndUser() {
         document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'none');
         document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = false);
     }
+    
+    // Check if user is returning from Strava authorization
+    checkStravaCallback();
 }
 
 // Viewport layout orientation control
@@ -556,6 +562,9 @@ function setupEventListeners() {
     // Add Buddy inline form
     elements.formAddBuddyInline.addEventListener('submit', handleBuddySubmitInline);
     elements.btnShareIdCopy.addEventListener('click', copyShareId);
+    if (elements.btnStravaAction) {
+        elements.btnStravaAction.addEventListener('click', handleStravaAction);
+    }
     
     // Diet Tab buttons
     elements.btnDietTabWeekVp.addEventListener('click', () => switchDietTab('week'));
@@ -1153,9 +1162,11 @@ function updateProfileUI() {
     updateHRZonesDisplay();
     updateNextAndLatestUI();
     
-    // Toggle Admin panel button
     if (elements.adminSyncSection) {
         elements.adminSyncSection.style.display = (appState.userId === 'CH020721') ? 'block' : 'none';
+    }
+    if (elements.stravaSyncSection) {
+        elements.stravaSyncSection.style.display = appState.readOnly ? 'none' : 'block';
     }
 }
 
@@ -4904,4 +4915,365 @@ function handleDeleteRunner(runnerId) {
         alert(`Failed to delete runner: ${err.message}`);
         loadAdminUserDirectory();
     });
+}
+
+// ====================================================
+// STRAVA SYNC INTEGRATION
+// ====================================================
+
+const STRAVA_CONFIG = {
+    clientId: '143171', 
+    clientSecret: 'b3df05bf909ab9fb06d15617a7e80f089cc5f6d7',
+    redirectUri: window.location.origin + window.location.pathname
+};
+
+let stravaTokens = {
+    accessToken: null,
+    refreshToken: null,
+    expiresAt: null
+};
+
+function checkStravaCallback() {
+    if (appState.readOnly) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    
+    // Load existing credentials cache
+    const savedTokens = localStorage.getItem('strava_tokens');
+    if (savedTokens) {
+        try {
+            stravaTokens = JSON.parse(savedTokens);
+            updateStravaUI(true);
+        } catch (e) {
+            console.error("Failed to parse Strava token cache:", e);
+        }
+    }
+    
+    // Handle user declining authorization
+    if (error === 'access_denied') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        alert("Strava authorization request was declined.");
+        updateStravaUI(false);
+        return;
+    }
+    
+    if (code) {
+        // Clean URL parameters immediately to prevent multiple exchange triggers
+        window.history.replaceState({}, document.title, window.location.pathname);
+        exchangeStravaCode(code);
+    }
+}
+
+function exchangeStravaCode(code) {
+    if (elements.stravaStatusBadge) {
+        elements.stravaStatusBadge.innerText = "Connecting...";
+    }
+    
+    const body = new URLSearchParams({
+        client_id: STRAVA_CONFIG.clientId,
+        client_secret: STRAVA_CONFIG.clientSecret,
+        code: code,
+        grant_type: 'authorization_code'
+    });
+    
+    fetch('https://www.strava.com/oauth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.access_token) {
+            stravaTokens = {
+                accessToken: data.access_token,
+                refreshToken: data.refresh_token,
+                expiresAt: data.expires_at * 1000 // Convert to ms
+            };
+            localStorage.setItem('strava_tokens', JSON.stringify(stravaTokens));
+            updateStravaUI(true);
+            alert("Strava successfully connected!");
+            syncStravaActivities();
+        } else {
+            throw new Error(data.message || "Invalid authentication response.");
+        }
+    })
+    .catch(err => {
+        console.error("Strava token exchange failed:", err);
+        alert("Failed to connect to Strava: " + err.message);
+        updateStravaUI(false);
+    });
+}
+
+async function getValidStravaToken() {
+    if (!stravaTokens.accessToken) return null;
+    
+    // Refresh token if it expires in less than 5 minutes
+    if (Date.now() < (stravaTokens.expiresAt - 5 * 60 * 1000)) {
+        return stravaTokens.accessToken;
+    }
+    
+    const body = new URLSearchParams({
+        client_id: STRAVA_CONFIG.clientId,
+        client_secret: STRAVA_CONFIG.clientSecret,
+        grant_type: 'refresh_token',
+        refresh_token: stravaTokens.refreshToken
+    });
+    
+    try {
+        const res = await fetch('https://www.strava.com/oauth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        });
+        const data = await res.json();
+        if (data.access_token) {
+            stravaTokens = {
+                accessToken: data.access_token,
+                refreshToken: data.refresh_token,
+                expiresAt: data.expires_at * 1000
+            };
+            localStorage.setItem('strava_tokens', JSON.stringify(stravaTokens));
+            return stravaTokens.accessToken;
+        }
+    } catch (e) {
+        console.error("Failed to refresh expired Strava token:", e);
+    }
+    return null;
+}
+
+function updateStravaUI(connected) {
+    if (!elements.btnStravaAction || !elements.stravaStatusBadge) return;
+    
+    if (connected) {
+        elements.stravaStatusBadge.innerText = "Connected";
+        elements.stravaStatusBadge.style.background = "rgba(52, 199, 89, 0.2)";
+        elements.stravaStatusBadge.style.color = "#34c759";
+        
+        elements.btnStravaAction.innerHTML = `<i class="fa-solid fa-rotate"></i> SYNC FROM STRAVA`;
+        elements.btnStravaAction.style.background = "#FC5200";
+    } else {
+        elements.stravaStatusBadge.innerText = "Disconnected";
+        elements.stravaStatusBadge.style.background = "rgba(255,255,255,0.1)";
+        elements.stravaStatusBadge.style.color = "rgba(255,255,255,0.6)";
+        
+        elements.btnStravaAction.innerHTML = `<i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA`;
+        elements.btnStravaAction.style.background = "#FC5200";
+    }
+}
+
+async function handleStravaAction() {
+    if (appState.readOnly) return;
+    
+    if (!stravaTokens.accessToken) {
+        // Direct user to Strava authorize page
+        const authUrl = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CONFIG.clientId}&redirect_uri=${encodeURIComponent(STRAVA_CONFIG.redirectUri)}&response_type=code&scope=activity:read_all`;
+        window.location.href = authUrl;
+    } else {
+        syncStravaActivities();
+    }
+}
+
+async function syncStravaActivities() {
+    if (appState.readOnly) return;
+    
+    const token = await getValidStravaToken();
+    if (!token) {
+        alert("Strava login session has expired. Please connect again.");
+        localStorage.removeItem('strava_tokens');
+        stravaTokens = { accessToken: null, refreshToken: null, expiresAt: null };
+        updateStravaUI(false);
+        return;
+    }
+    
+    if (elements.btnStravaAction) {
+        elements.btnStravaAction.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> SYNCING...`;
+    }
+    
+    // Query activities for the last 7 days
+    const epochOneWeekAgo = Math.floor((Date.now() - 7 * 24 * 3600 * 1000) / 1000);
+    
+    fetch(`https://www.strava.com/api/v3/athlete/activities?after=${epochOneWeekAgo}&per_page=100`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(activities => {
+        if (Array.isArray(activities)) {
+            const syncReport = processStravaActivities(activities);
+            alert(`Sync Finished!\n\nMatched Workouts: ${syncReport.matched}\nRuns Skipped (Already Sync): ${syncReport.skipped}`);
+        } else if (activities && activities.message) {
+            throw new Error(activities.message);
+        } else {
+            throw new Error("Strava returned an invalid response format.");
+        }
+    })
+    .catch(err => {
+        console.error("Sync failed:", err);
+        alert("Failed to sync: " + err.message);
+    })
+    .finally(() => {
+        updateStravaUI(!!stravaTokens.accessToken);
+    });
+}
+
+function parseLocalDateString(dateStr) {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+        // Zero-based index month index
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+    return new Date(dateStr);
+}
+
+function isWorkoutRunnable(w) {
+    const type = (w.workoutType || '').toUpperCase();
+    return type !== 'STRENGTH & CORE' && type !== 'REST';
+}
+
+function processStravaActivities(activities) {
+    let matchedCount = 0;
+    let skippedCount = 0;
+    let dbUpdated = false;
+    
+    // Filter out hikes/rides/swims. Capture Run, VirtualRun, and Treadmills
+    const runs = activities.filter(a => {
+        const type = a.type || '';
+        const sportType = a.sport_type || '';
+        const isRunType = type === 'Run' || type === 'VirtualRun' || type === 'Treadmill';
+        const isSportType = sportType === 'Run' || sportType === 'VirtualRun' || sportType === 'Treadmill';
+        return isRunType || isSportType;
+    });
+    
+    runs.forEach(run => {
+        const runId = String(run.id);
+        
+        // 1. Duplicate protection check
+        const alreadySynced = appState.workouts.some(w => String(w.stravaActivityId) === runId);
+        if (alreadySynced) {
+            skippedCount++;
+            return;
+        }
+        
+        // 2. Perform localized date proximity matching
+        const runDate = new Date(run.start_date_local);
+        const activityLocalDateStr = getLocalDateString(runDate);
+        const match = findMatchingWorkout(activityLocalDateStr, run.distance / 1000);
+        
+        if (match) {
+            // Backup the original target guidelines in notes before writing
+            const originalTargetText = `Original Target: ${match.distance}km @ ${match.pace || "N/A"}`;
+            const previousWorkoutState = { ...match };
+            
+            // Overwrite details inside real schema properties
+            match.isCompleted = true;
+            match.distance = parseFloat((run.distance / 1000).toFixed(2)) || 0;
+            match.totalDuration = Math.round(run.moving_time / 60) || 0;
+            match.pace = formatStravaPace(run.average_speed);
+            match.avgHeartRate = run.average_heartrate ? Math.round(run.average_heartrate) : 0;
+            match.stravaActivityId = runId;
+            
+            // Combined title description formatting
+            match.description = `${match.description || ''} (${run.name})`;
+            
+            // Build rich metadata block inside Notes
+            let extraNotes = `\n\n--- Strava Sync ---\n${originalTargetText}\nDuration: ${formatStravaDuration(run.moving_time)}`;
+            if (run.total_elevation_gain) extraNotes += `\nElevation Gain: ${run.total_elevation_gain}m`;
+            if (run.average_cadence) extraNotes += `\nAvg Cadence: ${Math.round(run.average_cadence * 2)} spm`;
+            
+            match.notes = (match.notes || "") + extraNotes;
+            
+            // 3. Write to database (Firebase or Local)
+            if (db && appState.firebaseConnected) {
+                db.ref(`workouts/${appState.userId}/workout_${match.id}`).update({
+                    isCompleted: true,
+                    distance: match.distance,
+                    totalDuration: match.totalDuration,
+                    pace: match.pace,
+                    avgHeartRate: match.avgHeartRate,
+                    description: match.description,
+                    notes: match.notes,
+                    stravaActivityId: match.stravaActivityId
+                })
+                .catch(err => {
+                    console.error("Firebase save failed for run:", runId, err);
+                    // Revert local memory state in case of database rejection
+                    Object.assign(match, previousWorkoutState);
+                    alert(`Failed to sync workout to Cloud database: ${err.message}`);
+                });
+            }
+            
+            matchedCount++;
+            dbUpdated = true;
+        }
+    });
+    
+    if (dbUpdated) {
+        saveWorkoutsLocally();
+        
+        // If not connected to Firebase, we must reload the UI manually
+        if (!appState.firebaseConnected) {
+            renderWorkoutsList();
+            updateAggregatedStats();
+            populatePlanFilters();
+            updateShoesUI();
+        }
+    }
+    
+    return { matched: matchedCount, skipped: skippedCount };
+}
+
+function findMatchingWorkout(activityLocalStr, distanceKm) {
+    const activityMidnight = parseLocalDateString(activityLocalStr);
+    
+    // Find uncompleted runnable scheduled workout on the exact calendar day
+    let exactDayMatch = appState.workouts.find(w => {
+        return !w.isCompleted && w.scheduledDate === activityLocalStr && isWorkoutRunnable(w);
+    });
+    
+    if (exactDayMatch) return exactDayMatch;
+    
+    // Fallback: Check strictly backward (run was done today to complete yesterday's scheduled workout)
+    const dayInMs = 24 * 3600 * 1000;
+    const candidates = appState.workouts.filter(w => {
+        if (w.isCompleted || !w.scheduledDate || !isWorkoutRunnable(w)) return false;
+        const wMidnight = parseLocalDateString(w.scheduledDate);
+        const diff = activityMidnight.getTime() - wMidnight.getTime();
+        return diff >= 0 && diff <= dayInMs;
+    });
+    
+    if (candidates.length === 1) {
+        return candidates[0];
+    } else if (candidates.length > 1) {
+        // If multiple matches are found within the range, pair with the closest distance
+        candidates.sort((a, b) => {
+            const diffA = Math.abs(parseFloat(a.distance || 0) - distanceKm);
+            const diffB = Math.abs(parseFloat(b.distance || 0) - distanceKm);
+            return diffA - diffB;
+        });
+        return candidates[0];
+    }
+    
+    return null;
+}
+
+function formatStravaDuration(seconds) {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    if (hrs > 0) {
+        return `${hrs}:${pad(mins)}:${pad(secs)}`;
+    }
+    return `${mins}:${pad(secs)}`;
+}
+
+function formatStravaPace(metersPerSec) {
+    if (!metersPerSec || metersPerSec <= 0) return "--:--";
+    const totalSecondsPerKm = 1000 / metersPerSec;
+    const mins = Math.floor(totalSecondsPerKm / 60);
+    const secs = Math.round(totalSecondsPerKm % 60);
+    return `${mins}:${String(secs).padStart(2, '0')}`;
 }
