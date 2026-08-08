@@ -5193,12 +5193,13 @@ function processStravaActivities(activities) {
             // Combined title description formatting
             match.description = `${match.description || ''} (${run.name})`;
             
-            // Build rich metadata block inside Notes
-            let extraNotes = `\n\n--- Strava Sync ---\n${originalTargetText}\nDuration: ${formatStravaDuration(run.moving_time)}`;
+            // Build rich metadata block inside Notes (trimmed to prevent leading blank lines)
+            let extraNotes = `--- Strava Sync ---\n${originalTargetText}\nDuration: ${formatStravaDuration(run.moving_time)}`;
             if (run.total_elevation_gain) extraNotes += `\nElevation Gain: ${run.total_elevation_gain}m`;
             if (run.average_cadence) extraNotes += `\nAvg Cadence: ${Math.round(run.average_cadence * 2)} spm`;
             
-            match.notes = (match.notes || "") + extraNotes;
+            const trimmedOriginalNotes = (match.notes || "").trim();
+            match.notes = trimmedOriginalNotes ? `${trimmedOriginalNotes}\n\n${extraNotes}` : extraNotes;
             
             // 3. Write to database (Firebase or Local)
             if (db && appState.firebaseConnected) {
