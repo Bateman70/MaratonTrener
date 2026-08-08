@@ -276,6 +276,7 @@ function cacheElements() {
         stravaSyncSection: document.getElementById('strava-sync-section'),
         stravaStatusBadge: document.getElementById('strava-status-badge'),
         btnStravaAction: document.getElementById('btn-strava-action'),
+        btnForceReloadApp: document.getElementById('btn-force-reload-app'),
         formAddBuddyInline: document.getElementById('form-add-buddy-inline'),
         inputBuddyIdInline: document.getElementById('input-buddy-id-inline'),
         leaderboardList: document.getElementById('leaderboard-list'),
@@ -564,6 +565,9 @@ function setupEventListeners() {
     elements.btnShareIdCopy.addEventListener('click', copyShareId);
     if (elements.btnStravaAction) {
         elements.btnStravaAction.addEventListener('click', handleStravaAction);
+    }
+    if (elements.btnForceReloadApp) {
+        elements.btnForceReloadApp.addEventListener('click', handleForceReloadApp);
     }
     
     // Diet Tab buttons
@@ -5289,4 +5293,32 @@ function formatStravaPace(metersPerSec) {
     const mins = Math.floor(totalSecondsPerKm / 60);
     const secs = Math.round(totalSecondsPerKm % 60);
     return `${mins}:${String(secs).padStart(2, '0')}`;
+}
+
+function handleForceReloadApp() {
+    if (!confirm("Dette vil tømme nettleserens mellomlager og laste appen på nytt. Fortsette?\n\n(Note: Du vil IKKE miste brukerprofilen din eller kalenderen din)")) return;
+    
+    // 1. Unregister active service workers
+    if (window.navigator && window.navigator.serviceWorker) {
+        window.navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        });
+    }
+    
+    // 2. Clear browser cache storage
+    if (window.caches) {
+        caches.keys().then(names => {
+            for (let name of names) {
+                caches.delete(name);
+            }
+        });
+    }
+    
+    // 3. Clear session storage
+    sessionStorage.clear();
+    
+    // 4. Force reload (bypass local cache)
+    window.location.reload(true);
 }
