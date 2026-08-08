@@ -2679,5 +2679,13 @@ textarea.form-control {
     font-weight: bold;
 }
 
+/* workout route map expand/collapse transition rules */
+#workout-route-map {
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#workout-route-map.expanded {
+    height: 400px !important;
+}
+
 
 

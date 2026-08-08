@@ -380,6 +380,7 @@ function cacheElements() {
         workoutMapSection: document.getElementById('workout-map-section'),
         workoutMapWrapper: document.getElementById('workout-map-wrapper'),
         workoutRouteMap: document.getElementById('workout-route-map'),
+        btnExpandWorkoutMap: document.getElementById('btn-expand-workout-map'),
         linkViewOnStrava: document.getElementById('link-view-on-strava'),
         
         // Race Info Modal Fields
@@ -573,6 +574,9 @@ function setupEventListeners() {
     }
     if (elements.btnForceReloadApp) {
         elements.btnForceReloadApp.addEventListener('click', handleForceReloadApp);
+    }
+    if (elements.btnExpandWorkoutMap) {
+        elements.btnExpandWorkoutMap.addEventListener('click', handleExpandWorkoutMap);
     }
     
     // Diet Tab buttons
@@ -2864,6 +2868,12 @@ function openWorkoutModal(w = null) {
         if (w.stravaSummaryPolyline && elements.workoutRouteMap && elements.workoutMapWrapper) {
             elements.workoutMapWrapper.style.display = 'block';
             elements.workoutRouteMap.style.display = 'block';
+            
+            // Reset expansion state to default (200px) on modal open
+            elements.workoutRouteMap.classList.remove('expanded');
+            if (elements.btnExpandWorkoutMap) {
+                elements.btnExpandWorkoutMap.innerHTML = '<i class="fa-solid fa-expand"></i> FORSTØRR';
+            }
             
             // Clear previous map if active
             if (workoutMapInstance) {
@@ -5463,4 +5473,25 @@ function decodeGooglePolyline(encoded) {
         array.push([lat * 1e-5, lng * 1e-5]);
     }
     return array;
+}
+
+function handleExpandWorkoutMap(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    const mapEl = elements.workoutRouteMap;
+    const btn = elements.btnExpandWorkoutMap;
+    if (!mapEl || !btn) return;
+    
+    mapEl.classList.toggle('expanded');
+    const isExpanded = mapEl.classList.contains('expanded');
+    btn.innerHTML = isExpanded ? '<i class="fa-solid fa-compress"></i> FORMINSK' : '<i class="fa-solid fa-expand"></i> FORSTØRR';
+    
+    // Invalidate size after height animation completes (transition is 0.3s)
+    setTimeout(() => {
+        if (workoutMapInstance) {
+            workoutMapInstance.invalidateSize();
+        }
+    }, 350);
 }
