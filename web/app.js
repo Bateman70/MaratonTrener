@@ -960,17 +960,21 @@ function setupFirebaseSync() {
         
         appState.workouts = workoutsList;
         
-        // Self-healing database correction for timezone date shift mismatch on 2026-08-09
-        const shiftWorkout = workoutsList.find(w => w.scheduledDate === '2026-08-09' && w.stravaActivityId);
-        if (shiftWorkout) {
-            delete shiftWorkout.stravaActivityId;
-            if (db && appState.firebaseConnected) {
-                db.ref(`workouts/${appState.userId}/workout_${shiftWorkout.id}`).update({
-                    stravaActivityId: null
-                });
-            } else {
-                saveWorkoutsLocally();
+        // Universal self-healing: clear stravaActivityId from any incomplete workouts
+        let dbUpdated = false;
+        workoutsList.forEach(w => {
+            if (!w.isCompleted && w.stravaActivityId) {
+                delete w.stravaActivityId;
+                dbUpdated = true;
+                if (db && appState.firebaseConnected) {
+                    db.ref(`workouts/${appState.userId}/workout_${w.id}`).update({
+                        stravaActivityId: null
+                    });
+                }
             }
+        });
+        if (dbUpdated && (!db || !appState.firebaseConnected)) {
+            saveWorkoutsLocally();
         }
         
         // Cache workouts locally for offline fast startup
