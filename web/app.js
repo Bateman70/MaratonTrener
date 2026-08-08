@@ -378,6 +378,7 @@ function cacheElements() {
         workoutIntervalPace: document.getElementById('workout-interval-pace'),
         workoutMaxHr: document.getElementById('workout-max-hr'),
         workoutMapSection: document.getElementById('workout-map-section'),
+        workoutMapWrapper: document.getElementById('workout-map-wrapper'),
         workoutRouteMap: document.getElementById('workout-route-map'),
         linkViewOnStrava: document.getElementById('link-view-on-strava'),
         
@@ -2860,7 +2861,8 @@ function openWorkoutModal(w = null) {
         }
 
         // Render Map
-        if (w.stravaSummaryPolyline && elements.workoutRouteMap) {
+        if (w.stravaSummaryPolyline && elements.workoutRouteMap && elements.workoutMapWrapper) {
+            elements.workoutMapWrapper.style.display = 'block';
             elements.workoutRouteMap.style.display = 'block';
             
             // Clear previous map if active
@@ -2904,13 +2906,16 @@ function openWorkoutModal(w = null) {
                     }
                 }, 200);
             } else {
+                elements.workoutMapWrapper.style.display = 'none';
                 elements.workoutRouteMap.style.display = 'none';
             }
-        } else if (elements.workoutRouteMap) {
-            elements.workoutRouteMap.style.display = 'none';
+        } else {
+            if (elements.workoutMapWrapper) elements.workoutMapWrapper.style.display = 'none';
+            if (elements.workoutRouteMap) elements.workoutRouteMap.style.display = 'none';
         }
     } else {
         if (elements.workoutMapSection) elements.workoutMapSection.style.display = 'none';
+        if (elements.workoutMapWrapper) elements.workoutMapWrapper.style.display = 'none';
         if (elements.workoutRouteMap) elements.workoutRouteMap.style.display = 'none';
         if (elements.linkViewOnStrava) elements.linkViewOnStrava.style.display = 'none';
         if (workoutMapInstance) {
