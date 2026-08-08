@@ -2892,6 +2892,10 @@ function handleWorkoutSubmit(e) {
         maxHeartRate: parseInt(elements.workoutMaxHr.value, 10) || 0
     };
     
+    if (!data.isCompleted) {
+        data.stravaActivityId = null;
+    }
+    
     if (db && appState.firebaseConnected) {
         const key = id ? `workout_${id}` : `workout_${Date.now()}`;
         db.ref(`workouts/${appState.userId}/${key}`).update(data)
