@@ -193,6 +193,7 @@ let elements = {};
 let gpxMapInstance = null;
 let gpxChartInstance = null;
 let currentUploadedGpxData = undefined; // undefined = unchanged, null = deleted, object = new route
+let workoutMapInstance = null;
 
 // Weather Cache
 const weatherCache = {
@@ -376,6 +377,9 @@ function cacheElements() {
         workoutIntervalValue: document.getElementById('workout-interval-value'),
         workoutIntervalPace: document.getElementById('workout-interval-pace'),
         workoutMaxHr: document.getElementById('workout-max-hr'),
+        workoutMapSection: document.getElementById('workout-map-section'),
+        workoutRouteMap: document.getElementById('workout-route-map'),
+        linkViewOnStrava: document.getElementById('link-view-on-strava'),
         
         // Race Info Modal Fields
         raceInfoForm: document.getElementById('race-info-form'),
@@ -960,15 +964,17 @@ function setupFirebaseSync() {
         
         appState.workouts = workoutsList;
         
-        // Universal self-healing: clear stravaActivityId from any incomplete workouts
+        // Universal self-healing: clear strava keys from any incomplete workouts
         let dbUpdated = false;
         workoutsList.forEach(w => {
-            if (!w.isCompleted && w.stravaActivityId) {
+            if (!w.isCompleted && (w.stravaActivityId || w.stravaSummaryPolyline)) {
                 delete w.stravaActivityId;
+                delete w.stravaSummaryPolyline;
                 dbUpdated = true;
                 if (db && appState.firebaseConnected) {
                     db.ref(`workouts/${appState.userId}/workout_${w.id}`).update({
-                        stravaActivityId: null
+                        stravaActivityId: null,
+                        stravaSummaryPolyline: null
                     });
                 }
             }
@@ -2840,10 +2846,88 @@ function openWorkoutModal(w = null) {
         const firstActive = appState.shoes.find(s => !s.retired);
         elements.workoutShoe.value = firstActive ? firstActive.id : '';
     }
+
+    // Render Strava Route Map & Link Section
+    if (w && (w.stravaSummaryPolyline || w.stravaActivityId)) {
+        if (elements.workoutMapSection) elements.workoutMapSection.style.display = 'block';
+        
+        // Show/hide view on strava button
+        if (w.stravaActivityId && elements.linkViewOnStrava) {
+            elements.linkViewOnStrava.href = `https://www.strava.com/activities/${w.stravaActivityId}`;
+            elements.linkViewOnStrava.style.display = 'flex';
+        } else if (elements.linkViewOnStrava) {
+            elements.linkViewOnStrava.style.display = 'none';
+        }
+
+        // Render Map
+        if (w.stravaSummaryPolyline && elements.workoutRouteMap) {
+            elements.workoutRouteMap.style.display = 'block';
+            
+            // Clear previous map if active
+            if (workoutMapInstance) {
+                workoutMapInstance.remove();
+                workoutMapInstance = null;
+            }
+
+            const coordinates = decodeGooglePolyline(w.stravaSummaryPolyline);
+            if (coordinates && coordinates.length > 0) {
+                // Initialize map inside container
+                workoutMapInstance = L.map('workout-route-map', {
+                    zoomControl: false,
+                    dragging: !L.Browser.mobile,
+                    tap: !L.Browser.mobile
+                }).setView(coordinates[0], 14);
+
+                // Add dark map tiles (same style as race map!)
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO'
+                }).addTo(workoutMapInstance);
+
+                // Draw orange path line
+                const polyline = L.polyline(coordinates, {
+                    color: '#FC5200',
+                    weight: 4,
+                    opacity: 0.9
+                }).addTo(workoutMapInstance);
+
+                // Set zoom to fit path
+                workoutMapInstance.fitBounds(polyline.getBounds(), { padding: [15, 15] });
+
+                // Place start/end markers
+                L.circleMarker(coordinates[0], { radius: 5, color: '#4ade80', fillColor: '#111', fillOpacity: 0.9, weight: 2 }).addTo(workoutMapInstance).bindPopup("Start");
+                L.circleMarker(coordinates[coordinates.length - 1], { radius: 5, color: '#f87171', fillColor: '#111', fillOpacity: 0.9, weight: 2 }).addTo(workoutMapInstance).bindPopup("Mål");
+
+                // Invalidate size after modal rendering transition finishes
+                setTimeout(() => {
+                    if (workoutMapInstance) {
+                        workoutMapInstance.invalidateSize();
+                    }
+                }, 200);
+            } else {
+                elements.workoutRouteMap.style.display = 'none';
+            }
+        } else if (elements.workoutRouteMap) {
+            elements.workoutRouteMap.style.display = 'none';
+        }
+    } else {
+        if (elements.workoutMapSection) elements.workoutMapSection.style.display = 'none';
+        if (elements.workoutRouteMap) elements.workoutRouteMap.style.display = 'none';
+        if (elements.linkViewOnStrava) elements.linkViewOnStrava.style.display = 'none';
+        if (workoutMapInstance) {
+            workoutMapInstance.remove();
+            workoutMapInstance = null;
+        }
+    }
 }
 
 function closeWorkoutModal() {
     elements.workoutModal.classList.remove('active');
+    
+    // Clean up map instance to free memory and prevent container reuse errors
+    if (workoutMapInstance) {
+        workoutMapInstance.remove();
+        workoutMapInstance = null;
+    }
 }
 
 function editWorkout(id) {
@@ -2896,8 +2980,15 @@ function handleWorkoutSubmit(e) {
         maxHeartRate: parseInt(elements.workoutMaxHr.value, 10) || 0
     };
     
+    const oldWorkout = id ? appState.workouts.find(w => String(w.id) === String(id)) : null;
+    if (oldWorkout) {
+        if (oldWorkout.stravaActivityId) data.stravaActivityId = oldWorkout.stravaActivityId;
+        if (oldWorkout.stravaSummaryPolyline) data.stravaSummaryPolyline = oldWorkout.stravaSummaryPolyline;
+    }
+    
     if (!data.isCompleted) {
         data.stravaActivityId = null;
+        data.stravaSummaryPolyline = null;
     }
     
     if (db && appState.firebaseConnected) {
@@ -5197,6 +5288,7 @@ function processStravaActivities(activities) {
             match.pace = formatStravaPace(run.average_speed);
             match.avgHeartRate = run.average_heartrate ? Math.round(run.average_heartrate) : 0;
             match.stravaActivityId = runId;
+            match.stravaSummaryPolyline = (run.map && run.map.summary_polyline) || '';
             
             // Combined title description formatting
             match.description = `${match.description || ''} (${run.name})`;
@@ -5219,7 +5311,8 @@ function processStravaActivities(activities) {
                     avgHeartRate: match.avgHeartRate,
                     description: match.description,
                     notes: match.notes,
-                    stravaActivityId: match.stravaActivityId
+                    stravaActivityId: match.stravaActivityId,
+                    stravaSummaryPolyline: match.stravaSummaryPolyline || ''
                 })
                 .catch(err => {
                     console.error("Firebase save failed for run:", runId, err);
@@ -5330,4 +5423,39 @@ function handleForceReloadApp() {
     
     // 4. Force reload (bypass local cache)
     window.location.reload(true);
+}
+
+function decodeGooglePolyline(encoded) {
+    if (!encoded) return [];
+    const len = encoded.length;
+    let index = 0;
+    const array = [];
+    let lat = 0;
+    let lng = 0;
+
+    while (index < len) {
+        let b;
+        let shift = 0;
+        let result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+        const dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lat += dlat;
+
+        shift = 0;
+        result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+        const dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lng += dlng;
+
+        array.push([lat * 1e-5, lng * 1e-5]);
+    }
+    return array;
 }

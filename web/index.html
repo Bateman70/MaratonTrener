@@ -1042,6 +1042,17 @@
                         Mark as Completed
                     </label>
                 </div>
+                
+                <!-- Strava Route Map & External Link Section -->
+                <div id="workout-map-section" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px; display: none;">
+                    <label class="label-lime" style="font-size:0.75rem; color: #FC5200; font-weight: bold; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+                        <i class="fa-solid fa-map-location-dot"></i> RUN ROUTE (STRAVA)
+                    </label>
+                    <div id="workout-route-map" style="height: 200px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); position: relative; background: #121212; z-index: 1;"></div>
+                    <a id="link-view-on-strava" href="#" target="_blank" class="btn btn-primary" style="display: none; margin-top: 12px; background: #FC5200; color: white; text-align: center; font-weight: bold; justify-content: center; align-items: center; gap: 6px; padding: 10px; font-size: 0.85rem; text-decoration: none; border-radius: 8px; border: none; width: 100%;">
+                        <i class="fa-brands fa-strava"></i> VIEW ACTIVITY ON STRAVA
+                    </a>
+                </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-workout">Cancel</button>
