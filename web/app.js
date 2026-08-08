@@ -4922,8 +4922,8 @@ function handleDeleteRunner(runnerId) {
 // ====================================================
 
 const STRAVA_CONFIG = {
-    clientId: '143171', 
-    clientSecret: 'b3df05bf909ab9fb06d15617a7e80f089cc5f6d7',
+    clientId: '270755', 
+    clientSecret: '9b9f7ba496b93180e1624405e4e4872c12a22cfb',
     redirectUri: window.location.origin + window.location.pathname
 };
 
