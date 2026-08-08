@@ -1,0 +1,2683 @@
+/* 
+   MARATONTRENER DASHBOARD STYLE SHEET
+   100% Android App Mirror Theme
+   Premium Dark Carbon & Electric Lime
+*/
+
+:root {
+    /* Android Colors */
+    --android-black: #000000;
+    --android-surface: #121212;
+    --android-card: #1C1C1E;
+    --android-lime: #CCFF00;
+    --android-pace: #00E5FF;
+    --android-white: #FFFFFF;
+    --android-secondary: #8E8E93;
+    --android-divider: rgba(255, 255, 255, 0.1);
+    --android-error: #FF3B30;
+    --android-success: #34C759;
+
+    /* Styling Helper Variables */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --radius-lg: 20px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    background-color: var(--android-black);
+    color: var(--android-white);
+    font-family: var(--font-body);
+}
+
+/* Parallax Background using marathon_bg_new.jpg */
+.parallax-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('marathon_bg_new.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+    transform: translate3d(0,0,0);
+}
+
+.dark-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.97) 100%);
+    z-index: -1;
+}
+
+/* ====================================================
+   DESKTOP VIEWPORT CONTROLS
+   ==================================================== */
+.viewport-control-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    background: rgba(18, 18, 18, 0.85);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--android-divider);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 10;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-logo i {
+    color: var(--android-lime);
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 5px rgba(204, 255, 0, 0.4));
+}
+
+.brand-logo span {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+}
+
+.viewport-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-vp {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--android-divider);
+    color: var(--android-secondary);
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-vp:hover {
+    color: var(--android-white);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.btn-vp.active {
+    background: var(--android-lime);
+    color: var(--android-black);
+    border-color: var(--android-lime);
+    box-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
+}
+
+/* ====================================================
+   DEVICE FRAMING SIMULATOR
+   ==================================================== */
+.device-simulator {
+    padding-top: 80px; /* spacing for viewport bar */
+    padding-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: var(--transition);
+}
+
+.device-frame {
+    background: #000;
+    border-radius: 40px;
+    border: 12px solid #222;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px #444;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+}
+
+.device-notch {
+    width: 150px;
+    height: 24px;
+    background: #000;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    z-index: 100;
+}
+
+.device-notch::before {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #111;
+    left: 24px;
+    top: 7px;
+}
+
+.device-screen {
+    flex-grow: 1;
+    background-color: var(--android-black);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.device-bottom-bar {
+    width: 130px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* Orientation Dimensions */
+.device-simulator.portrait .device-frame {
+    width: 420px;
+    height: 82vh;
+    max-height: 840px;
+    min-height: 600px;
+}
+
+.device-simulator.landscape .device-frame {
+    width: 860px;
+    height: 82vh;
+    max-height: 520px;
+    min-height: 400px;
+}
+
+/* Full Screen View Override */
+.device-simulator.fullscreen {
+    padding-top: 56px;
+    padding-bottom: 0;
+    display: block;
+    height: 100vh;
+    min-height: 100vh;
+}
+
+.device-simulator.fullscreen .device-frame {
+    width: 100vw;
+    height: calc(100vh - 56px);
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.device-simulator.fullscreen .device-notch,
+.device-simulator.fullscreen .device-bottom-bar {
+    display: none;
+}
+
+/* Adjust top toolbar to clear simulated camera notch in Portrait/Landscape modes on desktop */
+@media (min-width: 769px) {
+    .device-simulator:not(.fullscreen) .app-toolbar {
+        padding-top: 16px;
+        height: 72px;
+    }
+}
+
+/* Natively Responsive on Mobile Screens */
+@media (max-width: 768px) {
+    .viewport-control-bar {
+        display: none !important;
+    }
+    
+    .device-simulator {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        width: 100vw !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        overflow: hidden !important;
+    }
+    
+    .device-frame {
+        width: 100vw !important;
+        height: 100% !important;
+        height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .device-notch, .device-bottom-bar {
+        display: none !important;
+    }
+    
+    /* Adjust bottom navigation bar position to clear iOS/Safari bottom address bar and home notches */
+    .app-bottom-nav {
+        height: calc(88px + env(safe-area-inset-bottom)) !important;
+        padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        align-items: flex-start !important;
+        padding-top: 10px !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        z-index: 1000 !important;
+    }
+    
+    .nav-item-vp {
+        flex: 1 !important;
+        height: 48px !important;
+        justify-content: center !important;
+    }
+    
+    .app-content {
+        padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* ====================================================
+   APP CONTAINERS & LAYOUT
+   ==================================================== */
+.app-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* App Toolbar */
+.app-toolbar {
+    height: 56px;
+    background: rgba(18, 18, 18, 0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--android-divider);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.toolbar-btn {
+    background: transparent;
+    border: none;
+    color: var(--android-white);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: var(--transition);
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.toolbar-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    color: var(--android-white);
+    text-transform: uppercase;
+}
+
+.toolbar-profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--android-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-size: 0.9rem;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.toolbar-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Scrollable main app contents */
+.app-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 16px 85px 16px; /* extra bottom padding for bottom nav */
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch; /* smooth native-like touch scroll for iOS */
+}
+
+.app-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* Tab View Switcher logic */
+.app-page {
+    display: none;
+}
+
+.app-page.active {
+    display: block;
+    animation: fadeIn 0.22s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bottom Nav bar */
+.app-bottom-nav {
+    height: 60px;
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(25px);
+    border-top: 1px solid var(--android-divider);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    padding-bottom: 2px;
+}
+
+.read-only-mode .app-bottom-nav {
+    grid-template-columns: repeat(4, 1fr) !important;
+}
+
+.nav-item-vp {
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--android-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.nav-item-vp i {
+    font-size: 1.15rem;
+    transition: var(--transition);
+}
+
+.nav-item-vp span {
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.nav-item-vp.active {
+    color: var(--android-lime);
+}
+
+.nav-item-vp.active i {
+    transform: scale(1.08);
+}
+
+/* ====================================================
+   ANDROID DESIGN CARDS & TYPOGRAPHY
+   ==================================================== */
+.section-label {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    margin-top: 12px;
+    text-transform: uppercase;
+}
+
+.section-label-inner {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    margin-top: 16px;
+    text-transform: uppercase;
+}
+
+.card.android-card {
+    background: var(--android-card);
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 24px;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.card.android-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.card.clickable-card {
+    cursor: pointer;
+}
+
+.card.clickable-card:active {
+    transform: scale(0.98);
+}
+
+.card-title-lime {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--android-lime);
+    line-height: 1.3;
+}
+
+.card-subtitle-white {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--android-white);
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.muted-text {
+    color: var(--android-secondary);
+}
+
+.race-meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    margin-top: 6px;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    margin-top: 18px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--android-lime);
+    border-radius: 4px;
+    transition: width 0.5s ease-out;
+}
+
+.progress-percentage {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    margin-top: 8px;
+}
+
+/* Latest Activity styling */
+.latest-user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar-holder {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--android-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-size: 0.9rem;
+    overflow: hidden;
+}
+
+.avatar-holder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.latest-user-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.latest-user-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.latest-time-ago {
+    font-size: 0.72rem;
+    color: var(--android-lime);
+    font-weight: 600;
+}
+
+.latest-activity-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 14px;
+}
+
+.card-divider {
+    height: 1px;
+    background: var(--android-divider);
+    margin: 12px 0 14px 0;
+}
+
+.latest-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.stat-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-val {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--android-white);
+}
+
+.stat-lbl {
+    font-size: 0.65rem;
+    color: var(--android-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.next-details {
+    font-size: 0.92rem;
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.next-date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--android-lime);
+    margin-top: 10px;
+}
+
+/* Nutrition Card Layout */
+.nutrition-card-layout {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.nutrition-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    background: rgba(204, 255, 0, 0.07);
+    border: 1px solid rgba(204, 255, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-size: 1.15rem;
+}
+
+.nutrition-card-info {
+    flex-grow: 1;
+}
+
+.nutrition-card-info h4 {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.nutrition-card-info p {
+    font-size: 0.75rem;
+    margin-top: 1px;
+}
+
+.nutrition-card-arrow {
+    color: var(--android-secondary);
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+/* ====================================================
+   FORM CONTROLS (ANDROID MATERIAL DESIGN STYLE)
+   ==================================================== */
+.form-group-android {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.label-lime {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.form-control-android {
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    color: var(--android-white);
+    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.form-control-android:focus {
+    border-color: var(--android-lime);
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 8px rgba(204, 255, 0, 0.2);
+}
+
+.calculator-fields-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* Android Buttons */
+.btn-solid-android {
+    background-color: var(--android-lime);
+    border: none;
+    color: var(--android-black);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    transition: var(--transition);
+}
+
+.btn-solid-android:hover {
+    background-color: #ddff33;
+}
+
+.btn-solid-android:active {
+    transform: scale(0.97);
+}
+
+.btn-solid-android.w-full-btn {
+    width: 100%;
+}
+
+.btn-outline-android {
+    background: transparent;
+    border: 1.5px solid var(--android-lime);
+    color: var(--android-lime);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-outline-android:hover {
+    background: rgba(204, 255, 0, 0.05);
+}
+
+.btn-outline-android.btn-danger-android {
+    border-color: var(--android-error);
+    color: var(--android-error);
+}
+
+.btn-outline-android.btn-danger-android:hover {
+    background: rgba(255, 59, 48, 0.05);
+}
+
+.btn-text-android {
+    background: transparent;
+    border: none;
+    color: var(--android-lime);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-text-android:hover {
+    opacity: 0.85;
+}
+
+/* ====================================================
+   BUDDIES PAGE LEADERBOARD
+   ==================================================== */
+.share-id-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.share-id-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.share-id-info .sub-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--android-secondary);
+}
+
+.share-id-value {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--android-lime);
+    margin-top: 1px;
+}
+
+.buddy-add-layout {
+    display: flex;
+    gap: 12px;
+}
+
+.buddy-add-layout input {
+    flex-grow: 1;
+}
+
+.leaderboard-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--android-divider);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.leaderboard-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(204, 255, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.leaderboard-item:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.leaderboard-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.leaderboard-rank {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--android-secondary);
+    width: 22px;
+}
+
+.leaderboard-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(204, 255, 0, 0.06);
+    border: 1px solid var(--android-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.leaderboard-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.leaderboard-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.leaderboard-race {
+    font-size: 0.72rem;
+    color: var(--android-secondary);
+}
+
+.leaderboard-right {
+    text-align: right;
+}
+
+.leaderboard-dist {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--android-white);
+}
+
+.leaderboard-consistency {
+    font-size: 0.72rem;
+    color: var(--android-success);
+    font-weight: 600;
+}
+
+.leaderboard-highfive-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--android-secondary);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.leaderboard-highfive-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--android-lime);
+    color: var(--android-white);
+}
+
+.leaderboard-highfive-btn.active {
+    background: var(--android-lime);
+    border-color: var(--android-lime);
+    color: #121212;
+}
+
+.leaderboard-highfive-btn.active:hover {
+    background: #b5e600;
+    border-color: #b5e600;
+}
+
+.toast-notification-banner {
+    background: rgba(18, 18, 18, 0.9);
+    border: 1px solid var(--android-lime);
+    color: var(--android-white);
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(204, 255, 0, 0.1);
+    backdrop-filter: blur(8px);
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    animation: toast-slide-in 0.3s forwards;
+}
+
+@keyframes toast-slide-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ====================================================
+   LOG PAGE TRAINING SCHEDULE (item_workout.xml parity)
+   ==================================================== */
+.log-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.inline-select {
+    width: 140px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+.workout-log-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.log-week-header {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    margin-top: 18px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.workout-item-card {
+    background: var(--android-card);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+}
+
+.workout-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.workout-card-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.workout-card-details {
+    flex-grow: 1;
+    padding-right: 12px;
+}
+
+.workout-card-date {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--android-secondary);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.workout-card-type {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 2px;
+    transition: var(--transition);
+}
+
+/* Types colors matching Android checks */
+.type-lime { color: var(--android-lime); }
+.type-green { color: var(--android-success); }
+.type-red { color: var(--android-error); }
+
+.workout-card-metrics {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--android-white);
+    margin-top: 10px;
+}
+
+.workout-card-desc {
+    font-size: 0.75rem;
+    color: var(--android-secondary);
+    margin-top: 5px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.workout-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Custom Checkbox styled to match scaleX/Y 1.2 & buttonTint */
+.android-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+.android-checkbox input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.checkbox-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 2px solid var(--android-secondary);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.android-checkbox input:checked + .checkbox-box {
+    background-color: var(--android-lime);
+    border-color: var(--android-lime);
+}
+
+.checkbox-box:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 9px;
+    border: solid var(--android-black);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.android-checkbox input:checked + .checkbox-box:after {
+    display: block;
+}
+
+/* Small delete/edit items for desktop log management inside simulator */
+.btn-card-delete {
+    background: transparent;
+    border: none;
+    color: var(--android-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.5;
+    transition: var(--transition);
+}
+
+.btn-card-delete:hover {
+    color: var(--android-error);
+    opacity: 1;
+}
+
+/* Floating Action Button */
+.fab-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: var(--android-lime);
+    border: none;
+    color: var(--android-black);
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    bottom: 76px; /* positioned nicely above bottom nav */
+    right: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: var(--transition);
+    z-index: 4;
+}
+
+.fab-btn:hover {
+    transform: scale(1.05);
+    background-color: #ddff33;
+}
+
+.fab-btn:active {
+    transform: scale(0.95);
+}
+
+/* ====================================================
+   STATS PAGE ANALYTICS METRICS & CHARTS
+   ==================================================== */
+.stats-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.col-span-2-mini {
+    grid-column: span 2;
+}
+
+.metric-mini-card {
+    background: var(--android-card);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.metric-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+}
+
+.icon-cyan { background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.2); color: var(--android-pace); }
+.icon-red { background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.2); color: var(--android-error); }
+.icon-lime { background: rgba(204, 255, 0, 0.08); border: 1px solid rgba(204, 255, 0, 0.2); color: var(--android-lime); }
+
+.metric-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--android-secondary);
+    font-weight: 700;
+}
+
+.metric-value {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.metric-value .unit-text {
+    font-size: 0.75rem;
+    color: var(--android-secondary);
+    font-weight: 500;
+}
+
+.charts-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.chart-wrapper-card {
+    margin-bottom: 0 !important;
+}
+
+.chart-header {
+    border-bottom: 1px solid var(--android-divider);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.chart-header h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--android-white);
+}
+
+.chart-canvas-container {
+    position: relative;
+    height: 240px;
+    width: 100%;
+}
+
+/* ====================================================
+   PROFILE PAGE DETAILS
+   ==================================================== */
+.profile-header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    border: 3px solid var(--android-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-size: 2.2rem;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(204, 255, 0, 0.25);
+    transition: var(--transition);
+}
+
+.profile-avatar-large:hover {
+    transform: scale(1.04);
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin-top: 12px;
+}
+
+.profile-email-sub {
+    font-size: 0.82rem;
+    color: var(--android-secondary);
+    margin-top: 2px;
+}
+
+.profile-stats-inputs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.hr-zones-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hr-zones-list li {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--android-divider);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.hr-zones-list li:nth-child(1) { border-left: 4px solid var(--android-secondary); }
+.hr-zones-list li:nth-child(2) { border-left: 4px solid var(--android-success); }
+.hr-zones-list li:nth-child(3) { border-left: 4px solid var(--android-lime); }
+.hr-zones-list li:nth-child(4) { border-left: 4px solid #ff9500; }
+.hr-zones-list li:nth-child(5) { border-left: 4px solid var(--android-error); }
+
+.generator-promo-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.generator-promo-content h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--android-lime);
+}
+
+.generator-promo-content p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.sync-id-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--android-divider);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.sync-input-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.sync-input-row input {
+    flex-grow: 1;
+}
+
+.sync-id-box .help-text {
+    font-size: 0.72rem;
+    color: var(--android-secondary);
+    line-height: 1.4;
+    display: block;
+}
+
+.cloud-buttons-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cloud-buttons-row button {
+    width: 100%;
+}
+
+.read-only-notice {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(0, 229, 255, 0.04);
+    border: 1px solid rgba(0, 229, 255, 0.15);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    color: var(--android-white);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.read-only-notice i {
+    color: var(--android-pace);
+    font-size: 1.1rem;
+    margin-top: 1px;
+}
+
+.iphone-alerts-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.alerts-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 229, 255, 0.08);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    color: var(--android-pace);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+}
+
+.alerts-meta h4 {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.alerts-meta p {
+    font-size: 0.75rem;
+    margin-top: 1px;
+}
+
+.alerts-guide-steps {
+    font-size: 0.78rem;
+    color: var(--android-secondary);
+    line-height: 1.5;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--android-divider);
+    padding: 14px;
+    border-radius: var(--radius-sm);
+}
+
+.alerts-guide-steps ol {
+    padding-left: 18px;
+    margin-top: 6px;
+}
+
+.copy-topic-box {
+    display: inline-block;
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--android-pace);
+    font-family: monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 3px;
+}
+
+.app-version-footer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--android-secondary);
+    margin-top: 32px;
+    letter-spacing: 0.5px;
+}
+
+/* ====================================================
+   DIET SUB-SCREEN SLIDE-IN
+   ==================================================== */
+.diet-portion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--android-white);
+}
+
+/* Portion Switch Slider for Android theme */
+.switch-container-android {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.switch-container-android input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.switch-slider-android {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 34px;
+    transition: var(--transition);
+}
+
+.switch-slider-android:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--android-secondary);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.switch-container-android input:checked + .switch-slider-android {
+    background-color: var(--android-lime);
+    border-color: var(--android-lime);
+}
+
+.switch-container-android input:checked + .switch-slider-android:before {
+    transform: translateX(22px);
+    background-color: var(--android-black);
+}
+
+.diet-advice-card {
+    background: rgba(204, 255, 0, 0.03);
+    border: 1px solid rgba(204, 255, 0, 0.2);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.advice-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.advice-header-row i {
+    color: var(--android-lime);
+    font-size: 1.1rem;
+}
+
+.advice-header-row h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--android-white);
+}
+
+#diet-advice-banner-text {
+    font-size: 0.85rem;
+    color: var(--android-secondary);
+    line-height: 1.5;
+}
+
+.diet-scale-factor-card {
+    padding: 12px 16px !important;
+}
+
+.scale-factor-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--android-secondary);
+    font-weight: 500;
+}
+
+.badge-lime {
+    background: rgba(204, 255, 0, 0.1);
+    color: var(--android-lime);
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.diet-navigation-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--android-divider);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.btn-tab-diet {
+    background: transparent;
+    border: none;
+    color: var(--android-secondary);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.btn-tab-diet:hover {
+    color: var(--android-white);
+    background: rgba(255,255,255,0.03);
+}
+
+.btn-tab-diet.active {
+    color: var(--android-lime);
+    background: rgba(204, 255, 0, 0.08);
+}
+
+.empty-state-recipes {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--android-secondary);
+}
+
+.empty-state-recipes i {
+    font-size: 2.2rem;
+    color: rgba(255,255,255,0.07);
+    margin-bottom: 10px;
+}
+
+.empty-state-recipes h4 {
+    color: var(--android-white);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.empty-state-recipes p {
+    font-size: 0.8rem;
+}
+
+/* Meals List Cards */
+.meals-list-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.meal-card {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--android-divider);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.meal-card:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+.meal-card-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--android-divider);
+}
+
+.meal-emoji {
+    font-size: 1.3rem;
+}
+
+.meal-category-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--android-secondary);
+}
+
+.meal-favorite-btn {
+    background: transparent;
+    border: none;
+    color: var(--android-secondary);
+    cursor: pointer;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.meal-favorite-btn.active {
+    color: #ffd60a;
+}
+
+.meal-card-body {
+    padding: 16px;
+}
+
+.meal-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--android-white);
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.meal-macros {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.macro-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 2px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--android-divider);
+}
+
+.macro-num {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--android-white);
+}
+
+.macro-label {
+    font-size: 0.58rem;
+    color: var(--android-secondary);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-top: 1px;
+}
+
+.macro-badge.cals { border-color: rgba(204, 255, 0, 0.15); background: rgba(204, 255, 0, 0.01); }
+.macro-badge.cals .macro-num { color: var(--android-lime); }
+.macro-badge.protein { border-color: rgba(52, 199, 89, 0.15); background: rgba(52, 199, 89, 0.01); }
+.macro-badge.protein .macro-num { color: var(--android-success); }
+.macro-badge.carbs { border-color: rgba(0, 229, 255, 0.15); background: rgba(0, 229, 255, 0.01); }
+.macro-badge.carbs .macro-num { color: var(--android-pace); }
+.macro-badge.fat { border-color: rgba(255, 149, 0, 0.15); background: rgba(255, 149, 0, 0.01); }
+.macro-badge.fat .macro-num { color: #ff9500; }
+
+.meal-tap-hint {
+    font-size: 0.68rem;
+    color: var(--android-lime);
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-top: 1px solid var(--android-divider);
+    padding-top: 10px;
+    margin-top: 12px;
+}
+
+.meal-card-details {
+    display: none;
+}
+
+.meal-card.expanded .meal-card-details {
+    display: block;
+}
+
+.meal-divider {
+    height: 1px;
+    background: var(--android-divider);
+    margin: 12px 0;
+}
+
+.meal-section-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--android-secondary);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.meal-ingredients {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.meal-ingredients li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+}
+
+.ing-name { font-weight: 500; }
+.ing-amount { color: var(--android-secondary); }
+.ing-amount code { font-family: var(--font-heading); font-weight: 700; color: var(--android-white); }
+
+.meal-instructions {
+    font-size: 0.78rem;
+    color: var(--android-secondary);
+    line-height: 1.45;
+    margin-bottom: 12px;
+}
+
+.meal-tip {
+    background: rgba(255,255,255,0.01);
+    border: 1px dashed var(--android-divider);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
+    color: var(--android-secondary);
+    display: flex;
+    gap: 6px;
+    line-height: 1.4;
+}
+
+.meal-tip i {
+    color: var(--android-lime);
+    margin-top: 2px;
+}
+
+/* ====================================================
+   MODAL WINDOW DIALOGS (material dark styling)
+   ==================================================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    opacity: 0;
+    transition: opacity 0.22s ease-out;
+}
+
+.modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: #1C1C1E;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    max-height: 85dvh;
+    overflow-y: auto;
+    padding: 24px 24px 32px 24px;
+    position: relative;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    transform: translateY(10px);
+    transition: var(--transition);
+}
+
+.modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.modal-header h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--android-white);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: var(--android-secondary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-close:hover {
+    color: var(--android-white);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--android-secondary);
+    letter-spacing: 0.5px;
+}
+
+.form-control {
+    background-color: rgba(0, 0, 0, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    color: var(--android-white);
+    padding: 8px 12px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    outline: none;
+    transition: var(--transition);
+    width: 100%;
+}
+
+.form-control:focus {
+    border-color: var(--android-lime);
+}
+
+textarea.form-control {
+    resize: none;
+}
+
+.checkbox-group {
+    margin-top: 8px;
+}
+
+.checkbox-container {
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 16px;
+    width: 16px;
+    border: 2px solid var(--android-secondary);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--android-lime);
+    border-color: var(--android-lime);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 4px;
+    top: 1px;
+    width: 3px;
+    height: 7px;
+    border: solid var(--android-black);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ====================================================
+   PLAN BUILDER SETUP WIZARD SPECIFIC STYLING
+   ==================================================== */
+.wizard-content {
+    max-width: 580px;
+}
+
+.wizard-page {
+    display: none;
+}
+
+.wizard-page.active {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.section-label-modal {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.days-select-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+}
+
+.day-select-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--android-divider);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+}
+
+.checkbox-container-android {
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-container-android input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark-android {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 18px;
+    width: 18px;
+    border: 2px solid var(--android-secondary);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.checkbox-container-android input:checked ~ .checkmark-android {
+    background-color: var(--android-lime);
+    border-color: var(--android-lime);
+}
+
+.checkmark-android:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container-android input:checked ~ .checkmark-android:after {
+    display: block;
+}
+
+.checkbox-container-android .checkmark-android:after {
+    left: 5px;
+    top: 1px;
+    width: 4px;
+    height: 9px;
+    border: solid var(--android-black);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.select-sm-day {
+    width: 130px;
+    padding: 4px 8px;
+    font-size: 0.78rem;
+    height: 28px;
+}
+
+.checkbox-group-android {
+    display: flex;
+    align-items: center;
+}
+
+/* Read-Only mode overrides */
+.read-only-mode .fab-btn,
+.read-only-mode .buddies-only-edit,
+.read-only-mode .profile-only-edit,
+.read-only-mode .btn-card-delete,
+.read-only-mode #btn-add-workout-modal,
+.read-only-mode #nav-btn-buddies,
+.read-only-mode #drawer-link-buddies {
+    display: none !important;
+}
+
+.read-only-mode .profile-read-only-msg {
+    display: block !important;
+}
+
+.read-only-mode .android-checkbox {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* Navigation Drawer styling */
+.nav-drawer {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100%;
+    background: rgba(18, 18, 18, 0.98);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--android-divider);
+    z-index: 2000;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.nav-drawer.active {
+    left: 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.drawer-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--android-divider);
+    margin-bottom: 20px;
+}
+
+.drawer-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.drawer-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--android-lime);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--android-lime);
+    font-size: 1.1rem;
+    overflow: hidden;
+}
+
+.drawer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.drawer-profile-info h4 {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--android-white);
+}
+
+.drawer-profile-info span {
+    font-size: 0.72rem;
+    color: var(--android-lime);
+    font-weight: 600;
+}
+
+.btn-close-drawer {
+    background: transparent;
+    border: none;
+    color: var(--android-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.btn-close-drawer:hover {
+    color: var(--android-white);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+}
+
+.drawer-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    color: var(--android-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.drawer-menu-item i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.drawer-menu-item:hover {
+    color: var(--android-white);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.drawer-menu-item.active {
+    color: var(--android-lime);
+    background: rgba(204, 255, 0, 0.06);
+}
+
+.drawer-divider {
+    height: 1px;
+    background: var(--android-divider);
+    margin: 14px 0;
+}
+
+/* Replicated Stats Layout */
+.stats-countdown-card {
+    background: var(--android-lime) !important;
+    border-radius: 24px !important;
+    padding: 24px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.stats-countdown-card .countdown-label {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--android-black);
+    letter-spacing: 2px;
+}
+
+.stats-countdown-card .countdown-days {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--android-black);
+    line-height: 1;
+}
+
+.stats-metrics-grid-replicated {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.metric-card-replicated {
+    background: var(--android-card);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 1px solid transparent;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.metric-card-replicated:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.metric-label-replicated {
+    font-family: var(--font-heading);
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: var(--android-lime);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.85;
+}
+
+.metric-val-replicated {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--android-white);
+    line-height: 1.3;
+}
+
+.clickable-metric-card {
+    cursor: pointer;
+    border: 1px dashed rgba(204, 255, 0, 0.25);
+}
+
+.clickable-metric-card:hover {
+    border-color: var(--android-lime);
+    background: rgba(204, 255, 0, 0.02);
+}
+
+.clickable-metric-card:active {
+    transform: scale(0.97);
+}
+
+.text-success {
+    color: var(--android-success) !important;
+}
+
+/* Hide drawer edit options in read-only mode */
+.read-only-mode .drawer-edit-only {
+    display: none !important;
+}
+
+/* Hide private fields, alerts, and active profile claim links in read-only view mode */
+.read-only-mode .claim-profile-only,
+.read-only-mode #profile-private-stats-container,
+.read-only-mode #profile-hr-zones-card,
+.read-only-mode #profile-alerts-card {
+    display: none !important;
+}
+
+/* GPX Upload and Viewer Styling */
+.gpx-drop-zone {
+    transition: var(--transition);
+    border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+}
+
+.gpx-drop-zone:hover, .gpx-drop-zone.dragover {
+    border-color: var(--android-lime) !important;
+    background: rgba(204, 255, 0, 0.04) !important;
+}
+
+/* Custom styling for Leaflet inside dark-themed modal */
+.leaflet-container {
+    background: #111 !important;
+}
+
+.leaflet-bar a {
+    background-color: #222 !important;
+    color: #fff !important;
+    border-bottom: 1px solid #333 !important;
+}
+
+.leaflet-bar a:hover {
+    background-color: #333 !important;
+}
+
+/* ================= SHOES TRACKER STYLING ================= */
+.shoes-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.shoe-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--android-divider);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+}
+
+.shoe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.shoe-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+.shoe-status-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.shoe-status-badge.active {
+    background: rgba(204, 255, 0, 0.12);
+    color: var(--android-lime);
+}
+
+.shoe-status-badge.retired {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--android-secondary);
+}
+
+.shoe-mileage-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--android-secondary);
+    margin-bottom: 6px;
+}
+
+.shoe-progress-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.shoe-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.shoe-progress-fill.green {
+    background: var(--success-green);
+}
+
+.shoe-progress-fill.orange {
+    background: #FF9500;
+}
+
+.shoe-progress-fill.red {
+    background: var(--error-red);
+}
+
+.shoe-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.shoe-btn-edit {
+    background: none;
+    border: none;
+    color: var(--android-lime);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+}
+
+.shoe-btn-edit:hover {
+    color: var(--white);
+}
+
+/* ====================================================
+   WEATHER FORECAST WIDGET STYLING
+   ==================================================== */
+#card-race-overview {
+    position: relative;
+}
+
+.weather-widget {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: var(--transition);
+    z-index: 5;
+}
+
+.weather-label {
+    font-size: 0.62rem;
+    color: var(--android-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    font-weight: 500;
+}
+
+.weather-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weather-icon {
+    font-size: 1.1rem;
+    color: var(--android-lime);
+}
+
+.weather-temp {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+}
+
+/* Achievements Badge Styling */
+.badge-icon {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.3);
+}
+.badge-icon.badge-slob {
+    border-color: #ff3b30;
+    color: #ff3b30;
+    background: rgba(255, 59, 48, 0.1);
+}
+.badge-icon.badge-that-all {
+    border-color: #ff9500;
+    color: #ff9500;
+    background: rgba(255, 149, 0, 0.1);
+}
+.badge-icon.badge-keep-going {
+    border-color: #ffd60a;
+    color: #ffd60a;
+    background: rgba(255, 214, 10, 0.1);
+}
+.badge-icon.badge-king {
+    border-color: var(--android-lime);
+    color: var(--android-lime);
+    background: rgba(204, 255, 0, 0.1);
+    box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
+}
+.badge-icon.badge-century-active {
+    border-color: var(--android-lime);
+    color: var(--android-lime);
+    background: rgba(204, 255, 0, 0.1);
+    box-shadow: 0 0 10px rgba(204, 255, 0, 0.2);
+}
+.badge-icon.badge-century-locked {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Splits Table Styling */
+.splits-table th {
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.splits-table td, .splits-table th {
+    padding: 10px 12px;
+}
+.splits-table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.splits-table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+.splits-table tbody tr.finish-row {
+    background: rgba(204, 255, 0, 0.15) !important;
+    color: #fff;
+    font-weight: bold;
+}
+
+
+
