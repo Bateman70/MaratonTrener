@@ -5156,8 +5156,7 @@ function processStravaActivities(activities) {
         }
         
         // 2. Perform localized date proximity matching
-        const runDate = new Date(run.start_date_local);
-        const activityLocalDateStr = getLocalDateString(runDate);
+        const activityLocalDateStr = run.start_date_local ? run.start_date_local.substring(0, 10) : getLocalDateString(new Date());
         const match = findMatchingWorkout(activityLocalDateStr, run.distance / 1000);
         
         if (match) {
