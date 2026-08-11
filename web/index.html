@@ -166,6 +166,15 @@
                                 <div class="next-date" id="next-date">Generate a plan first</div>
                             </div>
                             
+                            <!-- Weekly Checklist Card -->
+                            <div class="section-label" id="label-weekly-checklist">WEEKLY CHECKLIST</div>
+                            <div class="card android-card" id="card-weekly-checklist">
+                                <h4 style="margin-bottom: 12px; font-size: 0.82rem; color: var(--android-secondary); font-weight: bold; text-transform: uppercase;" id="weekly-checklist-title">Week 1 Sessions</h4>
+                                <div id="weekly-checklist-container" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+                            
                             <!-- Nutrition Card -->
                             <div class="section-label">MEAL PLAN & NUTRITION</div>
                             <div class="card android-card clickable-card" id="card-nutrition-link">
@@ -557,7 +566,7 @@
                                     <ol>
                                         <li>Download the free <strong>ntfy</strong> app from the iOS App Store.</li>
                                         <li>Open the app and tap <strong>+ (Add Subscription)</strong>.</li>
-                                        <li>Subscribe to topic name:<br><code class="copy-topic-box">maratontrener-alerts-<span class="lbl-my-id-lowercase">ch020721</span></code></li>
+                                        <li>Subscribe to topic name:<br><code class="copy-topic-box">marathontrainer-alerts-<span class="lbl-my-id-lowercase">ch020721</span></code></li>
                                     </ol>
                                 </div>
                             </div>
@@ -590,7 +599,7 @@
                                         <span id="strava-status-badge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-weight: bold;">Disconnected</span>
                                     </div>
                                     <span class="help-text" style="display: block; margin-bottom: 10px;">
-                                        Automatically match and sync completed runs and treadmill sessions from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MaratonTrener to Strava).</em>
+                                        Automatically match and sync completed runs and treadmill sessions from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MarathonTrainer to Strava).</em>
                                     </span>
                                     <button class="btn-solid-android" id="btn-strava-action" style="background: #FC5200; color: white; width: 100%; font-weight: bold; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                                         <i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA
@@ -1185,9 +1194,7 @@
             </div>
         </div>
     </div>
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-
-    <!-- ================= MODAL: HELP & USER GUIDE ================= -->
+    <di    <!-- ================= MODAL: HELP & USER GUIDE ================= -->
     <div class="modal" id="help-modal">
         <div class="modal-content">
             <div class="help-modal-header">
@@ -1198,7 +1205,7 @@
             <!-- Page 1: Welcome & Setup -->
             <div class="help-page-content active" data-page="1">
                 <h4><i class="fa-solid fa-flag-checkered"></i> 1. Velkommen & Onboarding</h4>
-                <p>Velkommen til <strong>MaratonTrener</strong>! Denne appen hjelper deg med å strukturere treningen din frem mot ditt store løpsmål.</p>
+                <p>Velkommen til <strong>MarathonTrainer</strong>! Denne appen hjelper deg med å strukturere treningen din frem mot ditt store løpsmål.</p>
                 <p>Når du åpner appen for første gang, vil du møte en profil-veiviser (Wizard) for å sette opp din profil:</p>
                 <ul>
                     <li>Legg inn ditt navn, alder, vekt og makspuls.</li>
@@ -1207,14 +1214,17 @@
                 <p>Når oppsettet er ferdig, genereres en personlig treningsplan tilpasset ditt nivå!</p>
             </div>
             
-            <!-- Page 2: Dashboard & Navigation -->
+            <!-- Page 2: Dashboard (Hjem) -->
             <div class="help-page-content" data-page="2">
                 <h4><i class="fa-solid fa-house"></i> 2. Dashboard (Hjem)</h4>
-                <p>Dashboardet er appens kommandosentral:</p>
+                <p>Dashboardet gir en rask status på treningen din:</p>
                 <ul>
-                    <li><strong>Neste økt:</strong> Viser detaljer om den neste planlagte økten din (type løp, distanse, tempo).</li>
-                    <li><strong>Ukentlig progresjon:</strong> En fremdriftslinje som viser hvor mange kilometer du har løpt denne uken i forhold til målet ditt.</li>
-                    <li><strong>Ukesliste:</strong> En oversikt over ukens økter der du raskt kan merke dem som fullført.</li>
+                    <li><strong>Current Goal:</strong> Viser løpets detaljer, dato, sted og progresjon for treningsplanen.</li>
+                    <li><strong>Latest Activity:</strong> Detaljer om din sist fullførte økt (tempo, puls, sko osv.).</li>
+                    <li><strong>Next Session / Missed Session:</strong> Detaljer om din neste økt. Hvis du har ubesvarte økter i fortiden, blir dette til en rød **Missed Session**-advarsel.</li>
+                    <li><strong>Weekly Checklist (Ukesliste):</strong> En sjekkliste over ukens planlagte økter for rask avkrysning direkte på hjemskjermen.</li>
+                    <li><strong>Meal Plan & Nutrition:</strong> Hurtiglenke til din kostholdsplan.</li>
+                    <li><strong>Pace Calculator & Riegel Predictor:</strong> Beregn splittider og estimer løpstider basert på tidligere personlige rekorder.</li>
                 </ul>
             </div>
             
@@ -1223,57 +1233,70 @@
                 <h4><i class="fa-solid fa-calendar-days"></i> 3. Logg & Kalender</h4>
                 <p>I <strong>Logg</strong>-fanen finner du hele treningsplanen din uke for uke:</p>
                 <ul>
-                    <li>Her kan du klikke på en hvilken som helst økt for å se detaljer, legge til kommentarer/notater, endre dato, registrere puls, eller velge hvilke sko du løp med.</li>
-                    <li>Du kan opprette helt nye økter, slette uønskede økter, eller bruke **Opprett Plan**-knappen for å generere et nytt treningsprogram.</li>
+                    <li>Her kan du klikke på en hvilken som helst økt for å registrere tid, puls og legge inn kommentarer/notater.</li>
+                    <li>Koble øktene til dine løpesko for å spore slitasje.</li>
+                    <li>Du kan opprette helt nye økter manuelt eller slette økter du ikke får gjennomført.</li>
                 </ul>
             </div>
             
-            <!-- Page 4: Sync & Strava -->
+            <!-- Page 4: Stats & Analytics -->
             <div class="help-page-content" data-page="4">
-                <h4><i class="fa-solid fa-cloud-arrow-up"></i> 4. Synkronisering & Strava</h4>
+                <h4><i class="fa-solid fa-chart-simple"></i> 4. Statistikk & Trender</h4>
+                <p><strong>Stats</strong>-fanen visualiserer fremgangen og formutviklingen din:</p>
+                <ul>
+                    <li><strong>Weekly Progress:</strong> Viser ukens løpte kilometer sammenlignet med det ukentlige målet ditt.</li>
+                    <li><strong>Countdown:</strong> Viser nøyaktig antall dager igjen til løpsdagen.</li>
+                    <li><strong>Analytics & Grafer:</strong> Visualiserer ukentlig distanse, fartsfordeling (pace-trender) og progresjon over tid.</li>
+                </ul>
+            </div>
+            
+            <!-- Page 5: Sync & Cloud -->
+            <div class="help-page-content" data-page="5">
+                <h4><i class="fa-solid fa-cloud-arrow-up"></i> 5. Synkronisering & Strava</h4>
                 <p>I den nye **Sync**-fanen kan du koble appen til skyen og eksterne tjenester:</p>
                 <ul>
-                    <li><strong>Runner ID:</strong> Din unike ID. Skriv inn denne på en ny enhet (f.eks. PC eller ny mobil) for å hente ned din profil og treningsplan. Helt uten passord!</li>
+                    <li><strong>Runner ID:</strong> Din unike ID. Skriv inn denne på en ny enhet for å laste ned din profil og treningsplan automatisk uten passord.</li>
                     <li><strong>Strava-kobling:</strong> Koble til Strava for å importere økter automatisk. Øktene matches automatisk med planlagte økter på samme dag eller dagen før.</li>
-                    <li><strong>Feilsøking:</strong> Klikk "Force Reload App" hvis du opplever cache-problemer eller manglende oppdateringer.</li>
+                    <li><strong>Feilsøking:</strong> Klikk "Force Reload App" hvis du opplever cache-problemer.</li>
+                    <li><strong>Database-verktøy:</strong> Sikkerhetskopier manuelt eller slett alle dine skydata permanent.</li>
                 </ul>
             </div>
             
-            <!-- Page 5: Shoes & Heart Rate Zones -->
-            <div class="help-page-content" data-page="5">
-                <h4><i class="fa-solid fa-shoe-prints"></i> 5. Sko & Pulssoner</h4>
-                <p>Du finner disse innstillingene under **Profil**-fanen:</p>
-                <ul>
-                    <li><strong>Skoveiviser:</strong> Legg til løpeskoene dine og angi en maksgrense (f.eks. 800 km). Appen sporer kilometerne automatisk og gir deg et varsel når skoene bør byttes.</li>
-                    <li><strong>Beregning av pulssoner:</strong> Appen beregner dine 5 pulssoner automatisk basert på makspuls. Disse hjelper deg å styre intensiteten (f.eks. rolig sone 1-2 eller terskel sone 4).</li>
-                </ul>
-            </div>
-            
-            <!-- Page 6: Buddies & Social Feed -->
+            <!-- Page 6: Shoes & Heart Rate Zones -->
             <div class="help-page-content" data-page="6">
-                <h4><i class="fa-solid fa-user-group"></i> 6. Buddies & Samfunn</h4>
+                <h4><i class="fa-solid fa-shoe-prints"></i> 6. Sko & Pulssoner</h4>
+                <p>Disse innstillingene ligger under **Profil**-fanen:</p>
+                <ul>
+                    <li><strong>Skoveiviser (Shoe Manager):</strong> Legg til løpeskoene dine og angi en maksgrense (f.eks. 800 km). Appen gir beskjed når skoene bør byttes for å unngå skader.</li>
+                    <li><strong>Beregning av pulssoner:</strong> Appen beregner dine 5 pulssoner automatisk basert på makspuls, slik at du kan trene med riktig intensitet.</li>
+                </ul>
+            </div>
+            
+            <!-- Page 7: Buddies & Social Feed -->
+            <div class="help-page-content" data-page="7">
+                <h4><i class="fa-solid fa-user-group"></i> 7. Buddies & Samfunn</h4>
                 <p>Gjør treningen sosial under **Buddies**-fanen:</p>
                 <ul>
-                    <li>Kopier din invitasjonstekst og send den til en venn.</li>
+                    <li>Kopier din invitasjonstekst og del den med venner via SMS eller sosiale medier.</li>
                     <li>Legg inn vennens **Runner ID** for å følge dem.</li>
-                    <li>Under **Feed** kan du se når dine Buddies fullfører økter og sende dem en oppmuntrende **High Five**!</li>
+                    <li>Se når dine Buddies fullfører økter på kartet, og send dem en oppmuntrende **High Five**!</li>
                 </ul>
             </div>
             
-            <!-- Page 7: Nutrition & Meal Planner -->
-            <div class="help-page-content" data-page="7">
-                <h4><i class="fa-solid fa-apple-whole"></i> 7. Kosthold & Måltider</h4>
+            <!-- Page 8: Nutrition & Meal Planner -->
+            <div class="help-page-content" data-page="8">
+                <h4><i class="fa-solid fa-apple-whole"></i> 8. Kosthold & Måltider</h4>
                 <p>Løpere trenger riktig drivstoff. I **Kosthold**-fanen (tilgjengelig via venstremenyen) får du en skreddersydd måltidsplan:</p>
                 <ul>
                     <li>Få måltidsforslag for frokost, lunsj, middag og mellommåltider tilpasset din vekt.</li>
-                    <li>Bruk **porsjonsmultiplikatoren** for å skalere opp oppskriftene hvis du trener spesielt hardt eller lager mat til flere!</li>
+                    <li>Bruk **porsjonsmultiplikatoren** (glidebryteren) for å skalere opp oppskriftene hvis du trener hardt eller lager mat til flere!</li>
                 </ul>
             </div>
 
             <!-- Modal Footer Navigation -->
             <div class="help-navigation">
                 <button type="button" class="help-btn" id="btn-help-prev" disabled>Forrige</button>
-                <span id="help-page-indicator">Side 1 av 7</span>
+                <span id="help-page-indicator">Side 1 av 8</span>
                 <button type="button" class="help-btn btn-lime" id="btn-help-next">Neste</button>
             </div>
         </div>

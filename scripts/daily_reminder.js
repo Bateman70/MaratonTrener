@@ -73,7 +73,7 @@ async function run() {
             }
 
             if (todaysWorkout) {
-                const topic = `maratontrener-alerts-${userId.toLowerCase()}`;
+                const topic = `marathontrainer-alerts-${userId.toLowerCase()}`;
                 const title = `Dagens treningsøkt! 🏃‍♂️`;
                 const workoutType = todaysWorkout.workoutType || 'Løpetur';
                 const distance = parseFloat(todaysWorkout.distance || 0);

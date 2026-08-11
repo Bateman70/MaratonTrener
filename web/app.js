@@ -1,4 +1,4 @@
-// MARATONTRENER WEB APPLICATION LOGIC
+// MARATHONTRAINER WEB APPLICATION LOGIC
 // 100% Parity with Android app operations, designs, and calculations
 
 function getLocalDateString(date) {
@@ -265,6 +265,12 @@ function cacheElements() {
         nextDetails: document.getElementById('next-details'),
         nextDate: document.getElementById('next-date'),
         cardNutritionLink: document.getElementById('card-nutrition-link'),
+        
+        // Weekly Checklist Fields
+        cardWeeklyChecklist: document.getElementById('card-weekly-checklist'),
+        weeklyChecklistContainer: document.getElementById('weekly-checklist-container'),
+        weeklyChecklistTitle: document.getElementById('weekly-checklist-title'),
+        labelWeeklyChecklist: document.getElementById('label-weekly-checklist'),
         
         // Pace Calculator Fields
         calcSpinner: document.getElementById('calc-spinner'),
@@ -792,7 +798,7 @@ function setupEventListeners() {
 
 // Help Modal Navigation Logic
 let currentHelpPage = 1;
-const totalHelpPages = 7;
+const totalHelpPages = 8;
 
 function openHelpModal() {
     currentHelpPage = 1;
@@ -1215,7 +1221,7 @@ function generateOfflineSamplePlan() {
 // ----------------------------------------------------
 function updateProfileUI() {
     elements.profileTitleName.innerText = appState.fullName || appState.userName || 'Runner';
-    elements.profileTitleEmail.innerText = appState.email || (appState.userId ? `${appState.userId.toLowerCase()}@maratontrener.no` : 'athlete@maratontrener.no');
+    elements.profileTitleEmail.innerText = appState.email || (appState.userId ? `${appState.userId.toLowerCase()}@marathontrainer.no` : 'athlete@marathontrainer.no');
     
     // Parse currentRace to separate Name, Category, and Date
     let raceName = "Oslo Maraton";
@@ -2080,6 +2086,99 @@ function updateNextAndLatestUI() {
         elements.labelLatestActivity.style.display = "none";
         elements.cardLatestActivity.style.display = "none";
     }
+
+    // Update the Dashboard Weekly Checklist UI
+    updateWeeklyChecklistUI();
+}
+
+function getCurrentTrainingWeekNumber() {
+    if (!appState.userProfile.planStartDate) return 1;
+    const start = new Date(appState.userProfile.planStartDate);
+    const today = new Date();
+    start.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    const diffMs = today - start;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    let weekNum = Math.floor(diffDays / 7) + 1;
+    if (weekNum < 1) weekNum = 1;
+    
+    let maxWeek = 1;
+    appState.workouts.forEach(w => {
+        if (w.weekNumber > maxWeek) maxWeek = w.weekNumber;
+    });
+    return Math.min(weekNum, maxWeek);
+}
+
+function updateWeeklyChecklistUI() {
+    if (!elements.cardWeeklyChecklist || !elements.weeklyChecklistContainer) return;
+    
+    if (appState.workouts.length === 0) {
+        if (elements.labelWeeklyChecklist) elements.labelWeeklyChecklist.style.display = "none";
+        elements.cardWeeklyChecklist.style.display = "none";
+        return;
+    }
+    
+    if (elements.labelWeeklyChecklist) elements.labelWeeklyChecklist.style.display = "block";
+    elements.cardWeeklyChecklist.style.display = "block";
+    
+    const currentWeek = getCurrentTrainingWeekNumber();
+    if (elements.weeklyChecklistTitle) {
+        elements.weeklyChecklistTitle.innerText = `Week ${currentWeek} Sessions`;
+    }
+    
+    const weekWorkouts = appState.workouts
+        .filter(w => w.weekNumber === currentWeek)
+        .sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+        
+    if (weekWorkouts.length === 0) {
+        elements.weeklyChecklistContainer.innerHTML = `
+            <div style="font-size: 0.8rem; color: var(--android-secondary); text-align: center; padding: 12px 0;">
+                No sessions scheduled for this week.
+            </div>
+        `;
+        return;
+    }
+    
+    elements.weeklyChecklistContainer.innerHTML = '';
+    
+    weekWorkouts.forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'checklist-item';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+        item.style.padding = '8px 0';
+        item.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        
+        const dateObj = new Date(w.scheduledDate);
+        const formattedDate = dateObj.toLocaleDateString('no-NO', {
+            weekday: 'short', day: 'numeric', month: 'short'
+        });
+        
+        const workoutLabel = w.workoutType.toUpperCase() === 'INTERVALS' && w.intervalCount
+            ? `${w.workoutType} (${w.intervalCount}x${w.intervalValue})`
+            : `${w.workoutType} (${formatDistance(w.distance)} km)`;
+            
+        const paceVal = w.workoutType.toUpperCase() === 'INTERVALS' && w.intervalPace
+            ? w.intervalPace
+            : formatPace(w.pace);
+            
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="android-checkbox" style="margin-bottom: 0;">
+                    <input type="checkbox" ${w.isCompleted ? 'checked' : ''} onchange="toggleWorkoutCompleted('${w.id}', this.checked)" ${appState.readOnly ? 'disabled' : ''}>
+                    <span class="checkbox-box"></span>
+                </label>
+                <div style="display: flex; flex-direction: column; cursor: pointer;" onclick="editWorkout('${w.id}')">
+                    <span style="font-size: 0.85rem; font-weight: 500; color: #fff; ${w.isCompleted ? 'text-decoration: line-through; opacity: 0.5;' : ''}">${workoutLabel}</span>
+                    <span style="font-size: 0.7rem; color: var(--android-secondary);">${formattedDate}</span>
+                </div>
+            </div>
+            ${paceVal ? `<span style="font-size: 0.75rem; color: var(--android-lime); font-weight: bold; cursor: pointer; ${w.isCompleted ? 'opacity: 0.5;' : ''}" onclick="editWorkout('${w.id}')">${paceVal}/km</span>` : ''}
+        `;
+        
+        elements.weeklyChecklistContainer.appendChild(item);
+    });
 }
 
 // ----------------------------------------------------
@@ -2206,12 +2305,16 @@ function toggleWorkoutCompleted(id, isChecked) {
     const idx = appState.workouts.findIndex(w => String(w.id) === String(id));
     if (idx !== -1) {
         appState.workouts[idx].isCompleted = isChecked;
+        
+        // Immediate visual update across tabs
+        renderWorkoutsList();
+        updateNextAndLatestUI();
+        
         if (db && appState.firebaseConnected) {
             db.ref(`workouts/${appState.userId}/workout_${id}`).update({ isCompleted: isChecked })
                 .then(() => updateAggregatedStats());
         } else {
             saveWorkoutsLocally();
-            renderWorkoutsList();
             updateAggregatedStats();
         }
     }
@@ -2850,9 +2953,7 @@ function showToastNotification(message) {
 function copyShareId() {
     const nickname = appState.userName || 'Runner';
     const defaultInviteText = `Hei! Bli med meg på MarathonTrainer!
-Last ned appen eller åpne den på https://www.maratontrener.no/ og legg meg til som Buddy med min ID: ${appState.userId}
-
-Lyst til å prøve selv? Bli med på testen og last ned appen til Android her: https://tinyurl.com/IThoughtTheySaidRum eller https://join.maratontrener.no/ hvis du bruker iPhone.
+Åpne appen på https://marathontrainer.onrender.com/ og legg meg til som Buddy med min ID: ${appState.userId}
 
 ${nickname}`;
 
