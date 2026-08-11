@@ -419,18 +419,15 @@ html, body {
     background: rgba(18, 18, 18, 0.95);
     backdrop-filter: blur(25px);
     border-top: 1px solid var(--android-divider);
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     z-index: 100;
     padding-bottom: 2px;
-}
-
-.read-only-mode .app-bottom-nav {
-    grid-template-columns: repeat(4, 1fr) !important;
 }
 
 .nav-item-vp {
@@ -444,6 +441,8 @@ html, body {
     color: var(--android-secondary);
     cursor: pointer;
     transition: var(--transition);
+    flex: 1;
+    height: 100%;
 }
 
 .nav-item-vp i {
@@ -454,6 +453,7 @@ html, body {
 .nav-item-vp span {
     font-size: 0.68rem;
     font-weight: 600;
+    display: none;
 }
 
 .nav-item-vp.active {
@@ -462,6 +462,10 @@ html, body {
 
 .nav-item-vp.active i {
     transform: scale(1.08);
+}
+
+.nav-item-vp.active span {
+    display: inline-block;
 }
 
 /* ====================================================
@@ -2685,6 +2689,133 @@ textarea.form-control {
 }
 #workout-route-map.expanded {
     height: 400px !important;
+}
+
+/* ====================================================
+   HELP / USER GUIDE MODAL STYLES
+   ==================================================== */
+#help-modal .modal-content {
+    max-width: 500px;
+    width: 92%;
+    background: var(--android-card);
+    border: 1px solid var(--android-divider);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.help-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--android-divider);
+    padding-bottom: 12px;
+}
+
+.help-modal-header h3 {
+    font-family: var(--font-heading);
+    color: var(--android-lime);
+    font-size: 1.25rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-page-content {
+    display: none;
+    line-height: 1.5;
+    font-size: 0.88rem;
+    color: var(--android-secondary);
+    min-height: 250px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.help-page-content.active {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.help-page-content h4 {
+    color: var(--android-white);
+    font-family: var(--font-heading);
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 6px;
+}
+
+.help-page-content p {
+    margin-bottom: 12px;
+}
+
+.help-page-content ul, .help-page-content ol {
+    margin-left: 20px;
+    margin-bottom: 14px;
+}
+
+.help-page-content li {
+    margin-bottom: 6px;
+}
+
+.help-page-content strong {
+    color: var(--android-white);
+}
+
+.help-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--android-divider);
+    padding-top: 14px;
+    margin-top: 4px;
+}
+
+.help-navigation span {
+    font-size: 0.75rem;
+    color: var(--android-secondary);
+    font-weight: 700;
+    font-family: var(--font-heading);
+}
+
+.help-btn {
+    background: var(--android-surface);
+    border: 1px solid var(--android-divider);
+    color: var(--android-white);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.help-btn:hover:not(:disabled) {
+    border-color: var(--android-lime);
+    color: var(--android-lime);
+}
+
+.help-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.help-btn.btn-lime {
+    background: var(--android-lime);
+    color: var(--android-black);
+    border: none;
+}
+
+.help-btn.btn-lime:hover {
+    background: #b5e600;
 }
 
 

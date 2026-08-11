@@ -525,6 +525,49 @@
                                 </div>
                             </div>
                             
+                            <!-- Shared Link / Read-Only Box -->
+                            <div class="card android-card profile-read-only-msg" style="display: none;">
+                                <div class="read-only-notice">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <div>
+                                        <strong>View-Only Share Mode:</strong>
+                                        You are viewing another runner's profile. All edits, synchronization, and plan generator tools are disabled.
+                                        <div style="margin-top: 8px; display: flex; gap: 15px;">
+                                            <a href="#" class="link-exit-read-only-action" style="color: var(--android-lime); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Return to my profile</a>
+                                            <a href="#" class="link-claim-profile-action claim-profile-only" style="color: var(--android-pace); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Make this my active profile</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- iPhone Notifications Guide Card -->
+                            <div class="card android-card" id="profile-alerts-card">
+                                <div class="section-label-inner">IPHONE DAILY ALERTS</div>
+                                <div class="iphone-alerts-box">
+                                    <div class="alerts-icon">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <div class="alerts-meta">
+                                        <h4>Get Morning Alerts (7:00 AM)</h4>
+                                        <p class="muted-text">Receive push notifications on your iPhone every morning with today's scheduled training activities.</p>
+                                    </div>
+                                </div>
+                                <div class="alerts-guide-steps">
+                                    <strong>How to configure on your iPhone:</strong>
+                                    <ol>
+                                        <li>Download the free <strong>ntfy</strong> app from the iOS App Store.</li>
+                                        <li>Open the app and tap <strong>+ (Add Subscription)</strong>.</li>
+                                        <li>Subscribe to topic name:<br><code class="copy-topic-box">maratontrener-alerts-<span class="lbl-my-id-lowercase">ch020721</span></code></li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <!-- App Version details -->
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.1 (381)</div>
+                        </div>
+                        
+                        <!-- ================= PAGE 5: SYNC & CLOUD ================= -->
+                        <div class="app-page" id="page-sync">
                             <!-- Sync & Cloud Operations Card -->
                             <div class="card android-card profile-only-edit">
                                 <div class="section-label-inner">CLOUD & INTEGRATIONS</div>
@@ -582,46 +625,6 @@
                                     <button class="btn-outline-android btn-danger-android" id="btn-delete-nuclear"><i class="fa-solid fa-trash-can"></i> DELETE ALL DATA</button>
                                 </div>
                             </div>
-                            
-                            <!-- Shared Link / Read-Only Box -->
-                            <div class="card android-card profile-read-only-msg" style="display: none;">
-                                <div class="read-only-notice">
-                                    <i class="fa-solid fa-eye"></i>
-                                    <div>
-                                        <strong>View-Only Share Mode:</strong>
-                                        You are viewing another runner's profile. All edits, synchronization, and plan generator tools are disabled.
-                                        <div style="margin-top: 8px; display: flex; gap: 15px;">
-                                            <a href="#" class="link-exit-read-only-action" style="color: var(--android-lime); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Return to my profile</a>
-                                            <a href="#" class="link-claim-profile-action claim-profile-only" style="color: var(--android-pace); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Make this my active profile</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- iPhone Notifications Guide Card -->
-                            <div class="card android-card" id="profile-alerts-card">
-                                <div class="section-label-inner">IPHONE DAILY ALERTS</div>
-                                <div class="iphone-alerts-box">
-                                    <div class="alerts-icon">
-                                        <i class="fa-solid fa-bell"></i>
-                                    </div>
-                                    <div class="alerts-meta">
-                                        <h4>Get Morning Alerts (7:00 AM)</h4>
-                                        <p class="muted-text">Receive push notifications on your iPhone every morning with today's scheduled training activities.</p>
-                                    </div>
-                                </div>
-                                <div class="alerts-guide-steps">
-                                    <strong>How to configure on your iPhone:</strong>
-                                    <ol>
-                                        <li>Download the free <strong>ntfy</strong> app from the iOS App Store.</li>
-                                        <li>Open the app and tap <strong>+ (Add Subscription)</strong>.</li>
-                                        <li>Subscribe to topic name:<br><code class="copy-topic-box">maratontrener-alerts-<span class="lbl-my-id-lowercase">ch020721</span></code></li>
-                                    </ol>
-                                </div>
-                            </div>
-                            
-                            <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.1 (381)</div>
                         </div>
                         
                         <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->
@@ -695,9 +698,17 @@
                             <i class="fa-solid fa-chart-simple"></i>
                             <span>Stats</span>
                         </button>
+                        <button class="nav-item-vp" id="nav-btn-sync">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Sync</span>
+                        </button>
                         <button class="nav-item-vp" id="nav-btn-profile">
                             <i class="fa-solid fa-user"></i>
                             <span>Profil</span>
+                        </button>
+                        <button class="nav-item-vp" id="nav-btn-help">
+                            <i class="fa-solid fa-circle-question"></i>
+                            <span>Hjelp</span>
                         </button>
                     </nav>
                     
@@ -1159,6 +1170,9 @@
             <div class="drawer-menu-item" id="drawer-link-stats">
                 <i class="fa-solid fa-chart-simple"></i> Statistikk
             </div>
+            <div class="drawer-menu-item" id="drawer-link-sync">
+                <i class="fa-solid fa-rotate"></i> Synkronisering
+            </div>
             <div class="drawer-menu-item" id="drawer-link-profile">
                 <i class="fa-solid fa-user"></i> Profil
             </div>
@@ -1166,12 +1180,104 @@
             <div class="drawer-menu-item drawer-edit-only" id="drawer-action-generator">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Opprett Treningsplan
             </div>
-            <div class="drawer-menu-item" id="drawer-action-sync">
-                <i class="fa-solid fa-rotate"></i> Synkroniser ID
+            <div class="drawer-menu-item" id="drawer-action-help">
+                <i class="fa-solid fa-circle-question"></i> Hjelp & Brukerguide
             </div>
         </div>
     </div>
     <div class="drawer-overlay" id="drawer-overlay"></div>
+
+    <!-- ================= MODAL: HELP & USER GUIDE ================= -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <div class="help-modal-header">
+                <h3><i class="fa-solid fa-circle-question"></i> Brukerguide</h3>
+                <button type="button" class="btn-close" id="btn-close-help-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Page 1: Welcome & Setup -->
+            <div class="help-page-content active" data-page="1">
+                <h4><i class="fa-solid fa-flag-checkered"></i> 1. Velkommen & Onboarding</h4>
+                <p>Velkommen til <strong>MaratonTrener</strong>! Denne appen hjelper deg med å strukturere treningen din frem mot ditt store løpsmål.</p>
+                <p>Når du åpner appen for første gang, vil du møte en profil-veiviser (Wizard) for å sette opp din profil:</p>
+                <ul>
+                    <li>Legg inn ditt navn, alder, vekt og makspuls.</li>
+                    <li>Disse dataene brukes til å beregne dine personlige **pulssoner** og estimere **kaloriforbruk**.</li>
+                </ul>
+                <p>Når oppsettet er ferdig, genereres en personlig treningsplan tilpasset ditt nivå!</p>
+            </div>
+            
+            <!-- Page 2: Dashboard & Navigation -->
+            <div class="help-page-content" data-page="2">
+                <h4><i class="fa-solid fa-house"></i> 2. Dashboard (Hjem)</h4>
+                <p>Dashboardet er appens kommandosentral:</p>
+                <ul>
+                    <li><strong>Neste økt:</strong> Viser detaljer om den neste planlagte økten din (type løp, distanse, tempo).</li>
+                    <li><strong>Ukentlig progresjon:</strong> En fremdriftslinje som viser hvor mange kilometer du har løpt denne uken i forhold til målet ditt.</li>
+                    <li><strong>Ukesliste:</strong> En oversikt over ukens økter der du raskt kan merke dem som fullført.</li>
+                </ul>
+            </div>
+            
+            <!-- Page 3: Calendar & Training Log -->
+            <div class="help-page-content" data-page="3">
+                <h4><i class="fa-solid fa-calendar-days"></i> 3. Logg & Kalender</h4>
+                <p>I <strong>Logg</strong>-fanen finner du hele treningsplanen din uke for uke:</p>
+                <ul>
+                    <li>Her kan du klikke på en hvilken som helst økt for å se detaljer, legge til kommentarer/notater, endre dato, registrere puls, eller velge hvilke sko du løp med.</li>
+                    <li>Du kan opprette helt nye økter, slette uønskede økter, eller bruke **Opprett Plan**-knappen for å generere et nytt treningsprogram.</li>
+                </ul>
+            </div>
+            
+            <!-- Page 4: Sync & Strava -->
+            <div class="help-page-content" data-page="4">
+                <h4><i class="fa-solid fa-cloud-arrow-up"></i> 4. Synkronisering & Strava</h4>
+                <p>I den nye **Sync**-fanen kan du koble appen til skyen og eksterne tjenester:</p>
+                <ul>
+                    <li><strong>Runner ID:</strong> Din unike ID. Skriv inn denne på en ny enhet (f.eks. PC eller ny mobil) for å hente ned din profil og treningsplan. Helt uten passord!</li>
+                    <li><strong>Strava-kobling:</strong> Koble til Strava for å importere økter automatisk. Øktene matches automatisk med planlagte økter på samme dag eller dagen før.</li>
+                    <li><strong>Feilsøking:</strong> Klikk "Force Reload App" hvis du opplever cache-problemer eller manglende oppdateringer.</li>
+                </ul>
+            </div>
+            
+            <!-- Page 5: Shoes & Heart Rate Zones -->
+            <div class="help-page-content" data-page="5">
+                <h4><i class="fa-solid fa-shoe-prints"></i> 5. Sko & Pulssoner</h4>
+                <p>Du finner disse innstillingene under **Profil**-fanen:</p>
+                <ul>
+                    <li><strong>Skoveiviser:</strong> Legg til løpeskoene dine og angi en maksgrense (f.eks. 800 km). Appen sporer kilometerne automatisk og gir deg et varsel når skoene bør byttes.</li>
+                    <li><strong>Beregning av pulssoner:</strong> Appen beregner dine 5 pulssoner automatisk basert på makspuls. Disse hjelper deg å styre intensiteten (f.eks. rolig sone 1-2 eller terskel sone 4).</li>
+                </ul>
+            </div>
+            
+            <!-- Page 6: Buddies & Social Feed -->
+            <div class="help-page-content" data-page="6">
+                <h4><i class="fa-solid fa-user-group"></i> 6. Buddies & Samfunn</h4>
+                <p>Gjør treningen sosial under **Buddies**-fanen:</p>
+                <ul>
+                    <li>Kopier din invitasjonstekst og send den til en venn.</li>
+                    <li>Legg inn vennens **Runner ID** for å følge dem.</li>
+                    <li>Under **Feed** kan du se når dine Buddies fullfører økter og sende dem en oppmuntrende **High Five**!</li>
+                </ul>
+            </div>
+            
+            <!-- Page 7: Nutrition & Meal Planner -->
+            <div class="help-page-content" data-page="7">
+                <h4><i class="fa-solid fa-apple-whole"></i> 7. Kosthold & Måltider</h4>
+                <p>Løpere trenger riktig drivstoff. I **Kosthold**-fanen (tilgjengelig via venstremenyen) får du en skreddersydd måltidsplan:</p>
+                <ul>
+                    <li>Få måltidsforslag for frokost, lunsj, middag og mellommåltider tilpasset din vekt.</li>
+                    <li>Bruk **porsjonsmultiplikatoren** for å skalere opp oppskriftene hvis du trener spesielt hardt eller lager mat til flere!</li>
+                </ul>
+            </div>
+
+            <!-- Modal Footer Navigation -->
+            <div class="help-navigation">
+                <button type="button" class="help-btn" id="btn-help-prev" disabled>Forrige</button>
+                <span id="help-page-indicator">Side 1 av 7</span>
+                <button type="button" class="help-btn btn-lime" id="btn-help-next">Neste</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ================= MODAL: EDIT RACE INFO ================= -->
     <div class="modal" id="race-info-modal">

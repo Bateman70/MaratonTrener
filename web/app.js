@@ -226,6 +226,7 @@ function cacheElements() {
         pageLog: document.getElementById('page-log'),
         pageStats: document.getElementById('page-stats'),
         pageProfile: document.getElementById('page-profile'),
+        pageSync: document.getElementById('page-sync'),
         pageDiet: document.getElementById('page-diet'),
         
         // Bottom Nav Buttons
@@ -233,7 +234,9 @@ function cacheElements() {
         navBtnBuddies: document.getElementById('nav-btn-buddies'),
         navBtnLog: document.getElementById('nav-btn-log'),
         navBtnStats: document.getElementById('nav-btn-stats'),
+        navBtnSync: document.getElementById('nav-btn-sync'),
         navBtnProfile: document.getElementById('nav-btn-profile'),
+        navBtnHelp: document.getElementById('nav-btn-help'),
         
         // Home Screen Fields
         homeRaceName: document.getElementById('home-race-name'),
@@ -415,9 +418,17 @@ function cacheElements() {
         drawerLinkBuddies: document.getElementById('drawer-link-buddies'),
         drawerLinkLog: document.getElementById('drawer-link-log'),
         drawerLinkStats: document.getElementById('drawer-link-stats'),
+        drawerLinkSync: document.getElementById('drawer-link-sync'),
         drawerLinkProfile: document.getElementById('drawer-link-profile'),
         drawerActionGenerator: document.getElementById('drawer-action-generator'),
-        drawerActionSync: document.getElementById('drawer-action-sync'),
+        drawerActionHelp: document.getElementById('drawer-action-help'),
+        
+        // Help Modal Elements
+        helpModal: document.getElementById('help-modal'),
+        btnCloseHelpModal: document.getElementById('btn-close-help-modal'),
+        btnHelpPrev: document.getElementById('btn-help-prev'),
+        btnHelpNext: document.getElementById('btn-help-next'),
+        helpPageIndicator: document.getElementById('help-page-indicator'),
         
         // Interactive Dashboard Elements
         cardRaceOverview: document.getElementById('card-race-overview'),
@@ -515,7 +526,9 @@ function setupEventListeners() {
     elements.navBtnBuddies.addEventListener('click', () => navTo('buddies'));
     elements.navBtnLog.addEventListener('click', () => navTo('log'));
     elements.navBtnStats.addEventListener('click', () => navTo('stats'));
+    elements.navBtnSync.addEventListener('click', () => navTo('sync'));
     elements.navBtnProfile.addEventListener('click', () => navTo('profile'));
+    elements.navBtnHelp.addEventListener('click', () => openHelpModal());
     
     // Toolbar Avatar Click -> Profile
     elements.btnToolbarRight.addEventListener('click', () => navTo('profile'));
@@ -697,10 +710,11 @@ function setupEventListeners() {
         elements.drawerLinkBuddies.addEventListener('click', () => { closeDrawer(); navTo('buddies'); });
         elements.drawerLinkLog.addEventListener('click', () => { closeDrawer(); navTo('log'); });
         elements.drawerLinkStats.addEventListener('click', () => { closeDrawer(); navTo('stats'); });
+        elements.drawerLinkSync.addEventListener('click', () => { closeDrawer(); navTo('sync'); });
         elements.drawerLinkProfile.addEventListener('click', () => { closeDrawer(); navTo('profile'); });
         
         elements.drawerActionGenerator.addEventListener('click', () => { closeDrawer(); openGeneratorModal(); });
-        elements.drawerActionSync.addEventListener('click', () => { closeDrawer(); navTo('profile'); setTimeout(() => { elements.profileSyncIdInput.focus(); }, 150); });
+        elements.drawerActionHelp.addEventListener('click', () => { closeDrawer(); openHelpModal(); });
     }
 
     // Dashboard Cards Click Handlers (Parity with Android)
@@ -757,6 +771,74 @@ function setupEventListeners() {
             }
         });
     }
+
+    // Help Modal Action Listeners
+    if (elements.btnCloseHelpModal) {
+        elements.btnCloseHelpModal.addEventListener('click', closeHelpModal);
+    }
+    if (elements.btnHelpPrev) {
+        elements.btnHelpPrev.addEventListener('click', () => navigateHelpPage(-1));
+    }
+    if (elements.btnHelpNext) {
+        elements.btnHelpNext.addEventListener('click', () => {
+            if (currentHelpPage === totalHelpPages) {
+                closeHelpModal();
+            } else {
+                navigateHelpPage(1);
+            }
+        });
+    }
+}
+
+// Help Modal Navigation Logic
+let currentHelpPage = 1;
+const totalHelpPages = 7;
+
+function openHelpModal() {
+    currentHelpPage = 1;
+    updateHelpModalUi();
+    if (elements.helpModal) {
+        elements.helpModal.classList.add('active');
+    }
+}
+
+function closeHelpModal() {
+    if (elements.helpModal) {
+        elements.helpModal.classList.remove('active');
+    }
+}
+
+function navigateHelpPage(direction) {
+    currentHelpPage += direction;
+    if (currentHelpPage < 1) currentHelpPage = 1;
+    if (currentHelpPage > totalHelpPages) currentHelpPage = totalHelpPages;
+    updateHelpModalUi();
+}
+
+function updateHelpModalUi() {
+    const pages = document.querySelectorAll('.help-page-content');
+    pages.forEach(page => {
+        const pageNum = parseInt(page.getAttribute('data-page'));
+        page.classList.toggle('active', pageNum === currentHelpPage);
+    });
+
+    if (elements.helpPageIndicator) {
+        elements.helpPageIndicator.innerText = `Side ${currentHelpPage} av ${totalHelpPages}`;
+    }
+
+    if (elements.btnHelpPrev) {
+        elements.btnHelpPrev.disabled = (currentHelpPage === 1);
+    }
+    
+    if (elements.btnHelpNext) {
+        if (currentHelpPage === totalHelpPages) {
+            elements.btnHelpNext.innerText = "Kom i gang!";
+            elements.btnHelpNext.classList.add('btn-lime');
+        } else {
+            elements.btnHelpNext.innerText = "Neste";
+            elements.btnHelpNext.classList.remove('btn-lime');
+        }
+    }
 }
 
 // Toolbar Left Button Click Handler
@@ -799,6 +881,7 @@ function navTo(tab) {
     elements.navBtnBuddies.classList.toggle('active', tab === 'buddies');
     elements.navBtnLog.classList.toggle('active', tab === 'log');
     elements.navBtnStats.classList.toggle('active', tab === 'stats');
+    if (elements.navBtnSync) elements.navBtnSync.classList.toggle('active', tab === 'sync');
     elements.navBtnProfile.classList.toggle('active', tab === 'profile');
     
     // Toggle navigation drawer active state links
@@ -807,6 +890,7 @@ function navTo(tab) {
         elements.drawerLinkBuddies.classList.toggle('active', tab === 'buddies');
         elements.drawerLinkLog.classList.toggle('active', tab === 'log');
         elements.drawerLinkStats.classList.toggle('active', tab === 'stats');
+        if (elements.drawerLinkSync) elements.drawerLinkSync.classList.toggle('active', tab === 'sync');
         elements.drawerLinkProfile.classList.toggle('active', tab === 'profile');
     }
     
@@ -815,6 +899,7 @@ function navTo(tab) {
     elements.pageBuddies.classList.toggle('active', tab === 'buddies');
     elements.pageLog.classList.toggle('active', tab === 'log');
     elements.pageStats.classList.toggle('active', tab === 'stats');
+    if (elements.pageSync) elements.pageSync.classList.toggle('active', tab === 'sync');
     elements.pageProfile.classList.toggle('active', tab === 'profile');
     elements.pageDiet.classList.toggle('active', tab === 'diet');
     
@@ -837,6 +922,8 @@ function navTo(tab) {
         } else if (tab === 'stats') {
             elements.appToolbarTitle.innerText = "STATISTICS";
             renderAnalyticsCharts(); // render/refresh charts
+        } else if (tab === 'sync') {
+            elements.appToolbarTitle.innerText = "SYNC & SKY";
         } else if (tab === 'profile') {
             elements.appToolbarTitle.innerText = "PROFILE";
         }
@@ -3322,6 +3409,7 @@ function generateTrainingPlanFromWizard() {
                     closeWizardModal();
                     alert("12-Week customized plan successfully created!");
                     navTo('log');
+                    setTimeout(() => { openHelpModal(); }, 400);
                 });
         });
     } else {
@@ -3342,6 +3430,7 @@ function generateTrainingPlanFromWizard() {
         populatePlanFilters();
         alert("12-Week customized plan successfully created!");
         navTo('log');
+        setTimeout(() => { openHelpModal(); }, 400);
     }
 }
 
