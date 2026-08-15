@@ -971,18 +971,18 @@
                     <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Required for AI Image/PDF processing. Saved locally.</p>
                 </div>
 
+                <div class="form-group-android" style="margin-bottom: 20px;">
+                    <label class="form-label-android">Plan Start Date (Required)</label>
+                    <input type="date" id="import-start-date" class="form-control-android" required onclick="if(this.showPicker) this.showPicker();" style="cursor: pointer;">
+                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">This date is used to anchor the schedule. The AI will recalculate the timeline based on this date.</p>
+                </div>
+
                 <div class="import-upload-zone" id="import-upload-zone" style="border: 2px dashed var(--android-lime); border-radius: 12px; padding: 40px 20px; text-align: center; margin-bottom: 20px; cursor: pointer; background: rgba(204, 255, 0, 0.05); transition: all 0.3s ease;">
                     <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--android-lime); margin-bottom: 15px;"></i>
                     <h4 style="margin: 0 0 10px 0; color: var(--android-white);">Select a File to Import</h4>
                     <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Supports Screenshots, PDFs, .csv, .json</p>
                     <p style="margin: 10px 0 0 0; font-size: 0.75rem; color: var(--android-red);">⚠️ Note: AI Image/PDF import requires a structured plan (date or day based) with clear distance/time/type.</p>
                     <input type="file" id="import-file-input" accept=".csv,.json,.pdf,.png,.jpg,.jpeg" style="display: none;">
-                </div>
-                
-                <div class="form-group-android" style="margin-bottom: 20px;">
-                    <label class="form-label-android">Plan Start Date (Required)</label>
-                    <input type="date" id="import-start-date" class="form-control-android" required>
-                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">This date is used to anchor the schedule. The AI will recalculate the timeline based on this date.</p>
                 </div>
                 
                 <div id="import-loading-spinner" style="display: none; text-align: center; padding: 20px;">
@@ -1550,6 +1550,6 @@
 
     <!-- JS Application Scripts -->
     <script src="firebase-config.js?v=5.2"></script>
-    <script src="app.js?v=5.6"></script>
+    <script src="app.js?v=5.7"></script>
 </body>
 </html>
