@@ -158,8 +158,8 @@
                                 </div>
                             </div>
                             
-                            <!-- Next Session Card -->
-                            <div class="section-label" id="label-next-session">NEXT SESSION</div>
+                            <!-- Next Activity Card -->
+                            <div class="section-label" id="label-next-session">NEXT ACTIVITY</div>
                             <div class="card android-card" id="card-next-session">
                                 <h3 class="card-title-lime" id="next-type">INTERVALS</h3>
                                 <div class="next-details" id="next-details">No workouts planned</div>
@@ -169,7 +169,7 @@
                             <!-- Weekly Checklist Card -->
                             <div class="section-label" id="label-weekly-checklist">WEEKLY CHECKLIST</div>
                             <div class="card android-card" id="card-weekly-checklist">
-                                <h4 style="margin-bottom: 12px; font-size: 0.82rem; color: var(--android-secondary); font-weight: bold; text-transform: uppercase;" id="weekly-checklist-title">Week 1 Sessions</h4>
+                                <h4 style="margin-bottom: 12px; font-size: 0.82rem; color: var(--android-secondary); font-weight: bold; text-transform: uppercase;" id="weekly-checklist-title">Week 1 Activities</h4>
                                 <div id="weekly-checklist-container" style="display: flex; flex-direction: column; gap: 8px;">
                                     <!-- Will be populated dynamically -->
                                 </div>
@@ -599,7 +599,7 @@
                                         <span id="strava-status-badge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-weight: bold;">Disconnected</span>
                                     </div>
                                     <span class="help-text" style="display: block; margin-bottom: 10px;">
-                                        Automatically match and sync completed runs and treadmill sessions from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MarathonTrainer to Strava).</em>
+                                        Automatically match and sync completed runs and treadmill activities from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MarathonTrainer to Strava).</em>
                                     </span>
                                     <button class="btn-solid-android" id="btn-strava-action" style="background: #FC5200; color: white; width: 100%; font-weight: bold; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                                         <i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA
@@ -701,7 +701,7 @@
                         </button>
                         <button class="nav-item-vp" id="nav-btn-log">
                             <i class="fa-solid fa-calendar-days"></i>
-                            <span>Logg</span>
+                            <span>Log</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-stats">
                             <i class="fa-solid fa-chart-simple"></i>
@@ -735,8 +735,25 @@
                 <button class="btn-close" id="btn-close-wizard"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
+            <!-- STEP 0: METHOD SELECTION -->
+            <div class="wizard-page active" id="wiz-page-0">
+                <div class="section-label-modal">CHOOSE CREATION METHOD</div>
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                    <button type="button" class="btn-solid-android" id="btn-wiz-method-auto" style="padding: 20px; font-size: 1.1rem; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 2rem;"></i>
+                        Auto-Generate Plan
+                        <span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; text-align: center;">Let the app build a tailored schedule based on your goals</span>
+                    </button>
+                    <button type="button" class="btn-solid-android" id="btn-wiz-method-import" style="padding: 20px; font-size: 1.1rem; display: flex; flex-direction: column; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); color: var(--android-white); border: 1px solid rgba(255,255,255,0.2);">
+                        <i class="fa-solid fa-file-import" style="font-size: 2rem; color: var(--android-lime);"></i>
+                        Import External Plan
+                        <span style="font-size: 0.8rem; opacity: 0.8; font-weight: normal; text-align: center;">Upload a CSV or JSON file of an existing plan</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- STEP 1: GOAL -->
-            <div class="wizard-page active" id="wiz-page-1">
+            <div class="wizard-page" id="wiz-page-1">
                 <div class="section-label-modal">THE GOAL</div>
                 <div class="form-group-android">
                     <label>Event Name</label>
@@ -943,9 +960,60 @@
                 </div>
             </div>
             
+            <!-- STEP 4: IMPORT (Alternative to 1, 2, 3) -->
+            <div class="wizard-page" id="wiz-page-4">
+                <div class="section-label-modal">IMPORT PLAN</div>
+                
+                <!-- API Key Notice (Beta only) -->
+                <div id="ai-api-key-container" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <label style="font-size: 0.8rem; color: var(--android-lime); display: block; margin-bottom: 5px;">Gemini API Key (Beta)</label>
+                    <input type="password" id="input-gemini-api-key" class="form-control-android" placeholder="Paste key here..." style="font-size: 0.8rem; padding: 8px;">
+                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Required for AI Image/PDF processing. Saved locally.</p>
+                </div>
+
+                <div class="import-upload-zone" id="import-upload-zone" style="border: 2px dashed var(--android-lime); border-radius: 12px; padding: 40px 20px; text-align: center; margin-bottom: 20px; cursor: pointer; background: rgba(204, 255, 0, 0.05); transition: all 0.3s ease;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--android-lime); margin-bottom: 15px;"></i>
+                    <h4 style="margin: 0 0 10px 0; color: var(--android-white);">Select a File to Import</h4>
+                    <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Supports Screenshots, PDFs, .csv, .json</p>
+                    <input type="file" id="import-file-input" accept=".csv,.json,.pdf,.png,.jpg,.jpeg" style="display: none;">
+                </div>
+                
+                <div id="import-loading-spinner" style="display: none; text-align: center; padding: 20px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--android-lime);"></i>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">AI is analyzing your plan... this takes a few seconds.</p>
+                </div>
+
+                <div id="import-preview-container" style="display: none;">
+                    <div class="section-label-modal" style="margin-top: 10px;">PREVIEW</div>
+                    <div style="background: var(--android-surface); border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto; margin-bottom: 20px;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="import-preview-table">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--android-lime);">
+                                    <th style="padding: 5px; text-align: left;">Date</th>
+                                    <th style="padding: 5px; text-align: left;">Type</th>
+                                    <th style="padding: 5px; text-align: left;">Dist (km)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Preview rows injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="form-group-android">
+                        <label>Existing Plan Action</label>
+                        <select id="wiz-import-action" class="form-control-android">
+                            <option value="replace" selected>Replace Current Plan (Delete existing workouts)</option>
+                            <option value="merge">Merge with Current Plan (Keep existing workouts)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn-outline-android" id="btn-wiz-back" style="display:none;">BACK</button>
-                <button type="button" class="btn-solid-android" id="btn-wiz-next">NEXT STEP</button>
+                <button type="button" class="btn-solid-android" id="btn-wiz-next" style="display:none;">NEXT STEP</button>
+                <button type="button" class="btn-solid-android" id="btn-wiz-import-finish" style="display:none;" disabled>IMPORT PLAN</button>
             </div>
         </div>
     </div>
@@ -1221,7 +1289,7 @@
                 <ul>
                     <li><strong>Current Goal:</strong> Viser løpets detaljer, dato, sted, værmelding og progresjon for treningsplanen.</li>
                     <li><strong>Latest Activity:</strong> Detaljer om din sist fullførte økt (tempo, puls, sko osv.).</li>
-                    <li><strong>Next Session / Missed Session:</strong> Detaljer om din neste økt. Hvis du har ubesvarte økter i fortiden, blir dette til en rød **Missed Session**-advarsel.</li>
+                    <li><strong>Next Activity / Missed Activity:</strong> Detaljer om din neste økt. Hvis du har ubesvarte økter i fortiden, blir dette til en rød **Missed Activity**-advarsel.</li>
                     <li><strong>Weekly Checklist (Ukesliste):</strong> En sjekkliste over ukens planlagte økter for rask avkrysning direkte på hjemskjermen. Klikk på en økt for å redigere.</li>
                     <li><strong>Meal Plan & Nutrition:</strong> Hurtiglenke til din kostholdsplan.</li>
                     <li><strong>Pace Calculator & Riegel Predictor:</strong> Beregn splittider og estimer løpstider basert på tidligere personlige rekorder.</li>

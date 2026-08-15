@@ -208,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     checkFirebaseConnection();
     loadLocalFallbackData();
+    setupViewPagerScroll();
 });
 
 function cacheElements() {
@@ -322,6 +323,7 @@ function cacheElements() {
         zone4Text: document.getElementById('zone-4-text'),
         zone5Text: document.getElementById('zone-5-text'),
         btnLaunchGenerator: document.getElementById('btn-launch-generator'),
+        btnLogCreatePlan: document.getElementById('btn-log-create-plan'),
         profileSyncIdInput: document.getElementById('profile-sync-id-input'),
         btnSyncProfileId: document.getElementById('btn-sync-profile-id'),
         btnRestoreCloud: document.getElementById('btn-restore-cloud'),
@@ -350,6 +352,17 @@ function cacheElements() {
         btnCloseWizard: document.getElementById('btn-close-wizard'),
         btnWizBack: document.getElementById('btn-wiz-back'),
         btnWizNext: document.getElementById('btn-wiz-next'),
+        btnWizFinish: document.getElementById('btn-wiz-finish'),
+        btnWizMethodAuto: document.getElementById('btn-wiz-method-auto'),
+        btnWizMethodImport: document.getElementById('btn-wiz-method-import'),
+        btnWizImportFinish: document.getElementById('btn-wiz-import-finish'),
+        importFileInput: document.getElementById('import-file-input'),
+        inputGeminiApiKey: document.getElementById('input-gemini-api-key'),
+        importLoadingSpinner: document.getElementById('import-loading-spinner'),
+        importUploadZone: document.getElementById('import-upload-zone'),
+        importPreviewContainer: document.getElementById('import-preview-container'),
+        importPreviewTable: document.getElementById('import-preview-table'),
+        wizImportAction: document.getElementById('wiz-import-action'),
         wizEventName: document.getElementById('wiz-event-name'),
         wizEventLocation: document.getElementById('wiz-event-location'),
         wizEventDate: document.getElementById('wiz-event-date'),
@@ -556,15 +569,39 @@ function setupEventListeners() {
     elements.btnRestoreCloud.addEventListener('click', restoreFromCloud);
     elements.btnDeleteNuclear.addEventListener('click', confirmDeleteData);
     elements.btnLaunchGenerator.addEventListener('click', openGeneratorModal);
+    if (elements.btnLogCreatePlan) {
+        elements.btnLogCreatePlan.addEventListener('click', openGeneratorModal);
+    }
     
     // Log Page Dropdown & FAB
     elements.planFilterDropdown.addEventListener('change', renderWorkoutsList);
     elements.fabAddWorkout.addEventListener('click', () => openWorkoutModal(null));
     
     // Wizard Form Stepper bindings
+    
+    // Load API Key
+    if (elements.inputGeminiApiKey) {
+        elements.inputGeminiApiKey.value = localStorage.getItem('geminiApiKey') || '';
+        elements.inputGeminiApiKey.addEventListener('input', (e) => {
+            localStorage.setItem('geminiApiKey', e.target.value.trim());
+        });
+    }
+    
     elements.btnCloseWizard.addEventListener('click', closeWizardModal);
     elements.btnWizBack.addEventListener('click', navigateWizardBack);
     elements.btnWizNext.addEventListener('click', navigateWizardNext);
+    if (elements.btnWizFinish) elements.btnWizFinish.addEventListener('click', navigateWizardNext);
+    if (elements.btnWizMethodAuto) elements.btnWizMethodAuto.addEventListener('click', () => { appState.wizardPage = 1; updateWizardUI(); });
+    if (elements.btnWizMethodImport) elements.btnWizMethodImport.addEventListener('click', () => { appState.wizardPage = 4; updateWizardUI(); });
+    if (elements.btnWizImportFinish) elements.btnWizImportFinish.addEventListener('click', processImportedPlan);
+    
+    // File upload triggers
+    if (elements.importUploadZone) {
+        elements.importUploadZone.addEventListener('click', () => elements.importFileInput.click());
+    }
+    if (elements.importFileInput) {
+        elements.importFileInput.addEventListener('change', handleFileImport);
+    }
     setupWizardAutoFormatting();
     
     // Add Buddy inline form
@@ -850,7 +887,7 @@ function updateHelpModalUi() {
 // Toolbar Left Button Click Handler
 function handleToolbarLeftClick() {
     if (appState.activeTab === 'home') {
-        openDrawer();
+        openGeneratorModal();
     } else {
         navTo('home');
     }
@@ -878,17 +915,18 @@ function closeDrawer() {
     }
 }
 
-// Navigation Tabs Switcher
-function navTo(tab) {
-    if (tab === 'buddies' && appState.readOnly) return;
+// Update header and buttons for a specific tab
+function updateHeaderForTab(tab) {
+    if (appState.activeTab === tab) return;
+    appState.activeTab = tab;
 
     // Toggle active tab buttons
-    elements.navBtnHome.classList.toggle('active', tab === 'home');
-    elements.navBtnBuddies.classList.toggle('active', tab === 'buddies');
-    elements.navBtnLog.classList.toggle('active', tab === 'log');
-    elements.navBtnStats.classList.toggle('active', tab === 'stats');
+    if (elements.navBtnHome) elements.navBtnHome.classList.toggle('active', tab === 'home');
+    if (elements.navBtnBuddies) elements.navBtnBuddies.classList.toggle('active', tab === 'buddies');
+    if (elements.navBtnLog) elements.navBtnLog.classList.toggle('active', tab === 'log');
+    if (elements.navBtnStats) elements.navBtnStats.classList.toggle('active', tab === 'stats');
     if (elements.navBtnSync) elements.navBtnSync.classList.toggle('active', tab === 'sync');
-    elements.navBtnProfile.classList.toggle('active', tab === 'profile');
+    if (elements.navBtnProfile) elements.navBtnProfile.classList.toggle('active', tab === 'profile');
     
     // Toggle navigation drawer active state links
     if (elements.drawerLinkHome) {
@@ -899,18 +937,6 @@ function navTo(tab) {
         if (elements.drawerLinkSync) elements.drawerLinkSync.classList.toggle('active', tab === 'sync');
         elements.drawerLinkProfile.classList.toggle('active', tab === 'profile');
     }
-    
-    // Toggle page views
-    elements.pageHome.classList.toggle('active', tab === 'home');
-    elements.pageBuddies.classList.toggle('active', tab === 'buddies');
-    elements.pageLog.classList.toggle('active', tab === 'log');
-    elements.pageStats.classList.toggle('active', tab === 'stats');
-    if (elements.pageSync) elements.pageSync.classList.toggle('active', tab === 'sync');
-    elements.pageProfile.classList.toggle('active', tab === 'profile');
-    elements.pageDiet.classList.toggle('active', tab === 'diet');
-    
-    appState.activeTab = tab;
-    elements.appContentScroll.scrollTop = 0; // reset scroll position
     
     // Adjust header title and buttons
     if (tab === 'diet') {
@@ -935,11 +961,59 @@ function navTo(tab) {
         }
     }
     
-    // Toggle left button: Home shows Hamburger, all other tabs show Back Arrow
+    // Toggle left button
     if (tab === 'home') {
-        elements.toolbarLeftIcon.className = "fa-solid fa-bars";
+        elements.toolbarLeftIcon.className = "fa-solid fa-ellipsis-vertical";
     } else {
         elements.toolbarLeftIcon.className = "fa-solid fa-arrow-left";
+    }
+}
+
+// Navigation Tabs Switcher
+function navTo(tab) {
+    if (tab === 'buddies' && appState.readOnly) return;
+    
+    updateHeaderForTab(tab);
+    
+    const pageEl = document.getElementById('page-' + tab);
+    if (pageEl && elements.appContentScroll) {
+        elements.appContentScroll.scrollTo({
+            left: pageEl.offsetLeft,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Continuous scroll listener for ViewPager syncing
+function setupViewPagerScroll() {
+    if (!elements.appContentScroll) return;
+    
+    const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile']; // ordered by DOM layout
+    const parallaxBg = document.querySelector('.parallax-bg');
+    
+    elements.appContentScroll.addEventListener('scroll', () => {
+        const scrollLeft = elements.appContentScroll.scrollLeft;
+        const width = elements.appContentScroll.clientWidth;
+        const maxScroll = elements.appContentScroll.scrollWidth - width;
+        
+        // 1. Sync Parallax
+        if (parallaxBg && maxScroll > 0) {
+            const scrollPercent = (scrollLeft / maxScroll) * 100;
+            // Invert the percentage so 100% is at the start (putting the runner on the left), 
+            // and it drops toward 0% as we scroll right (moving the runner to the right).
+            parallaxBg.style.backgroundPosition = `${100 - scrollPercent}% center`;
+        }
+        
+        // 2. Sync Active Tab UI
+        const pageIndex = Math.round(scrollLeft / width);
+        if (pageIndex >= 0 && pageIndex < pages.length) {
+            updateHeaderForTab(pages[pageIndex]);
+        }
+    }, { passive: true });
+    
+    // Set initial position to 100% (Left side)
+    if (parallaxBg) {
+        parallaxBg.style.backgroundPosition = '100% center';
     }
 }
 
@@ -1966,7 +2040,7 @@ function updateNextAndLatestUI() {
     const tomorrowStr = getLocalDateString(tomorrow);
     
     let nextWorkout = null;
-    let labelText = "NEXT SESSION";
+    let labelText = "NEXT ACTIVITY";
     
     // Sort logically by date
     const sorted = [...appState.workouts].sort((a,b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
@@ -1976,7 +2050,7 @@ function updateNextAndLatestUI() {
         if (!w.isCompleted && w.scheduledDate) {
             if (w.scheduledDate < todayStr) {
                 nextWorkout = w;
-                labelText = "MISSED SESSION";
+                labelText = "MISSED ACTIVITY";
                 break;
             }
         }
@@ -1988,7 +2062,7 @@ function updateNextAndLatestUI() {
             if (!w.isCompleted && w.scheduledDate) {
                 if (w.scheduledDate === todayStr) {
                     nextWorkout = w;
-                    labelText = "TODAY'S SESSION";
+                    labelText = "TODAY'S ACTIVITY";
                     break;
                 }
             }
@@ -2001,7 +2075,7 @@ function updateNextAndLatestUI() {
             if (!w.isCompleted && w.scheduledDate) {
                 if (w.scheduledDate > todayStr) {
                     nextWorkout = w;
-                    labelText = w.scheduledDate === tomorrowStr ? "TOMORROW'S SESSION" : "NEXT SESSION";
+                    labelText = w.scheduledDate === tomorrowStr ? "TOMORROW'S ACTIVITY" : "NEXT ACTIVITY";
                     break;
                 }
             }
@@ -2123,7 +2197,7 @@ function updateWeeklyChecklistUI() {
     
     const currentWeek = getCurrentTrainingWeekNumber();
     if (elements.weeklyChecklistTitle) {
-        elements.weeklyChecklistTitle.innerText = `Week ${currentWeek} Sessions`;
+        elements.weeklyChecklistTitle.innerText = `Week ${currentWeek} Activities`;
     }
     
     const weekWorkouts = appState.workouts
@@ -2133,7 +2207,7 @@ function updateWeeklyChecklistUI() {
     if (weekWorkouts.length === 0) {
         elements.weeklyChecklistContainer.innerHTML = `
             <div style="font-size: 0.8rem; color: var(--android-secondary); text-align: center; padding: 12px 0;">
-                No sessions scheduled for this week.
+                No activities scheduled for this week.
             </div>
         `;
         return;
@@ -3219,7 +3293,14 @@ function handleWorkoutSubmit(e) {
 // ----------------------------------------------------
 function openGeneratorModal() {
     if (appState.readOnly) return;
-    appState.wizardPage = 1;
+    appState.wizardPage = 0; // Start at method selection
+    
+    // Reset import state
+    window.pendingImportPlan = null;
+    if (elements.importPreviewContainer) elements.importPreviewContainer.style.display = 'none';
+    if (elements.btnWizImportFinish) elements.btnWizImportFinish.disabled = true;
+    if (elements.importFileInput) elements.importFileInput.value = '';
+
     elements.generatorWizardModal.classList.add('active');
     
     // Set standard dates
@@ -3242,14 +3323,20 @@ function closeWizardModal() {
 }
 
 function navigateWizardBack() {
-    if (appState.wizardPage > 1) {
+    if (appState.wizardPage === 4) {
+        appState.wizardPage = 0;
+        updateWizardUI();
+    } else if (appState.wizardPage > 0) {
         appState.wizardPage--;
         updateWizardUI();
     }
 }
 
 function navigateWizardNext() {
-    if (appState.wizardPage === 1) {
+    if (appState.wizardPage === 0) {
+        // Can't click Next on page 0
+        return;
+    } else if (appState.wizardPage === 1) {
         if (!elements.wizEventName.value.trim() || !elements.wizEventDate.value) {
             alert("Please enter a race name and date.");
             return;
@@ -3259,20 +3346,41 @@ function navigateWizardNext() {
     } else if (appState.wizardPage === 2) {
         appState.wizardPage = 3;
         updateWizardUI();
-    } else {
-        // Run Generator math!
+    } else if (appState.wizardPage === 3) {
         generateTrainingPlanFromWizard();
     }
 }
 
 function updateWizardUI() {
+    document.getElementById('wiz-page-0').classList.toggle('active', appState.wizardPage === 0);
     document.getElementById('wiz-page-1').classList.toggle('active', appState.wizardPage === 1);
     document.getElementById('wiz-page-2').classList.toggle('active', appState.wizardPage === 2);
     document.getElementById('wiz-page-3').classList.toggle('active', appState.wizardPage === 3);
+    document.getElementById('wiz-page-4').classList.toggle('active', appState.wizardPage === 4);
     
-    elements.wizardTitleStep.innerText = `STEP ${appState.wizardPage} OF 3`;
-    elements.btnWizBack.style.display = appState.wizardPage > 1 ? "block" : "none";
-    elements.btnWizNext.innerText = appState.wizardPage === 3 ? "GENERATE PLAN" : "NEXT STEP";
+    // Hide footer completely on Page 0 (method selection)
+    const footer = elements.btnWizBack.parentElement;
+    if (appState.wizardPage === 0) {
+        elements.btnWizBack.style.display = 'none';
+        elements.btnWizNext.style.display = 'none';
+        if (elements.btnWizFinish) elements.btnWizFinish.style.display = 'none';
+        if (elements.btnWizImportFinish) elements.btnWizImportFinish.style.display = 'none';
+    } else if (appState.wizardPage === 4) {
+        elements.btnWizBack.style.display = 'block';
+        elements.btnWizNext.style.display = 'none';
+        if (elements.btnWizFinish) elements.btnWizFinish.style.display = 'none';
+        if (elements.btnWizImportFinish) elements.btnWizImportFinish.style.display = 'block';
+    } else {
+        elements.btnWizBack.style.display = 'block';
+        if (appState.wizardPage === 3) {
+            elements.btnWizNext.style.display = 'none';
+            if (elements.btnWizFinish) elements.btnWizFinish.style.display = 'block';
+        } else {
+            elements.btnWizNext.style.display = 'block';
+            if (elements.btnWizFinish) elements.btnWizFinish.style.display = 'none';
+        }
+        if (elements.btnWizImportFinish) elements.btnWizImportFinish.style.display = 'none';
+    }
 }
 
 function setupWizardAutoFormatting() {
@@ -5684,4 +5792,241 @@ function handleExpandWorkoutMap(e) {
             workoutMapInstance.invalidateSize();
         }
     }, 350);
+}
+
+// ----------------------------------------------------
+// EXTERNAL PLAN IMPORT LOGIC
+// ----------------------------------------------------
+
+
+async function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Hide previous UI states
+    elements.importPreviewContainer.style.display = 'none';
+    elements.btnWizImportFinish.disabled = true;
+    
+    if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+        // Local Parsing
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const contents = e.target.result;
+                let parsedWorkouts = [];
+                if (file.name.endsWith('.json')) parsedWorkouts = JSON.parse(contents);
+                else parsedWorkouts = parseCSV(contents);
+                
+                if (!Array.isArray(parsedWorkouts) || parsedWorkouts.length === 0) {
+                    alert('No valid workouts found.');
+                    return;
+                }
+                
+                window.pendingImportPlan = parsedWorkouts;
+                renderImportPreview(parsedWorkouts);
+                elements.btnWizImportFinish.disabled = false;
+                elements.importPreviewContainer.style.display = 'block';
+            } catch (err) {
+                alert('Error parsing file: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    } else {
+        // AI Parsing (PDF / Images)
+        const apiKey = localStorage.getItem('geminiApiKey');
+        if (!apiKey) {
+            alert('Please enter your Gemini API Key first.');
+            return;
+        }
+        
+        elements.importUploadZone.style.display = 'none';
+        elements.importLoadingSpinner.style.display = 'block';
+        
+        try {
+            const base64Data = await fileToBase64(file);
+            const mimeType = file.type;
+            
+            const aiResponse = await callGeminiAPI(base64Data, mimeType, apiKey);
+            
+            if (!aiResponse || !Array.isArray(aiResponse) || aiResponse.length === 0) {
+                throw new Error("AI returned invalid plan format.");
+            }
+            
+            window.pendingImportPlan = aiResponse;
+            renderImportPreview(aiResponse);
+            elements.btnWizImportFinish.disabled = false;
+            elements.importPreviewContainer.style.display = 'block';
+            
+        } catch (err) {
+            console.error('AI Processing Error:', err);
+            alert('AI Processing failed: ' + err.message);
+        } finally {
+            elements.importUploadZone.style.display = 'block';
+            elements.importLoadingSpinner.style.display = 'none';
+        }
+    }
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            // Remove the data:image/png;base64, prefix
+            const result = reader.result.split(',')[1];
+            resolve(result);
+        };
+        reader.onerror = error => reject(error);
+    });
+}
+
+async function callGeminiAPI(base64Data, mimeType, apiKey) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    
+    // Dynamically get the race type from Step 1 so the AI acts accordingly
+    const targetDistance = elements.wizRaceType ? elements.wizRaceType.value : "Marathon";
+    
+    const prompt = `You are an expert ${targetDistance} running coach. Analyze the provided training plan image/PDF.
+Extract all workouts into a strict JSON array. Each object in the array MUST have these exact keys:
+"date": string (YYYY-MM-DD) - Calculate dates assuming the plan ends on the race date provided below. If no dates are visible, assume Day 1 is today (${new Date().toISOString().split('T')[0]}).
+"type": string (e.g. 'LONG RUN', 'INTERVALS', 'EASY', 'REST')
+"distance": number (Extract total distance in kilometers. If it says miles, convert to km. If it's a time-based run, estimate distance assuming 6:00 min/km pace, or just put 0)
+"title": string (A short name like '8x400m Intervals' or '15km Long Run')
+"description": string (Any specific pacing or instructions visible)
+
+Return ONLY valid JSON. No markdown formatting, no backticks.
+[
+  {"date": "2024-01-01", "type": "EASY", "distance": 5, "title": "Recovery", "description": "Keep HR low"}
+]`;
+
+    const body = {
+        "contents": [{
+            "parts": [
+                {"text": prompt},
+                {
+                    "inline_data": {
+                        "mime_type": mimeType,
+                        "data": base64Data
+                    }
+                }
+            ]
+        }]
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Gemini API Error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    let textResponse = data.candidates[0].content.parts[0].text;
+    
+    // Clean up potential markdown formatting
+    textResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+    
+    return JSON.parse(textResponse);
+}
+
+
+function parseCSV(csvText) {
+    const lines = csvText.split('\n');
+    if (lines.length < 2) return [];
+    const workouts = [];
+    // Assume header: Date,Type,Distance,Title,Description
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const parts = line.split(',');
+        if (parts.length >= 3) {
+            workouts.push({
+                date: parts[0].trim(),
+                type: parts[1].trim(),
+                distance: parseFloat(parts[2].trim()) || 0,
+                title: parts.length > 3 ? parts[3].trim() : parts[1].trim(),
+                description: parts.length > 4 ? parts[4].trim() : ''
+            });
+        }
+    }
+    return workouts;
+}
+
+function renderImportPreview(workouts) {
+    const tbody = elements.importPreviewTable.querySelector('tbody');
+    tbody.innerHTML = '';
+    // Show up to 10 rows for preview
+    workouts.slice(0, 10).forEach(w => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style='padding:5px;'>${w.date}</td><td style='padding:5px;'>${w.type}</td><td style='padding:5px;'>${w.distance}</td>`;
+        tbody.appendChild(tr);
+    });
+    if (workouts.length > 10) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan='3' style='padding:5px; text-align:center; color:#aaa;'>... and ${workouts.length - 10} more</td>`;
+        tbody.appendChild(tr);
+    }
+}
+
+async function processImportedPlan() {
+    if (!window.pendingImportPlan || window.pendingImportPlan.length === 0) return;
+    
+    elements.btnWizImportFinish.disabled = true;
+    elements.btnWizImportFinish.innerText = 'SAVING...';
+    
+    const action = elements.wizImportAction.value; // 'merge' or 'replace'
+    
+    try {
+        if (action === 'replace') {
+            // Wipe existing workouts node for this user
+            await db.ref('workouts/' + appState.userId).remove();
+        }
+        
+        const updates = {};
+        
+        const sortedWorkouts = [...window.pendingImportPlan].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const firstWorkoutDate = sortedWorkouts.length > 0 ? new Date(sortedWorkouts[0].date) : new Date();
+        const planStartMonday = new Date(firstWorkoutDate);
+        planStartMonday.setDate(firstWorkoutDate.getDate() - firstWorkoutDate.getDay() + (firstWorkoutDate.getDay() === 0 ? -6 : 1));
+        planStartMonday.setHours(0,0,0,0);
+        
+        window.pendingImportPlan.forEach((w, index) => {
+            const wDate = new Date(w.date);
+            wDate.setHours(0,0,0,0);
+            const diffMs = wDate.getTime() - planStartMonday.getTime();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.floor(diffDays / 7) + 1;
+            
+            const pushKey = db.ref('workouts/' + appState.userId).push().key;
+            const workoutId = `workout_${pushKey}`;
+            updates[workoutId] = {
+                scheduledDate: w.date,
+                weekNumber: weekNumber > 0 ? weekNumber : 1,
+                workoutType: w.type || 'EASY',
+                distance: w.distance || 0,
+                description: (w.title ? w.title + " - " : "") + (w.description || ''),
+                isCompleted: false,
+                totalDuration: 0,
+                planName: elements.wizRaceType ? elements.wizRaceType.value + " Plan" : "Imported Plan"
+            };
+        });
+        
+        await db.ref('workouts/' + appState.userId).update(updates);
+        
+        alert('Plan imported successfully!');
+        closeWizardModal();
+        // Data listeners will automatically refresh UI
+    } catch (err) {
+        console.error('Save error:', err);
+        alert('Failed to save imported plan.');
+    } finally {
+        elements.btnWizImportFinish.disabled = false;
+        elements.btnWizImportFinish.innerText = 'IMPORT PLAN';
+    }
 }
