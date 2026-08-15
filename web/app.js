@@ -2086,6 +2086,13 @@ function updateNextAndLatestUI() {
         elements.labelNextSession.innerText = labelText;
         elements.nextType.innerText = getWorkoutTypeWithIcon(nextWorkout.workoutType);
         
+        const displayHeader = nextWorkout.customTitle ? 
+            getWorkoutTypeWithIcon(nextWorkout.workoutType).split(' ')[0] + ' ' + nextWorkout.customTitle : 
+            getWorkoutTypeWithIcon(nextWorkout.workoutType);
+            
+        elements.nextType.innerText = displayHeader;
+        elements.nextType.style.textTransform = 'uppercase';
+
         // Color text by status
         if (labelText.includes("MISSED")) {
             elements.nextType.className = "card-title-lime type-red";
@@ -2093,10 +2100,14 @@ function updateNextAndLatestUI() {
             elements.nextType.className = "card-title-lime";
         }
         
-        if (nextWorkout.workoutType.toUpperCase() === 'INTERVALS' && nextWorkout.intervalCount) {
+        if (nextWorkout.workoutType.toUpperCase() === 'INTERVALS') {
             elements.nextDetails.innerText = `${nextWorkout.intervalCount}x ${nextWorkout.intervalValue} @ ${nextWorkout.intervalPace} - ${nextWorkout.description}`;
         } else {
-            elements.nextDetails.innerText = `${formatDistance(nextWorkout.distance)} km - ${nextWorkout.description}`;
+            let parts = [];
+            if (nextWorkout.distance > 0) parts.push(`${formatDistance(nextWorkout.distance)} km`);
+            if (nextWorkout.totalDuration > 0) parts.push(`${nextWorkout.totalDuration} min`);
+            const metricsString = parts.length > 0 ? parts.join(' | ') : 'No metrics';
+            elements.nextDetails.innerText = `${metricsString} - ${nextWorkout.description}`;
         }
         
         const dateObj = new Date(nextWorkout.scheduledDate);
@@ -2229,9 +2240,19 @@ function updateWeeklyChecklistUI() {
             weekday: 'short', day: 'numeric', month: 'short'
         });
         
-        const workoutLabel = w.workoutType.toUpperCase() === 'INTERVALS' && w.intervalCount
-            ? `${w.workoutType} (${w.intervalCount}x${w.intervalValue})`
-            : `${w.workoutType} (${formatDistance(w.distance)} km)`;
+        const baseName = w.customTitle ? w.customTitle : w.workoutType.toUpperCase();
+        let workoutLabel = baseName;
+        
+        if (w.workoutType.toUpperCase() === 'INTERVALS' && w.intervalCount) {
+            workoutLabel = `${baseName} (${w.intervalCount}x${w.intervalValue})`;
+        } else {
+            let metrics = [];
+            if (w.distance > 0) metrics.push(`${formatDistance(w.distance)} km`);
+            if (w.totalDuration > 0) metrics.push(`${w.totalDuration} min`);
+            if (metrics.length > 0) {
+                workoutLabel = `${baseName} (${metrics.join(' | ')})`;
+            }
+        }
             
         const paceVal = w.workoutType.toUpperCase() === 'INTERVALS' && w.intervalPace
             ? w.intervalPace
@@ -2314,17 +2335,23 @@ function renderWorkoutsList() {
             } else if (w.workoutType.toUpperCase() === 'STRENGTH & CORE') {
                 detailsText = 'Strength & Core session';
             } else {
-                detailsText = `${formatDistance(w.distance)} km | Pace: ${formatPace(w.pace)}`;
-                if (w.isCompleted && w.avgHeartRate > 0) {
-                    detailsText += ` | HR: ${w.avgHeartRate}`;
-                }
+                let parts = [];
+                if (w.distance > 0) parts.push(`${formatDistance(w.distance)} km`);
+                if (w.totalDuration > 0) parts.push(`${w.totalDuration} min`);
+                if (w.pace) parts.push(`Pace: ${formatPace(w.pace)}`);
+                if (w.isCompleted && w.avgHeartRate > 0) parts.push(`HR: ${w.avgHeartRate}`);
+                detailsText = parts.length > 0 ? parts.join(' | ') : 'No metrics';
             }
+            
+            const displayHeader = w.customTitle ? 
+                getWorkoutTypeWithIcon(w.workoutType).split(' ')[0] + ' ' + w.customTitle : 
+                getWorkoutTypeWithIcon(w.workoutType);
             
             card.innerHTML = `
                 <div class="workout-card-layout">
                     <div class="workout-card-details" onclick="editWorkout('${w.id}')">
                         <span class="workout-card-date">${formattedDate}</span>
-                        <div class="workout-card-type ${colorClass}">${getWorkoutTypeWithIcon(w.workoutType)}</div>
+                        <div class="workout-card-type ${colorClass}" style="text-transform: uppercase;">${displayHeader}</div>
                         <div class="workout-card-metrics">${detailsText}</div>
                         <div class="workout-card-desc">${w.description || ''}</div>
                     </div>
@@ -5803,6 +5830,13 @@ async function handleFileImport(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    const startDateElement = document.getElementById('import-start-date');
+    if (!startDateElement || !startDateElement.value) {
+        alert('Please select a Plan Start Date before choosing a file to import.');
+        event.target.value = ''; // clear input
+        return;
+    }
+    
     // Hide previous UI states
     elements.importPreviewContainer.style.display = 'none';
     elements.btnWizImportFinish.disabled = true;
@@ -5883,20 +5917,22 @@ function fileToBase64(file) {
 async function callGeminiAPI(base64Data, mimeType, apiKey) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
     
-    // Dynamically get the race type from Step 1 so the AI acts accordingly
     const targetDistance = elements.wizRaceType ? elements.wizRaceType.value : "Marathon";
+    const startDateElement = document.getElementById('import-start-date');
+    const startDate = startDateElement.value; // Guaranteed to exist by validation
     
     const prompt = `You are an expert ${targetDistance} running coach. Analyze the provided training plan image/PDF.
 Extract all workouts into a strict JSON array. Each object in the array MUST have these exact keys:
-"date": string (YYYY-MM-DD) - Calculate dates assuming the plan ends on the race date provided below. If no dates are visible, assume Day 1 is today (${new Date().toISOString().split('T')[0]}).
+"date": string (YYYY-MM-DD) - The user has explicitly set the start date to ${startDate}. You MUST map Day 1 (the first workout) to ${startDate}. Calculate all subsequent workout dates chronologically forward from ${startDate}. Ignore any original dates or years listed in the image.
 "type": string (e.g. 'LONG RUN', 'INTERVALS', 'EASY', 'REST')
-"distance": number (Extract total distance in kilometers. If it says miles, convert to km. If it's a time-based run, estimate distance assuming 6:00 min/km pace, or just put 0)
-"title": string (A short name like '8x400m Intervals' or '15km Long Run')
+"distance": number (Extract total distance in kilometers. If it says miles, convert to km. If no exact distance is given (e.g., purely a time-based run), put 0. DO NOT GUESS DISTANCE.)
+"duration": number (Extract total duration in minutes if specified, e.g. 15 for '15:00'. If no time is specified, put 0)
+"title": string (A specific name like '15:00 Recovery Run' or '8x400m Intervals')
 "description": string (Any specific pacing or instructions visible)
 
 Return ONLY valid JSON. No markdown formatting, no backticks.
 [
-  {"date": "2024-01-01", "type": "EASY", "distance": 5, "title": "Recovery", "description": "Keep HR low"}
+  {"date": "${startDate}", "type": "EASY", "distance": 0, "duration": 15, "title": "15:00 Recovery Run", "description": "Keep HR low"}
 ]`;
 
     const body = {
@@ -6010,9 +6046,10 @@ async function processImportedPlan() {
                 weekNumber: weekNumber > 0 ? weekNumber : 1,
                 workoutType: w.type || 'EASY',
                 distance: w.distance || 0,
-                description: (w.title ? w.title + " - " : "") + (w.description || ''),
+                description: w.description || '',
+                customTitle: w.title || '',
                 isCompleted: false,
-                totalDuration: 0,
+                totalDuration: w.duration || 0,
                 planName: elements.wizRaceType ? elements.wizRaceType.value + " Plan" : "Imported Plan"
             };
         });
