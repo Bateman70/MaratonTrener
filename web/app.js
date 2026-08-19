@@ -3385,6 +3385,17 @@ function updateWizardUI() {
     document.getElementById('wiz-page-3').classList.toggle('active', appState.wizardPage === 3);
     document.getElementById('wiz-page-4').classList.toggle('active', appState.wizardPage === 4);
     
+    const titleStep = document.getElementById('wizard-title-step');
+    if (titleStep) {
+        if (appState.wizardPage === 0) {
+            titleStep.innerText = 'NEW PLAN';
+        } else if (appState.wizardPage >= 1 && appState.wizardPage <= 3) {
+            titleStep.innerText = `STEP ${appState.wizardPage} OF 3`;
+        } else if (appState.wizardPage === 4) {
+            titleStep.innerText = 'IMPORT PLAN';
+        }
+    }
+    
     // Hide footer completely on Page 0 (method selection)
     const footer = elements.btnWizBack.parentElement;
     if (appState.wizardPage === 0) {
