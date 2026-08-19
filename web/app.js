@@ -966,7 +966,7 @@ function updateHeaderForTab(tab) {
             elements.appToolbarTitle.innerText = "STATISTICS";
             renderAnalyticsCharts(); // render/refresh charts
         } else if (tab === 'sync') {
-            elements.appToolbarTitle.innerText = "SYNC & SKY";
+            elements.appToolbarTitle.innerText = "SYNC & CLOUD";
         } else if (tab === 'profile') {
             elements.appToolbarTitle.innerText = "PROFILE";
         }
