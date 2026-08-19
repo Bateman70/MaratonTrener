@@ -416,6 +416,67 @@
                             </div>
                         </div>
                         
+                        <!-- ================= PAGE 5: SYNC & CLOUD ================= -->
+                        <div class="app-page" id="page-sync">
+                            <!-- Sync & Cloud Operations Card -->
+                            <div class="card android-card profile-only-edit">
+                                <div class="section-label-inner">CLOUD & INTEGRATIONS</div>
+                                
+                                <div class="sync-id-box">
+                                    <label class="label-lime" style="font-size:0.75rem;">RUNNER ID FOR CLOUD SYNC</label>
+                                    <div class="sync-input-row">
+                                        <input type="text" id="profile-sync-id-input" class="form-control-android" placeholder="e.g. CH020721" style="text-transform: uppercase;">
+                                        <button class="btn-solid-android" id="btn-sync-profile-id">SYNC</button>
+                                    </div>
+                                    <span class="help-text">Connect this dashboard with your cloud profile by entering your unique Runner ID. <em>(Syncing connects and pulls your profile and bio from the cloud; it does not overwrite your cloud data or your current training plan).</em></span>
+                                </div>
+                                
+                                <!-- Strava Sync Integration Box -->
+                                <div class="sync-id-box profile-only-edit" id="strava-sync-section" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                        <label class="label-lime" style="font-size:0.75rem; color: #FC5200; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                                            <i class="fa-brands fa-strava" style="font-size: 1.1rem;"></i> STRAVA SYNC INTEGRATION
+                                        </label>
+                                        <span id="strava-status-badge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-weight: bold;">Disconnected</span>
+                                    </div>
+                                    <span class="help-text" style="display: block; margin-bottom: 10px;">
+                                        Automatically match and sync completed runs and treadmill activities from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MarathonTrainer to Strava).</em>
+                                    </span>
+                                    <button class="btn-solid-android" id="btn-strava-action" style="background: #FC5200; color: white; width: 100%; font-weight: bold; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA
+                                    </button>
+                                </div>
+                                
+                                <!-- Troubleshoot & Cache Reload Box -->
+                                <div class="sync-id-box" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                                    <label class="label-lime" style="font-size:0.75rem; color: #8e8e93; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-screwdriver-wrench"></i> TROUBLESHOOTING
+                                    </label>
+                                    <span class="help-text" style="display: block; margin-bottom: 10px;">
+                                        If updates are not showing, force a cache reset and reload the app shell.
+                                    </span>
+                                    <button class="btn-solid-android" id="btn-force-reload-app" style="background: rgba(255, 255, 255, 0.05); color: #fff; width: 100%; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 0.85rem;">
+                                        <i class="fa-solid fa-arrow-rotate-right"></i> FORCE RELOAD APP
+                                    </button>
+                                </div>
+                                
+                                <!-- Admin Control Panel Box -->
+                                <div class="sync-id-box admin-only-section" id="admin-sync-section" style="display: none; margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                                    <label class="label-lime" style="font-size:0.75rem; color: #ff9500; font-weight: bold;">ADMIN CONTROL PANEL</label>
+                                    <div style="margin-top: 8px;">
+                                        <button class="btn-solid-android" id="btn-open-admin-dashboard" style="background: linear-gradient(135deg, #ff9500, #ff3b30); color: white; width: 100%; font-weight: bold; letter-spacing: 0.5px; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                            <i class="fa-solid fa-users-gear"></i> OPEN USER DIRECTORY
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="cloud-buttons-row">
+                                    <button class="btn-outline-android" id="btn-restore-cloud"><i class="fa-solid fa-cloud-arrow-down"></i> RESTORE FROM CLOUD</button>
+                                    <button class="btn-outline-android btn-danger-android" id="btn-delete-nuclear"><i class="fa-solid fa-trash-can"></i> DELETE ALL DATA</button>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <!-- ================= PAGE 5: PROFILE ================= -->
                         <div class="app-page" id="page-profile">
                             
@@ -572,68 +633,7 @@
                             </div>
                             
                             <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.3 (383)</div>
-                        </div>
-                        
-                        <!-- ================= PAGE 5: SYNC & CLOUD ================= -->
-                        <div class="app-page" id="page-sync">
-                            <!-- Sync & Cloud Operations Card -->
-                            <div class="card android-card profile-only-edit">
-                                <div class="section-label-inner">CLOUD & INTEGRATIONS</div>
-                                
-                                <div class="sync-id-box">
-                                    <label class="label-lime" style="font-size:0.75rem;">RUNNER ID FOR CLOUD SYNC</label>
-                                    <div class="sync-input-row">
-                                        <input type="text" id="profile-sync-id-input" class="form-control-android" placeholder="e.g. CH020721" style="text-transform: uppercase;">
-                                        <button class="btn-solid-android" id="btn-sync-profile-id">SYNC</button>
-                                    </div>
-                                    <span class="help-text">Connect this dashboard with your cloud profile by entering your unique Runner ID. <em>(Syncing connects and pulls your profile and bio from the cloud; it does not overwrite your cloud data or your current training plan).</em></span>
-                                </div>
-                                
-                                <!-- Strava Sync Integration Box -->
-                                <div class="sync-id-box profile-only-edit" id="strava-sync-section" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                                        <label class="label-lime" style="font-size:0.75rem; color: #FC5200; font-weight: bold; display: flex; align-items: center; gap: 6px;">
-                                            <i class="fa-brands fa-strava" style="font-size: 1.1rem;"></i> STRAVA SYNC INTEGRATION
-                                        </label>
-                                        <span id="strava-status-badge" style="font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-weight: bold;">Disconnected</span>
-                                    </div>
-                                    <span class="help-text" style="display: block; margin-bottom: 10px;">
-                                        Automatically match and sync completed runs and treadmill activities from Strava directly to your active training calendar. There must be an open activity on the same day or the day before for the sync to be performed. <em style="font-size: 0.65rem; color: #8e8e93; display: block; margin-top: 4px;">Note: It does not sync in reverse (from MarathonTrainer to Strava).</em>
-                                    </span>
-                                    <button class="btn-solid-android" id="btn-strava-action" style="background: #FC5200; color: white; width: 100%; font-weight: bold; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                        <i class="fa-brands fa-strava"></i> CONNECT WITH STRAVA
-                                    </button>
-                                </div>
-                                
-                                <!-- Troubleshoot & Cache Reload Box -->
-                                <div class="sync-id-box" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
-                                    <label class="label-lime" style="font-size:0.75rem; color: #8e8e93; font-weight: bold; display: flex; align-items: center; gap: 6px;">
-                                        <i class="fa-solid fa-screwdriver-wrench"></i> TROUBLESHOOTING
-                                    </label>
-                                    <span class="help-text" style="display: block; margin-bottom: 10px;">
-                                        If updates are not showing, force a cache reset and reload the app shell.
-                                    </span>
-                                    <button class="btn-solid-android" id="btn-force-reload-app" style="background: rgba(255, 255, 255, 0.05); color: #fff; width: 100%; border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; font-size: 0.85rem;">
-                                        <i class="fa-solid fa-arrow-rotate-right"></i> FORCE RELOAD APP
-                                    </button>
-                                </div>
-                                
-                                <!-- Admin Control Panel Box -->
-                                <div class="sync-id-box admin-only-section" id="admin-sync-section" style="display: none; margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
-                                    <label class="label-lime" style="font-size:0.75rem; color: #ff9500; font-weight: bold;">ADMIN CONTROL PANEL</label>
-                                    <div style="margin-top: 8px;">
-                                        <button class="btn-solid-android" id="btn-open-admin-dashboard" style="background: linear-gradient(135deg, #ff9500, #ff3b30); color: white; width: 100%; font-weight: bold; letter-spacing: 0.5px; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                            <i class="fa-solid fa-users-gear"></i> OPEN USER DIRECTORY
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="cloud-buttons-row">
-                                    <button class="btn-outline-android" id="btn-restore-cloud"><i class="fa-solid fa-cloud-arrow-down"></i> RESTORE FROM CLOUD</button>
-                                    <button class="btn-outline-android btn-danger-android" id="btn-delete-nuclear"><i class="fa-solid fa-trash-can"></i> DELETE ALL DATA</button>
-                                </div>
-                            </div>
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.4 (384)</div>
                         </div>
                         
                         <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->
