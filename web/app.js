@@ -3534,87 +3534,86 @@ function generateTrainingPlanFromWizard() {
         const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const dayName = dayNames[dayOfWeek];
         
-        if (preferredDays.has(dayName)) {
-            const w = {
-                planName: eventName,
-                weekNumber: currentWeek + 1,
-                scheduledDate: current.toISOString().split('T')[0],
-                isCompleted: false,
-                notes: ""
-            };
+        const isPreferred = preferredDays.has(dayName);
+        const isAutoStrengthDay = (includeStrength && dayName === strengthDay);
+        
+        if (isPreferred || isAutoStrengthDay) {
             
-            let type = "";
-            if (includeStrength && dayName === strengthDay) {
-                type = "STRENGTH & CORE";
-            } else {
-                type = assignments[dayName] || runningTypes[runCounter % runningTypes.length];
-                if (type !== "STRENGTH & CORE") runCounter++;
-            }
-            w.workoutType = type;
-            
-            // Phase Progression Math
-            const progress = currentWeek / totalWeeks;
-            const phase = progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE");
-            
-            if (type.toUpperCase() === 'LONG RUN') {
-                let base = 12.0, max = 30.0;
-                if (raceType.includes("5K")) {
-                    base = 4.0; max = 7.0;
-                } else if (raceType.includes("10K")) {
-                    base = 6.0; max = 12.0;
-                } else if (raceType.includes("Half")) {
-                    base = 8.0; max = 18.0;
-                }
-                const pace = racePaceMinPerKm * 1.2;
-                w.distance = phase === "TAPER" ? (max * 0.7) : Math.min(base + currentWeek * 1.5, max);
-                w.pace = formatPace(pace);
-                w.description = `Endurance: Target ${formatPace(pace)} min/km. Time on feet is key.`;
-            } else if (type.toUpperCase() === 'INTERVALS') {
-                const reps = 4 + Math.floor(currentWeek / 3);
-                const pace = racePaceMinPerKm * 0.95;
-                w.intervalCount = reps;
-                w.intervalValue = "800m";
-                w.intervalPace = formatPace(pace);
-                w.description = `Speedwork: ${reps} sets at ${formatPace(pace)} pace. Recovery: 90s jog.`;
-            } else if (type.toUpperCase() === 'STRENGTH & CORE') {
-                const wk = w.weekNumber;
-                if (wk <= 4) {
-                    w.description = "Strength Phase 1 (Foundation): Glute Bridges (3x15), Squats (3x15), Plank (3x60s), Supermans (3x12), Bird-Dogs (3x12), Push-ups (3x10), Walking Lunges (3x10/leg). Focus on posture and form.";
-                } else if (wk <= 8) {
-                    w.description = "Strength Phase 2 (Strength & Back Focus): Dumbbell Rows (3x10/arm), Single-Leg Deadlifts (3x10/leg), Tricep Dips (3x12), Step-ups (3x12/leg), Side Plank (3x30s/side), Leg Raises (3x12). Target back fatigue.";
+            const createWorkout = (workoutType) => {
+                const w = {
+                    planName: eventName,
+                    weekNumber: currentWeek + 1,
+                    scheduledDate: current.toISOString().split('T')[0],
+                    isCompleted: false,
+                    notes: "",
+                    workoutType: workoutType
+                };
+                
+                const progress = currentWeek / totalWeeks;
+                const phase = progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE");
+                
+                if (workoutType.toUpperCase() === 'LONG RUN') {
+                    let base = 12.0, max = 30.0;
+                    if (raceType.includes("5K")) { base = 4.0; max = 7.0; }
+                    else if (raceType.includes("10K")) { base = 6.0; max = 12.0; }
+                    else if (raceType.includes("Half")) { base = 8.0; max = 18.0; }
+                    const pace = racePaceMinPerKm * 1.2;
+                    w.distance = phase === "TAPER" ? (max * 0.7) : Math.min(base + currentWeek * 1.5, max);
+                    w.pace = formatPace(pace);
+                    w.description = `Endurance: Target ${formatPace(pace)} min/km. Time on feet is key.`;
+                } else if (workoutType.toUpperCase() === 'INTERVALS') {
+                    const reps = 4 + Math.floor(currentWeek / 3);
+                    const pace = racePaceMinPerKm * 0.95;
+                    w.intervalCount = reps;
+                    w.intervalValue = "800m";
+                    w.intervalPace = formatPace(pace);
+                    w.description = `Speedwork: ${reps} sets at ${formatPace(pace)} pace. Recovery: 90s jog.`;
+                } else if (workoutType.toUpperCase() === 'STRENGTH & CORE') {
+                    const wk = w.weekNumber;
+                    if (wk <= 4) {
+                        w.description = "Strength Phase 1 (Foundation): Glute Bridges (3x15), Squats (3x15), Plank (3x60s), Supermans (3x12), Bird-Dogs (3x12), Push-ups (3x10), Walking Lunges (3x10/leg). Focus on posture and form.";
+                    } else if (wk <= 8) {
+                        w.description = "Strength Phase 2 (Strength & Back Focus): Dumbbell Rows (3x10/arm), Single-Leg Deadlifts (3x10/leg), Tricep Dips (3x12), Step-ups (3x12/leg), Side Plank (3x30s/side), Leg Raises (3x12). Target back fatigue.";
+                    } else {
+                        w.description = "Strength Phase 3 (Peak Power & Posture): Dumbbell Rows (3x12/arm), Supermans (3x15), Single-Leg Glute Bridges (3x10/leg), Plank w/ Shoulder Taps (3x45s), Lunges w/ Twist (3x10/leg), Single-Leg Deadlifts (3x12/leg). Shock absorption for asphalt.";
+                    }
+                    w.distance = 0;
+                    w.pace = "";
+                } else if (workoutType.toUpperCase() === 'TEMPO RUN') {
+                    let base = 6.0, prog = 0.5;
+                    if (raceType.includes("5K")) { base = 3.0; prog = 0.2; }
+                    else if (raceType.includes("10K")) { base = 4.0; prog = 0.3; }
+                    else if (raceType.includes("Half")) { base = 5.0; prog = 0.5; }
+                    const pace = racePaceMinPerKm * 1.05;
+                    w.distance = base + currentWeek * prog;
+                    w.pace = formatPace(pace);
+                    w.description = `Threshold: Target ${formatPace(pace)} min/km. Builds sustained speed.`;
                 } else {
-                    w.description = "Strength Phase 3 (Peak Power & Posture): Dumbbell Rows (3x12/arm), Supermans (3x15), Single-Leg Glute Bridges (3x10/leg), Plank w/ Shoulder Taps (3x45s), Lunges w/ Twist (3x10/leg), Single-Leg Deadlifts (3x12/leg). Shock absorption for asphalt.";
+                    let base = 6.0, prog = 0.5;
+                    if (raceType.includes("5K")) { base = 3.0; prog = 0.2; }
+                    else if (raceType.includes("10K")) { base = 4.0; prog = 0.3; }
+                    else if (raceType.includes("Half")) { base = 5.0; prog = 0.5; }
+                    const pace = racePaceMinPerKm * 1.12;
+                    w.distance = base + currentWeek * prog;
+                    w.pace = formatPace(pace);
+                    w.description = `Easy Run: Target ${formatPace(pace)} min/km. Keep heart rate low.`;
                 }
-                w.distance = 0;
-                w.pace = "";
-            } else if (type.toUpperCase() === 'TEMPO RUN') {
-                let base = 6.0, prog = 0.5;
-                if (raceType.includes("5K")) {
-                    base = 3.0; prog = 0.2;
-                } else if (raceType.includes("10K")) {
-                    base = 4.0; prog = 0.3;
-                } else if (raceType.includes("Half")) {
-                    base = 5.0; prog = 0.5;
-                }
-                const pace = racePaceMinPerKm * 1.05;
-                w.distance = base + currentWeek * prog;
-                w.pace = formatPace(pace);
-                w.description = `Threshold: Target ${formatPace(pace)} min/km. Builds sustained speed.`;
-            } else {
-                let base = 6.0, prog = 0.5;
-                if (raceType.includes("5K")) {
-                    base = 3.0; prog = 0.2;
-                } else if (raceType.includes("10K")) {
-                    base = 4.0; prog = 0.3;
-                } else if (raceType.includes("Half")) {
-                    base = 5.0; prog = 0.5;
-                }
-                const pace = racePaceMinPerKm * 1.12;
-                w.distance = base + currentWeek * prog;
-                w.pace = formatPace(pace);
-                w.description = `Easy Run: Target ${formatPace(pace)} min/km. Keep heart rate low.`;
+                return w;
+            };
+
+            if (isPreferred) {
+                let type = assignments[dayName] || runningTypes[runCounter % runningTypes.length];
+                if (type !== "STRENGTH & CORE") runCounter++;
+                planWorkouts.push(createWorkout(type));
             }
-            planWorkouts.push(w);
+            
+            // Add auto-strength separately if it wasn't manually requested via preferred dropdowns
+            if (isAutoStrengthDay) {
+                const manualAssigned = isPreferred ? (assignments[dayName] || "") : "";
+                if (manualAssigned !== "STRENGTH & CORE") {
+                    planWorkouts.push(createWorkout("STRENGTH & CORE"));
+                }
+            }
         }
         
         // Sunday increments week number (0 is Sunday)
