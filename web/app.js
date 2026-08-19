@@ -503,22 +503,33 @@ function cacheElements() {
 
 // Setup View-Only or Edit Mode based on URL query parameters
 function initializeModeAndUser() {
-    // Read-only share views are deprecated. App always defaults to normal Edit/Registration Mode.
-    appState.readOnly = false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewId = urlParams.get('view');
     
-    let storedUserId = localStorage.getItem('maratontrener_userId');
-    if (!storedUserId) {
-        storedUserId = generateNewRunnerId();
-        localStorage.setItem('maratontrener_userId', storedUserId);
+    if (viewId) {
+        appState.readOnly = true;
+        appState.userId = viewId;
+        document.body.classList.add('read-only-mode');
+        document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = true);
+        if (elements.fabAddWorkout) elements.fabAddWorkout.style.display = 'none';
+    } else {
+        appState.readOnly = false;
+        let storedUserId = localStorage.getItem('maratontrener_userId');
+        if (!storedUserId) {
+            storedUserId = generateNewRunnerId();
+            localStorage.setItem('maratontrener_userId', storedUserId);
+        }
+        appState.userId = storedUserId;
+        
+        document.body.classList.remove('read-only-mode');
+        document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = false);
+        if (elements.fabAddWorkout) elements.fabAddWorkout.style.display = 'flex';
     }
-    appState.userId = storedUserId;
     
     // Load local profile data from cache
     loadProfileLocally();
-
-    document.body.classList.remove('read-only-mode');
-    document.querySelectorAll('.profile-read-only-msg').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('#form-profile-setup input').forEach(input => input.disabled = false);
     
     // Check if user is returning from Strava authorization
     checkStravaCallback();
