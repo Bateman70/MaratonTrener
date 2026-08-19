@@ -572,7 +572,7 @@
                             </div>
                             
                             <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.2 (382)</div>
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.3 (383)</div>
                         </div>
                         
                         <!-- ================= PAGE 5: SYNC & CLOUD ================= -->
@@ -765,7 +765,7 @@
                 </div>
                 <div class="form-group-android">
                     <label>Race Date</label>
-                    <input type="date" id="wiz-event-date" class="form-control-android">
+                    <input type="date" id="wiz-event-date" class="form-control-android" onclick="if(this.showPicker) this.showPicker();">
                 </div>
                 <div class="form-group-android">
                     <label>Goal Time (HH:MM:SS)</label>
@@ -821,8 +821,9 @@
             <div class="wizard-page" id="wiz-page-3">
                 <div class="section-label-modal">SCHEDULE CONFIGURATION</div>
                 <div class="form-group-android">
-                    <label>Start Training Date</label>
-                    <input type="date" id="wiz-start-date" class="form-control-android">
+                    <label>Training Plan Start Date</label>
+                    <input type="date" id="wiz-start-date" class="form-control-android" onclick="if(this.showPicker) this.showPicker();">
+                    <p style="font-size: 0.75rem; color: #888; margin-top: 5px;">We will build the progressive load from this exact date.</p>
                 </div>
                 <div class="form-group-android">
                     <label>Training Days per Week</label>
