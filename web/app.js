@@ -953,6 +953,7 @@ function updateHeaderForTab(tab) {
     if (tab === 'diet') {
         elements.appToolbarTitle.innerText = "MÅLTIDSPLAN";
         elements.btnToolbarRight.style.visibility = "hidden";
+        renderDietSection();
     } else {
         elements.btnToolbarRight.style.visibility = "visible";
         
@@ -999,7 +1000,7 @@ function navTo(tab) {
 function setupViewPagerScroll() {
     if (!elements.appContentScroll) return;
     
-    const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile']; // ordered by DOM layout
+    const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet']; // ordered by DOM layout
     const parallaxBg = document.querySelector('.parallax-bg');
     
     elements.appContentScroll.addEventListener('scroll', () => {
