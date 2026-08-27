@@ -157,7 +157,7 @@ html, body {
 }
 
 .device-frame {
-    background: #000;
+    background: transparent;
     border-radius: 40px;
     border: 12px solid #222;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px #444;
