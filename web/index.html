@@ -633,7 +633,7 @@
                             </div>
                             
                             <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.8 (388)</div>
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.9.0 (390)</div>
                         </div>
                         
                         <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->
@@ -965,11 +965,11 @@
             <div class="wizard-page" id="wiz-page-4">
                 <div class="section-label-modal">IMPORT PLAN</div>
                 
-                <!-- API Key Notice (Beta only) -->
+                <!-- API Key Notice -->
                 <div id="ai-api-key-container" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <label style="font-size: 0.8rem; color: var(--android-lime); display: block; margin-bottom: 5px;">Gemini API Key (Beta)</label>
-                    <input type="password" id="input-gemini-api-key" class="form-control-android" placeholder="Paste key here..." style="font-size: 0.8rem; padding: 8px;">
-                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Required for AI Image/PDF processing. Saved locally.</p>
+                    <label style="font-size: 0.8rem; color: var(--android-lime); display: block; margin-bottom: 5px;">Gemini API Key (Optional with Supabase Cloud)</label>
+                    <input type="password" id="input-gemini-api-key" class="form-control-android" placeholder="Paste custom key (or leave blank for Supabase Cloud)..." style="font-size: 0.8rem; padding: 8px;">
+                    <p style="font-size: 0.7rem; color: #888; margin: 5px 0 0 0;">Leave blank to use secure Supabase Cloud AI processing, or enter a custom key.</p>
                 </div>
 
                 <div class="form-group-android" style="margin-bottom: 20px;">
@@ -1551,7 +1551,9 @@
     </div>
 
     <!-- JS Application Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js?v=1.0"></script>
     <script src="firebase-config.js?v=5.2"></script>
-    <script src="app.js?v=6.5"></script>
+    <script src="app.js?v=6.6"></script>
 </body>
 </html>

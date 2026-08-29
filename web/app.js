@@ -5890,10 +5890,6 @@ async function handleFileImport(event) {
     } else {
         // AI Parsing (PDF / Images)
         const apiKey = localStorage.getItem('geminiApiKey');
-        if (!apiKey) {
-            alert('Please enter your Gemini API Key first.');
-            return;
-        }
         
         elements.importUploadZone.style.display = 'none';
         elements.importLoadingSpinner.style.display = 'block';
@@ -5901,8 +5897,22 @@ async function handleFileImport(event) {
         try {
             const base64Data = await fileToBase64(file);
             const mimeType = file.type;
+            const startDateVal = document.getElementById('import-start-date')?.value || '';
+            let aiResponse = null;
             
-            const aiResponse = await callGeminiAPI(base64Data, mimeType, apiKey);
+            if (apiKey) {
+                // Use user's private Gemini API key directly
+                aiResponse = await callGeminiAPI(base64Data, mimeType, apiKey);
+            } else if (supabaseClient) {
+                // Route through Supabase Edge Function securely!
+                const { data, error } = await supabaseClient.functions.invoke('parse-plan', {
+                    body: { base64Data, mimeType, startDate: startDateVal }
+                });
+                if (error) throw new Error("Supabase Cloud Error: " + error.message);
+                aiResponse = typeof data === 'string' ? JSON.parse(data) : data;
+            } else {
+                throw new Error("Please enter your Gemini API Key or configure Supabase Cloud.");
+            }
             
             if (!aiResponse || !Array.isArray(aiResponse) || aiResponse.length === 0) {
                 throw new Error("AI returned invalid plan format.");
