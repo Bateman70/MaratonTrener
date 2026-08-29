@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/card_dark">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/layoutText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_toStartOf="@id/completedCheckbox"
+            android:layout_marginEnd="12dp">
+
+            <TextView
+                android:id="@+id/textDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mon, 12 Oct"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
+
+            <TextView
+                android:id="@+id/textType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STEADY RUN"
+                android:textColor="@color/electric_lime"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/textDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8.0 km | 05:30 min/km"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:id="@+id/textDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Maintain a conversational pace..."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:layout_marginTop="6dp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/completedCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:buttonTint="@color/electric_lime"
+            android:scaleX="1.2"
+            android:scaleY="1.2" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

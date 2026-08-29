@@ -633,7 +633,7 @@
                             </div>
                             
                             <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.9.1 (391)</div>
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.9.2 (392)</div>
                         </div>
                         
                         <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->
@@ -1541,6 +1541,62 @@
             
             <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
                 <button type="button" class="btn-solid-android" id="btn-close-admin-footer" style="padding: 8px 20px; border-radius: 8px; cursor: pointer;">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: SUPABASE AUTHENTICATION ================= -->
+    <div class="modal" id="modal-auth">
+        <div class="modal-content" style="max-width: 420px; width: 92%; background: var(--android-card); color: #fff; border-radius: 16px; padding: 24px;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: var(--android-lime); font-size: 1.25rem; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-user-shield"></i> SIGN IN / SYNC PROFILE
+                </h3>
+                <button class="btn-close" id="btn-close-auth-modal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body" style="padding-top: 18px;">
+                <p style="font-size: 0.85rem; color: var(--android-secondary); margin-bottom: 20px; line-height: 1.4;">
+                    Sign in to back up your training plan, sync across devices, and connect with your Buddies automatically.
+                </p>
+
+                <!-- Magic Link Email Form -->
+                <form id="auth-email-form" style="margin-bottom: 20px;">
+                    <div class="form-group-android" style="margin-bottom: 12px;">
+                        <label class="form-label-android" style="font-size: 0.75rem;">EMAIL ADDRESS</label>
+                        <input type="email" id="auth-email-input" class="form-control-android" placeholder="runner@example.com" required style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <button type="submit" class="btn-solid-android" id="btn-auth-magic-link" style="width: 100%; padding: 12px; font-weight: bold; border-radius: 8px;">
+                        <i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> SEND MAGIC LINK
+                    </button>
+                </form>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin: 20px 0;">
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                    <span style="font-size: 0.7rem; color: #888; text-transform: uppercase;">OR SIGN IN WITH</span>
+                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                </div>
+
+                <!-- Social OAuth Buttons -->
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <button type="button" id="btn-auth-google" style="width: 100%; padding: 12px; background: #fff; color: #333; border: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fa-brands fa-google" style="color: #ea4335;"></i> Sign in with Google
+                    </button>
+                    <button type="button" id="btn-auth-apple" style="width: 100%; padding: 12px; background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <i class="fa-brands fa-apple" style="font-size: 1.1rem;"></i> Sign in with Apple
+                    </button>
+                </div>
+
+                <!-- Privacy Guarantee Badge -->
+                <div style="background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.2); padding: 12px; border-radius: 10px; display: flex; gap: 10px; align-items: flex-start;">
+                    <i class="fa-solid fa-lock" style="color: var(--android-lime); font-size: 1rem; margin-top: 2px;"></i>
+                    <p style="font-size: 0.72rem; color: rgba(255,255,255,0.8); margin: 0; line-height: 1.35;">
+                        <strong style="color: var(--android-lime); display: block; margin-bottom: 2px;">PRIVACY GUARANTEE</strong>
+                        Your login is strictly used to authenticate your identity. MarathonTrainer <strong>never</strong> shares, tracks, or sells your health data, weight, or training activities to Google, Apple, or third parties.
+                    </p>
+                </div>
             </div>
         </div>
     </div>

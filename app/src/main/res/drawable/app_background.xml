@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid color to fill any gaps -->
+    <item android:drawable="@color/carbon_black" />
+
+    <!-- The main image.
+         Anchoring to BOTTOM|LEFT ensures the runner (who is on the bottom left) stays in frame. -->
+    <item>
+        <bitmap
+            android:src="@drawable/marathon_bg_new"
+            android:gravity="bottom|left"
+            android:mipMap="true"
+            android:tileMode="disabled" />
+    </item>
+
+    <!-- Dark gradient overlay to improve readability -->
+    <item>
+        <shape>
+            <gradient
+                android:angle="270"
+                android:startColor="#99000000"
+                android:centerColor="#22000000"
+                android:endColor="#99000000"
+                android:centerY="0.5" />
+        </shape>
+    </item>
+</layer-list>

@@ -6093,3 +6093,140 @@ async function processImportedPlan() {
         elements.btnWizImportFinish.innerText = 'IMPORT PLAN';
     }
 }
+
+// ----------------------------------------------------
+// SUPABASE PHASE 2: AUTHENTICATION & DATA SYNC
+// ----------------------------------------------------
+function openAuthModal() {
+    const modal = document.getElementById('modal-auth');
+    if (modal) modal.classList.add('active');
+}
+
+function closeAuthModal() {
+    const modal = document.getElementById('modal-auth');
+    if (modal) modal.classList.remove('active');
+}
+
+function setupSupabaseAuthUI() {
+    const btnClose = document.getElementById('btn-close-auth-modal');
+    if (btnClose) btnClose.addEventListener('click', closeAuthModal);
+
+    const emailForm = document.getElementById('auth-email-form');
+    if (emailForm) {
+        emailForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email-input').value.trim();
+            const btn = document.getElementById('btn-auth-magic-link');
+            if (!email) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SENDING...';
+
+            try {
+                await supabaseSignInWithEmail(email);
+                alert("Magic login link sent to " + email + "! Check your email inbox.");
+                closeAuthModal();
+            } catch (err) {
+                alert("Auth Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> SEND MAGIC LINK';
+            }
+        });
+    }
+
+    const btnGoogle = document.getElementById('btn-auth-google');
+    if (btnGoogle) {
+        btnGoogle.addEventListener('click', () => {
+            supabaseSignInWithOAuth('google').catch(err => alert("Google Sign In Error: " + err.message));
+        });
+    }
+
+    const btnApple = document.getElementById('btn-auth-apple');
+    if (btnApple) {
+        btnApple.addEventListener('click', () => {
+            supabaseSignInWithOAuth('apple').catch(err => alert("Apple Sign In Error: " + err.message));
+        });
+    }
+
+    // Attach click to toolbar avatar if not logged in
+    const toolbarAvatar = document.getElementById('toolbar-avatar');
+    if (toolbarAvatar) {
+        toolbarAvatar.style.cursor = 'pointer';
+        toolbarAvatar.addEventListener('click', () => {
+            if (!appState.supabaseUser) {
+                openAuthModal();
+            } else {
+                navTo('profile');
+            }
+        });
+    }
+
+    // Listen to Supabase Session Changes
+    if (supabaseClient) {
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (session && session.user) {
+                appState.supabaseUser = session.user;
+                console.log("Supabase Auth User:", session.user.email);
+                await syncLocalDataToSupabase(session.user);
+            } else {
+                appState.supabaseUser = null;
+            }
+        });
+    }
+}
+
+async function syncLocalDataToSupabase(user) {
+    if (!supabaseClient || !user) return;
+    try {
+        // 1. Upsert Profile
+        const profileData = {
+            id: user.id,
+            email: user.email,
+            full_name: appState.fullName || appState.userName || user.user_metadata?.full_name || 'Runner',
+            nickname: appState.userName || 'Runner',
+            age: parseInt(appState.age, 10) || 30,
+            weight: parseFloat(appState.weight) || 70,
+            max_hr: parseInt(appState.maxHr, 10) || 185,
+            pb_10k: appState.pb10k || '',
+            pb_half: appState.pbHalf || '',
+            pb_full: appState.pbFull || '',
+            plan_start_date: appState.userProfile?.planStartDate ? new Date(appState.userProfile.planStartDate).toISOString().split('T')[0] : null,
+            updated_at: new Date().toISOString()
+        };
+
+        await supabaseClient.from('profiles').upsert(profileData);
+        updateProfileUI();
+
+        // 2. Sync Workouts to Supabase if any local ones exist
+        if (appState.workouts && appState.workouts.length > 0) {
+            const supabaseWorkouts = appState.workouts.map(w => ({
+                user_id: user.id,
+                scheduled_date: w.scheduledDate,
+                week_number: w.weekNumber || 1,
+                workout_type: w.workoutType || 'EASY',
+                distance: w.distance || 0,
+                total_duration: w.totalDuration || 0,
+                avg_heart_rate: w.avgHeartRate || 0,
+                description: w.description || '',
+                notes: w.notes || '',
+                is_completed: w.isCompleted || false,
+                shoe_id: w.shoeId || '',
+                strava_activity_id: w.stravaActivityId || ''
+            }));
+
+            await supabaseClient.from('workouts').upsert(supabaseWorkouts, { onConflict: 'user_id,scheduled_date,workout_type' });
+        }
+        console.log("Local data successfully synced with Supabase PostgreSQL!");
+    } catch (err) {
+        console.error("Supabase sync error:", err.message);
+    }
+}
+
+// Call Auth Setup on App Init
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSupabaseAuthUI);
+} else {
+    setupSupabaseAuthUI();
+}
+

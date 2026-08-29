@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#88000000"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarStats"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp"
+            app:contentInsetEnd="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageButton
+                    android:id="@+id/btnBackStats"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="?attr/homeAsUpIndicator"
+                    app:tint="@color/white"
+                    android:contentDescription="@string/back" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stats_header"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:layout_centerInParent="true"
+                    android:letterSpacing="0.1" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imageProfileStats"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_person"
+                    android:contentDescription="@string/profile"
+                    app:tint="@color/electric_lime"
+                    app:shapeAppearanceOverlay="@style/CircleImage"
+                    android:background="@drawable/prediction_card_border"
+                    android:padding="2dp"
+                    android:scaleType="centerCrop"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </RelativeLayout>
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="56dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Race Countdown Hero Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="24dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:background="@color/electric_lime"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/race_countdown"
+                        android:textColor="@color/carbon_black"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.2" />
+                    <TextView
+                        android:id="@+id/textCountdown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-- DAYS"
+                        android:textSize="48sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/carbon_black" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Grid Metrics (2 Columns) -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:alignmentMode="alignMargins"
+                android:layout_marginBottom="16dp">
+
+                <!-- Row 1: Total Activities | Consistency -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TOTAL ACTIVITIES" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textPlannedDist" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 done, 0 to go" android:textSize="13sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CONSISTENCY" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textConsistency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0%" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/success_green" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Row 2: Total Runs | Longest -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="TOTAL RUNS" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textTotalRuns" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 done, 0 to go" android:textSize="14sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardLongestRun"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark"
+                    android:clickable="true">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LONGEST" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textLongestRun" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0 km" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Row 3: Distance | Avg Pace -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DISTANCE" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textDistance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0 km" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVG. PACE" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textAveragePace" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0:00 min/km" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Row 4: Interval | Strength -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="INTERVAL" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textIntervalStat" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 done, 0 to go" android:textSize="13sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="STRENGTH &amp; CORE" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textStrengthDone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 done, 0 to go" android:textSize="13sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Row 5: Missed | Avg HR (Runs) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMissed"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark"
+                    android:clickable="true">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="MISSED" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textMissed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 activities" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="4dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/card_dark">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AVG. HEART RATE (RUNS)" android:textSize="10sp" android:textColor="@color/text_secondary" android:textStyle="bold" android:letterSpacing="0.1"/>
+                        <TextView android:id="@+id/textAvgHRRuns" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="--" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/white" android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </GridLayout>
+
+            <!-- Analysis Header -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TRAINING ANALYSIS"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="24dp"
+                android:letterSpacing="0.1" />
+
+            <!-- Charts Container -->
+            <LinearLayout
+                android:id="@+id/chartContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:background="@android:color/transparent"
+        app:itemIconTint="@color/electric_lime"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="unlabeled" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

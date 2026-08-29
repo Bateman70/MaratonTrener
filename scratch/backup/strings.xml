@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- App name -->
+    <string name="app_name">MarathonTrainer</string>
+    <string name="app_title">I THOUGHT THEY SAID RUM</string>
+    <string name="training_plan_title">TRAINING PLAN</string>
+
+    <string-array name="event_types">
+        <item>Marathon</item>
+        <item>Half Marathon</item>
+        <item>10K</item>
+        <item>5K</item>
+        <item>Treble</item>
+        <item>10Mile</item>
+    </string-array>
+
+    <string-array name="training_days_options">
+        <item>Choose</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string-array name="workout_types">
+        <item>STEADY RUN</item>
+        <item>INTERVALS</item>
+        <item>LONG RUN</item>
+        <item>TEMPO RUN</item>
+        <item>STRENGTH &amp; CORE</item>
+        <item>WALKING</item>
+    </string-array>
+
+
+
+
+    <string name="description_easy_run">Light and relaxed pace to promote recovery and aerobic endurance. Should feel easy and allow for conversation.</string>
+    <string name="description_long_run">Steady effort to build endurance. Early in the plan, keep it at a conversational pace. Later, aim for race pace.</string>
+    <string name="description_tempo_run">Steady pace slightly outside comfort zone to improve lactate threshold. Push yourself, but keep it sustainable.</string>
+    <string name="description_intervals">Interval training</string>
+    <string name="choose">Choose</string>
+    <string name="plan_generation_failed">Plan generation failed</string>
+    <string name="desc_taper">Taper: Endurance at %s min/km. Saving energy for race day.</string>
+    <string name="desc_endurance">Endurance: Target %s min/km. Time on feet is key.</string>
+    <string name="desc_speedwork">Speedwork: %1$d sets at %2$s pace. Recovery: 90s jog.</string>
+    <string name="desc_threshold">Threshold: Target %s min/km. Builds sustained speed.</string>
+    <string name="desc_strength">Strength: Glute Bridges (3x15), Plank (3x60s), Single-Leg Squats (3x10). Injury prevention.</string>
+    <string name="desc_strength_phase1">Strength Phase 1 (Foundation): Glute Bridges (3x15), Squats (3x15), Plank (3x60s), Supermans (3x12), Bird-Dogs (3x12), Push-ups (3x10), Walking Lunges (3x10/leg). Focus on posture and form.</string>
+    <string name="desc_strength_phase2">Strength Phase 2 (Strength &amp; Back Focus): Dumbbell Rows (3x10/arm), Single-Leg Deadlifts (3x10/leg), Tricep Dips (3x12), Step-ups (3x12/leg), Side Plank (3x30s/side), Leg Raises (3x12). Target back fatigue.</string>
+    <string name="desc_strength_phase3">Strength Phase 3 (Peak Power &amp; Posture): Dumbbell Rows (3x12/arm), Supermans (3x15), Single-Leg Glute Bridges (3x10/leg), Plank w/ Shoulder Taps (3x45s), Lunges w/ Twist (3x10/leg), Single-Leg Deadlifts (3x12/leg). Shock absorption for asphalt.</string>
+    <string name="desc_easy">Easy Run: Target %s min/km. Keep heart rate low.</string>
+    <string name="workout_details_format">%1$.1f km - %2$s</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_feed">Feed</string>
+    <string name="nav_log">Log</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_buddies">Buddies</string>
+    <string name="onboarding_title">GETTING STARTED</string>
+    <string name="step_1_title">THE GOAL</string>
+    <string name="step_2_title">ABOUT YOU</string>
+    <string name="step_3_title">SCHEDULE</string>
+    <string name="next_step">NEXT STEP</string>
+    <string name="generate_plan_btn">GENERATE MY PLAN</string>
+    <string name="goal_time_hint">Goal Time (HH:MM:SS)</string>
+    <string name="nav_profile">Profile</string>
+    <string name="dashboard">DASHBOARD</string>
+    <string name="feed_header">ACTIVITY FEED</string>
+    <string-array name="calc_distances">
+        <item>5K</item>
+        <item>10K</item>
+        <item>Half Marathon</item>
+        <item>Marathon</item>
+        <item>Custom</item>
+    </string-array>
+
+    <!-- Reconstructed missing resources -->
+    <string name="back">Back</string>
+    <string name="buddies">Buddies</string>
+    <string name="profile">Profile</string>
+    <string name="your_share_id">Your Share ID</string>
+    <string name="invite">Invite</string>
+    <string name="partners_id">Partner\'s ID</string>
+    <string name="follow">Follow</string>
+    <string name="edit_workout">Edit Workout</string>
+    <string name="delete">Delete</string>
+    <string name="workout_type_label">Workout Type</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="cancel">Cancel</string>
+    <string name="back_to_start">Back to Start</string>
+    <string name="add_new_workout">Add New Workout</string>
+    <string name="profile_header">Profile</string>
+    <string name="full_name_hint">Full Name</string>
+
+    <!-- Additional Reconstructed resources -->
+    <string name="age_hint">Age</string>
+    <string name="archive_header">Race Archive</string>
+    <string name="email_hint">Email Address</string>
+    <string name="nickname_hint">Nickname</string>
+    <string name="open_track_map">Open Track Map</string>
+    <string name="pb_10k_hint">10K Personal Best</string>
+    <string name="pb_full_hint">Marathon Personal Best</string>
+    <string name="pb_half_hint">Half Marathon Personal Best</string>
+    <string name="race_countdown">Race Countdown</string>
+    <string name="race_date_hint">Race Date</string>
+    <string name="race_day_notes">Race Day Notes</string>
+    <string name="race_details">Race Details</string>
+    <string name="race_name_hint">Race Name</string>
+    <string name="resources_links">Resources &amp; Links</string>
+    <string name="save_profile">Save Profile</string>
+    <string name="save_race_info">Save Race Info</string>
+    <string name="stats_header">Statistics</string>
+    <string name="view_race_history">View Race History</string>
+    <string name="weight_hint">Weight (kg)</string>
+
+    <!-- Menu resources -->
+    <string name="action_add_manual">Add Manual Workout</string>
+    <string name="action_add_sample_data">Add Sample Data</string>
+    <string name="action_clear_all_data">Clear All Data</string>
+    <string name="action_view_progress">View Progress</string>
+
+    <!-- Toast & Share resources -->
+    <string name="id_copied">ID Copied to Clipboard</string>
+    <string name="share_body_template">Hei! Sjekk ut treningsfremgangen min i den nye appen min - MarathonTrainer! Gå til https://www.maratontrener.no/?runner=%1$s for å se min treningsplan!  Lyst til å prøve selv? Bli med på testen og last ned appen til Android her: https://tinyurl.com/IThoughtTheySaidRum eller https://join.maratontrener.no/ hvis du bruker iPhone.  %2$s ------------------------------------------------------------------------------------------------------------ Hey! Check out my training progress in my new app - MarathonTrainer! Visit https://www.maratontrener.no/?runner=%1$s to see my training plan!  Want to try it yourself? Join the test and download the Android app here: https://tinyurl.com/IThoughtTheySaidRum or visit https://join.maratontrener.no/ if you\'re on an iPhone.  %2$s</string>
+    <string name="share_subject">MarathonTrainer Buddy Invite</string>
+    <string name="invite_via">Invite buddy via...</string>
+    <string name="unknown_race">Unknown Race</string>
+    <string name="profile_synced">Profile synced</string>
+    <string name="sync_failed">Sync failed</string>
+    <string name="enter_url_first">Please enter a URL first</string>
+    <string name="race_info_saved">Race info saved</string>
+    <string name="restore_from_cloud">Restore from Cloud</string>
+</resources>

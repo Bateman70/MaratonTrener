@@ -1,0 +1,120 @@
+package com.jostein.maratontrener;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+public class StartActivity extends AppCompatActivity {
+
+    private View cardNewPlan, cardContinuePlan;
+    private TextView textCurrentPlanInfo;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_landing);
+
+        cardNewPlan = findViewById(R.id.cardNewPlan);
+        cardContinuePlan = findViewById(R.id.cardContinuePlan);
+        textCurrentPlanInfo = findViewById(R.id.textCurrentPlanInfo);
+
+        cardNewPlan.setOnClickListener(v -> {
+            startActivity(new Intent(StartActivity.this, CreatePlanActivity.class));
+        });
+
+        cardContinuePlan.setOnClickListener(v -> {
+            startActivity(new Intent(StartActivity.this, MainContainerActivity.class));
+        });
+
+        checkShowWelcomeTour();
+    }
+
+    private void checkShowWelcomeTour() {
+        SharedPreferences prefs = SecurityUtils.getEncryptedPrefs(this);
+        boolean tourShown = prefs.getBoolean("welcome_tour_shown", false);
+        if (!tourShown) {
+            showOnboardingStep(1);
+        }
+    }
+
+    private void showOnboardingStep(int step) {
+        if (isFinishing()) return;
+        
+        com.google.android.material.dialog.MaterialAlertDialogBuilder builder = 
+                new com.google.android.material.dialog.MaterialAlertDialogBuilder(this);
+                
+        if (step == 1) {
+            builder.setTitle("🏃 Welcome to Maratontrener!")
+                   .setMessage("This is your ultimate running assistant.\n\nLet's get you set up for your marathon, half-marathon, or speed goals. Click next to see 2 vital tips for using the app!")
+                   .setPositiveButton("Next", (dialog, which) -> showOnboardingStep(2))
+                   .setCancelable(false)
+                   .show();
+        } else if (step == 2) {
+            builder.setTitle("⏱️ Pro Tip: Input Formats")
+                   .setMessage("1. All times require hours. For example, enter '00:45:00' for 45 minutes, even if running less than an hour.\n\n2. Good news: You can use your standard Norwegian keyboard with commas (,) for distance and speed!\n\n3. Tap your runner avatar in the top right of the dashboard to set your Profile Picture!")
+                   .setPositiveButton("Next", (dialog, which) -> showOnboardingStep(3))
+                   .setNegativeButton("Back", (dialog, which) -> showOnboardingStep(1))
+                   .setCancelable(false)
+                   .show();
+        } else if (step == 3) {
+            builder.setTitle("👥 Training Buddies")
+                   .setMessage("Run together, even apart! Share your unique ID on the 'Buddies' tab to follow your friends' consistency, mileage, and progress live on your feed.\n\nEnjoy your training!")
+                   .setPositiveButton("Get Started!", (dialog, which) -> {
+                       SharedPreferences prefs = SecurityUtils.getEncryptedPrefs(this);
+                       prefs.edit().putBoolean("welcome_tour_shown", true).apply();
+                   })
+                   .setNegativeButton("Back", (dialog, which) -> showOnboardingStep(2))
+                   .setCancelable(false)
+                   .show();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Only auto-redirect if we aren't intentionally coming here from the Dashboard
+        boolean manualBack = getIntent().getBooleanExtra("FROM_DASHBOARD", false);
+        
+        if (!manualBack) {
+            SharedPreferences prefs = SecurityUtils.getEncryptedPrefs(this);
+            String eventName = prefs.getString("eventName", null);
+            long eventDate = prefs.getLong("eventDate", 0);
+            
+            if (eventName != null && eventDate > 0) {
+                Intent intent = new Intent(this, MainContainerActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+                finish();
+                return;
+            }
+        }
+
+        checkExistingPlan();
+    }
+
+    private void checkExistingPlan() {
+        SharedPreferences prefs = SecurityUtils.getEncryptedPrefs(this);
+        String eventName = prefs.getString("eventName", null);
+        long eventDate = prefs.getLong("eventDate", 0);
+        String eventType = prefs.getString("eventType", "");
+
+        if (eventName != null && eventDate > 0) {
+            cardContinuePlan.setVisibility(View.VISIBLE);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            String info = eventName;
+            if (!eventType.isEmpty()) info += " (" + eventType + ")";
+            info += " - " + sdf.format(eventDate);
+            textCurrentPlanInfo.setText(info);
+        } else {
+            // If no plan exists, hide the "Continue" option or show a different message
+            cardContinuePlan.setVisibility(View.GONE);
+        }
+    }
+}

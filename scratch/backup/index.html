@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MarathonTrainer</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Vanilla CSS Stylesheet -->
+    <link rel="stylesheet" href="style.css?v=5.2">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    
+    <!-- Firebase App and Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
+    <!-- Chart.js CDN for premium interactive charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Leaflet JS & CSS for interactive route maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+<body>
+
+    <!-- Parallax Background overlay -->
+    <div class="parallax-bg"></div>
+    <div class="dark-overlay"></div>
+
+    <!-- Desktop Viewport Mode Bar -->
+    <div class="viewport-control-bar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-person-running"></i>
+            <span>MARATHONTRAINER SIMULATOR</span>
+        </div>
+        <div class="viewport-buttons">
+            <button class="btn-vp active" id="vp-portrait" onclick="setViewportMode('portrait')">
+                <i class="fa-solid fa-mobile-screen-button"></i> Portrett (Tablet)
+            </button>
+            <button class="btn-vp" id="vp-landscape" onclick="setViewportMode('landscape')">
+                <i class="fa-solid fa-tablet-screen-button"></i> Landskap
+            </button>
+            <button class="btn-vp" id="vp-fullscreen" onclick="setViewportMode('fullscreen')">
+                <i class="fa-solid fa-expand"></i> Fullskjerm
+            </button>
+        </div>
+    </div>
+
+    <!-- Device Wrapper -->
+    <div class="device-simulator portrait" id="device-wrapper">
+        <div class="device-frame">
+            <div class="device-notch"></div>
+            <div class="device-screen">
+                
+                <!-- Main App Layout inside Screen -->
+                <div class="app-container">
+                    
+                    <!-- App Toolbar / Header -->
+                    <header class="app-toolbar">
+                        <!-- Left Action Button: Context-based -->
+                        <button class="toolbar-btn" id="btn-toolbar-left">
+                            <i class="fa-solid fa-bars" id="toolbar-left-icon"></i>
+                        </button>
+                        
+                        <span class="toolbar-title" id="app-toolbar-title">DASHBOARD</span>
+                        
+                        <!-- Right Profile Icon Link -->
+                        <button class="toolbar-btn" id="btn-toolbar-right">
+                            <div class="toolbar-profile-avatar" id="toolbar-avatar">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        </button>
+                    </header>
+                    
+                    <!-- Scrollable Contents Area -->
+                    <main class="app-content" id="app-content-scroll">
+                        
+                        <!-- ================= PAGE 1: HOME ================= -->
+                        <div class="app-page active" id="page-home">
+                            
+                            <!-- Read-Only Mode Banner -->
+                            <div class="card android-card profile-read-only-msg" style="display: none; margin-bottom: 16px; border: 1px solid rgba(0, 229, 255, 0.3);">
+                                <div class="read-only-notice" style="display: flex; gap: 10px; align-items: center;">
+                                    <i class="fa-solid fa-eye" style="color: var(--android-pace); font-size: 1.1rem;"></i>
+                                    <div style="font-size: 0.85rem; line-height: 1.3;">
+                                        <strong>Shared Plan (Read-Only):</strong> 
+                                        You are viewing another runner's log. 
+                                        <a href="#" class="link-exit-read-only-action" style="color: var(--android-lime); text-decoration: underline; font-weight: bold; margin-left: 5px;">Return to my profile</a>
+                                        <span class="muted-text claim-profile-only">|</span>
+                                        <a href="#" class="link-claim-profile-action claim-profile-only" style="color: var(--android-pace); text-decoration: underline; font-weight: bold; margin-left: 5px;">Make this my active profile</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Current Goal Card -->
+                            <div class="section-label">CURRENT GOAL</div>
+                            <div class="card android-card" id="card-race-overview">
+                                <!-- Weather Forecast Widget -->
+                                <div class="weather-widget" id="home-race-weather" style="display: none;">
+                                    <span class="weather-label" id="weather-label">Currently</span>
+                                    <div class="weather-info">
+                                        <i class="fa-solid fa-cloud-sun weather-icon" id="weather-icon"></i>
+                                        <span class="weather-temp" id="weather-temp">--°C</span>
+                                    </div>
+                                </div>
+                                <h3 class="card-title-lime" id="home-race-name">Oslo Maraton</h3>
+                                <div class="card-subtitle-white" id="home-race-category">Marathon</div>
+                                <div class="race-meta-row">
+                                    <span id="home-race-date">Set your date</span>
+                                    <span id="home-race-location" class="muted-text">Location</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="home-progress-bar"></div>
+                                </div>
+                                <div class="progress-percentage" id="home-progress-percent">0% COMPLETED</div>
+                            </div>
+                            
+                            <!-- Latest Activity Card -->
+                            <div class="section-label" id="label-latest-activity" style="display: none;">LATEST ACTIVITY</div>
+                            <div class="card android-card" id="card-latest-activity" style="display: none;">
+                                <div class="latest-user-row">
+                                    <div class="avatar-holder">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div class="latest-user-meta">
+                                        <div class="latest-user-name" id="latest-user-name">Runner</div>
+                                        <div class="latest-time-ago" id="latest-time-ago">3d ago</div>
+                                    </div>
+                                </div>
+                                <h4 class="latest-activity-title" id="latest-activity-title">Latest activity: RUNNING</h4>
+                                <div class="card-divider"></div>
+                                <div class="latest-stats-row">
+                                    <div class="stat-col">
+                                        <span class="stat-val" id="latest-val-dist">0.00</span>
+                                        <span class="stat-lbl" id="latest-lbl-dist">km</span>
+                                    </div>
+                                    <div class="stat-col">
+                                        <span class="stat-val" id="latest-val-dur">00:00:00</span>
+                                        <span class="stat-lbl" id="latest-lbl-dur">Time</span>
+                                    </div>
+                                    <div class="stat-col">
+                                        <span class="stat-val" id="latest-val-pace">0:00</span>
+                                        <span class="stat-lbl" id="latest-lbl-pace">/km</span>
+                                    </div>
+                                    <div class="stat-col">
+                                        <span class="stat-val" id="latest-val-hr">--</span>
+                                        <span class="stat-lbl">Avg HR</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Next Session Card -->
+                            <div class="section-label" id="label-next-session">NEXT SESSION</div>
+                            <div class="card android-card" id="card-next-session">
+                                <h3 class="card-title-lime" id="next-type">INTERVALS</h3>
+                                <div class="next-details" id="next-details">No workouts planned</div>
+                                <div class="next-date" id="next-date">Generate a plan first</div>
+                            </div>
+                            
+                            <!-- Nutrition Card -->
+                            <div class="section-label">MEAL PLAN & NUTRITION</div>
+                            <div class="card android-card clickable-card" id="card-nutrition-link">
+                                <div class="nutrition-card-layout">
+                                    <div class="nutrition-card-icon">
+                                        <i class="fa-solid fa-apple-whole"></i>
+                                    </div>
+                                    <div class="nutrition-card-info">
+                                        <h4>Meal Plan & Recipes</h4>
+                                        <p class="muted-text">Healthy meal suggestions based on training goals</p>
+                                    </div>
+                                    <div class="nutrition-card-arrow">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pace Calculator Card -->
+                            <div class="section-label">PACE CALCULATOR</div>
+                            <div class="card android-card">
+                                <div class="form-group-android">
+                                    <label class="label-lime">DISTANCE</label>
+                                    <select id="calc-spinner" class="form-control-android">
+                                        <option value="5k">5K</option>
+                                        <option value="10k">10K</option>
+                                        <option value="half">Half Marathon</option>
+                                        <option value="marathon">Marathon</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="form-group-android" id="calc-custom-dist-container" style="display: none;">
+                                    <label class="label-lime">Custom Distance (km)</label>
+                                    <input type="text" id="calc-custom-dist-input" class="form-control-android" placeholder="e.g. 15.0">
+                                </div>
+                                <div class="calculator-fields-row">
+                                    <div class="form-group-android">
+                                        <label class="label-lime">TIME (HH:MM:SS)</label>
+                                        <input type="text" id="calc-time-input" class="form-control-android" placeholder="00:00:00">
+                                    </div>
+                                    <div class="form-group-android">
+                                        <label class="label-lime">PACE (MM:SS)</label>
+                                        <input type="text" id="calc-pace-input" class="form-control-android" placeholder="00:00">
+                                    </div>
+                                </div>
+                                <div class="form-group-android">
+                                    <label class="label-lime">SPEED (KM/H)</label>
+                                    <input type="text" id="calc-speed-input" class="form-control-android" placeholder="0.0">
+                                </div>
+                                
+                                <button type="button" class="btn-solid-android w-full-btn" id="btn-calc-splits" style="margin-top: 16px;">📋 GENERATE SPLIT CARD</button>
+                                
+                                <hr class="divider-android" style="margin: 20px 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                                
+                                <div class="predictor-toggle-row" id="toggle-riegel-predictor" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                    <label class="label-lime" style="cursor: pointer; margin-bottom: 0; color: var(--android-lime); font-weight: bold;">► RIEGEL PACE PREDICTOR</label>
+                                </div>
+                                <div id="riegel-predictor-fields" style="display: none; transition: all 0.3s ease;">
+                                    <div class="calculator-fields-row">
+                                        <div class="form-group-android">
+                                            <label class="label-lime">RECENT DIST (KM)</label>
+                                            <input type="text" id="predictor-recent-dist" class="form-control-android" placeholder="e.g. 10.0">
+                                        </div>
+                                        <div class="form-group-android">
+                                            <label class="label-lime">RECENT TIME (HH:MM:SS)</label>
+                                            <input type="text" id="predictor-recent-time" class="form-control-android" placeholder="00:00:00">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-text-android" id="btn-predictor-apply" style="width: 100%; text-align: center; justify-content: center; padding: 10px 0; font-weight: bold; color: var(--android-lime);">Apply Prediction to Calculator</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ================= PAGE 2: BUDDIES ================= -->
+                        <div class="app-page" id="page-buddies">
+                            <!-- Share ID Card -->
+                            <div class="card android-card">
+                                <div class="share-id-layout">
+                                    <div class="share-id-info">
+                                        <span class="sub-label">YOUR SHARE ID</span>
+                                        <h3 class="share-id-value" id="text-your-id">CH020721</h3>
+                                    </div>
+                                    <button class="btn-text-android" id="btn-share-id-copy">
+                                        <i class="fa-solid fa-share-nodes"></i> INVITE
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Follow Buddy Form -->
+                            <div class="card android-card buddies-only-edit">
+                                <form id="form-add-buddy-inline">
+                                    <div class="buddy-add-layout">
+                                        <input type="text" id="input-buddy-id-inline" class="form-control-android" placeholder="Partner's ID" style="text-transform: uppercase;">
+                                        <button type="submit" class="btn-solid-android">FOLLOW</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Leaderboard list -->
+                            <div class="section-label">SOCIAL LEADERBOARD</div>
+                            <div class="buddies-leaderboard-container" id="leaderboard-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        
+                        <!-- ================= PAGE 3: LOG ================= -->
+                        <div class="app-page" id="page-log">
+                            <div class="log-header-row">
+                                <div class="section-label" style="margin: 0;">WORKOUT LOG</div>
+                                <select id="plan-filter-dropdown" class="form-control-android inline-select">
+                                    <option value="all">All Plans</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Scrollable schedule list -->
+                            <div class="workout-log-list" id="log-workouts-list">
+                                <!-- Populated dynamically -->
+                            </div>
+                            
+                            <!-- Floating Action Button -->
+                            <button class="fab-btn" id="fab-add-workout" title="Log Workout">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- ================= PAGE 4: STATS ================= -->
+                        <div class="app-page" id="page-stats">
+                            
+                            <!-- Race Countdown Hero Card -->
+                            <div class="card android-card stats-countdown-card" id="stats-countdown-card">
+                                <span class="countdown-label">RACE COUNTDOWN</span>
+                                <h2 class="countdown-days" id="text-countdown">-- DAYS</h2>
+                            </div>
+                            
+                            <!-- Responsive 2-Column Metrics Grid -->
+                            <div class="stats-metrics-grid-replicated">
+                                
+                                <!-- 1. Total Activities -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">TOTAL ACTIVITIES</span>
+                                    <h4 class="metric-val-replicated" id="stats-planned-dist">0 done, 0 to go</h4>
+                                </div>
+                                
+                                <!-- 2. Consistency -->
+                                <div class="metric-card-replicated" id="card-stats-consistency">
+                                    <span class="metric-label-replicated">CONSISTENCY</span>
+                                    <h4 class="metric-val-replicated" id="stats-consistency">0%</h4>
+                                </div>
+                                
+                                <!-- 3. Total Runs -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">TOTAL RUNS</span>
+                                    <h4 class="metric-val-replicated" id="stats-total-runs">0 done, 0 to go</h4>
+                                </div>
+                                
+                                <!-- 4. Longest Run (Clickable) -->
+                                <div class="metric-card-replicated clickable-metric-card" id="card-stats-longest-run">
+                                    <span class="metric-label-replicated">LONGEST</span>
+                                    <h4 class="metric-val-replicated" id="stats-longest-run">0.0 km</h4>
+                                </div>
+                                
+                                <!-- 5. Distance -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">DISTANCE</span>
+                                    <h4 class="metric-val-replicated" id="stats-distance">0.0 km</h4>
+                                </div>
+                                
+                                <!-- 6. Avg Pace -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">AVG. PACE</span>
+                                    <h4 class="metric-val-replicated" id="stats-average-pace">0:00 min/km</h4>
+                                </div>
+                                
+                                <!-- 7. Interval Stat -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">INTERVAL</span>
+                                    <h4 class="metric-val-replicated" id="stats-interval-stat">0 done, 0 to go</h4>
+                                </div>
+                                
+                                <!-- 8. Strength Done -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">STRENGTH & CORE</span>
+                                    <h4 class="metric-val-replicated" id="stats-strength-done">0 done, 0 to go</h4>
+                                </div>
+                                
+                                <!-- 9. Missed Activities (Clickable) -->
+                                <div class="metric-card-replicated clickable-metric-card" id="card-stats-missed">
+                                    <span class="metric-label-replicated">MISSED</span>
+                                    <h4 class="metric-val-replicated" id="stats-missed">0 activities</h4>
+                                </div>
+                                
+                                <!-- 10. Avg Heart Rate Runs -->
+                                <div class="metric-card-replicated">
+                                    <span class="metric-label-replicated">AVG. HEART RATE (RUNS)</span>
+                                    <h4 class="metric-val-replicated" id="stats-avg-hr-runs">--</h4>
+                                </div>
+                                
+                            </div>
+                            
+                            <!-- Analysis Section Label -->
+                            <div class="section-label">TRAINING ANALYSIS</div>
+                            
+                            <!-- Charts Grid -->
+                            <div class="charts-layout">
+                                <div class="card android-card chart-wrapper-card">
+                                    <div class="chart-header">
+                                        <h4>Weekly Running Volume</h4>
+                                    </div>
+                                    <div class="chart-canvas-container">
+                                        <canvas id="chart-volume-vp"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card android-card chart-wrapper-card">
+                                    <div class="chart-header">
+                                        <h4>Workout Types</h4>
+                                    </div>
+                                    <div class="chart-canvas-container">
+                                        <canvas id="chart-distribution-vp"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card android-card chart-wrapper-card">
+                                    <div class="chart-header">
+                                        <h4>Pace & HR Trends</h4>
+                                    </div>
+                                    <div class="chart-canvas-container">
+                                        <canvas id="chart-trends-vp"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="card android-card chart-wrapper-card">
+                                    <div class="chart-header">
+                                        <h4>Monthly Progress</h4>
+                                    </div>
+                                    <div class="chart-canvas-container">
+                                        <canvas id="chart-monthly-vp"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ================= PAGE 5: PROFILE ================= -->
+                        <div class="app-page" id="page-profile">
+                            
+                            <!-- Edit Profile Card -->
+                            <div class="card android-card">
+                                <div class="profile-header-meta">
+                                    <div class="profile-avatar-large" id="profile-avatar-upload" style="cursor: pointer;" title="Change Profile Picture">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <input type="file" id="profile-avatar-file" accept="image/*" style="display: none;">
+                                    <h3 class="profile-title" id="profile-title-name">Athlete</h3>
+                                    <span class="profile-email-sub" id="profile-title-email">athlete@example.com</span>
+                                </div>
+                                
+                                <form id="form-profile-setup">
+                                    <div class="form-group-android">
+                                        <label class="label-lime">Full Name</label>
+                                        <input type="text" id="profile-input-name" class="form-control-android" placeholder="Full Name">
+                                    </div>
+                                    <div class="form-group-android">
+                                        <label class="label-lime">Nickname</label>
+                                        <input type="text" id="profile-input-nickname" class="form-control-android" placeholder="Nickname">
+                                    </div>
+                                    <div class="form-group-android">
+                                        <label class="label-lime">Email Address</label>
+                                        <input type="email" id="profile-input-email" class="form-control-android" placeholder="Email Address">
+                                    </div>
+                                    
+                                    <div class="profile-stats-inputs" id="profile-private-stats-container">
+                                        <div class="form-group-android">
+                                            <label class="label-lime">Age</label>
+                                            <input type="number" id="profile-input-age" class="form-control-android" placeholder="Age">
+                                        </div>
+                                        <div class="form-group-android">
+                                            <label class="label-lime">Weight (kg)</label>
+                                            <input type="text" id="profile-input-weight" class="form-control-android" placeholder="Weight (kg)">
+                                        </div>
+                                        <div class="form-group-android">
+                                            <label class="label-lime">Max HR</label>
+                                            <input type="number" id="profile-input-maxhr" class="form-control-android" placeholder="Max HR">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="section-label-inner">PERSONAL BESTS</div>
+                                    <div class="profile-stats-inputs">
+                                        <div class="form-group-android">
+                                            <label class="label-lime">10K PB</label>
+                                            <input type="text" id="profile-input-pb10k" class="form-control-android" placeholder="MM:SS">
+                                        </div>
+                                        <div class="form-group-android">
+                                            <label class="label-lime">Half PB</label>
+                                            <input type="text" id="profile-input-pbhalf" class="form-control-android" placeholder="HH:MM:SS">
+                                        </div>
+                                        <div class="form-group-android">
+                                            <label class="label-lime">Full PB</label>
+                                            <input type="text" id="profile-input-pbfull" class="form-control-android" placeholder="HH:MM:SS">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="profile-action-buttons profile-only-edit">
+                                        <button type="submit" class="btn-solid-android w-full-btn" id="btn-save-profile-action">SAVE PROFILE</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- HR Zones Display Card -->
+                            <div class="card android-card" id="profile-hr-zones-card">
+                                <div class="section-label-inner">HEART RATE ZONES</div>
+                                <ul class="hr-zones-list">
+                                    <li id="zone-1-text">Zone 1: Recovery (-- - --)</li>
+                                    <li id="zone-2-text">Zone 2: Aerobic (-- - --)</li>
+                                    <li id="zone-3-text">Zone 3: Tempo (-- - --)</li>
+                                    <li id="zone-4-text">Zone 4: Threshold (-- - --)</li>
+                                    <li id="zone-5-text">Zone 5: Anaerobic (-- - --)</li>
+                                </ul>
+                            </div>
+
+                            <!-- Achievements Card -->
+                            <div class="card android-card" id="profile-achievements-card">
+                                <div class="section-label-inner">ACHIEVEMENTS</div>
+                                <div class="achievements-container" style="display: flex; gap: 16px; justify-content: space-around; flex-wrap: wrap; margin-top: 10px;">
+                                    <div class="achievement-badge" id="badge-consistency" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 120px;">
+                                        <div class="badge-icon" id="badge-consistency-icon" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 8px;">
+                                            <i class="fa-solid fa-crown"></i>
+                                        </div>
+                                        <span class="badge-title" id="badge-consistency-title" style="font-weight: 700; font-size: 0.8rem; color: #fff;">Consistency</span>
+                                        <span class="badge-desc" id="badge-consistency-desc" style="font-size: 0.7rem; color: var(--android-secondary);">--</span>
+                                    </div>
+                                    <div class="achievement-badge" id="badge-century" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 120px;">
+                                        <div class="badge-icon" id="badge-century-icon" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 8px;">
+                                            <i class="fa-solid fa-road"></i>
+                                        </div>
+                                        <span class="badge-title" style="font-weight: 700; font-size: 0.8rem; color: #fff;">Century Club</span>
+                                        <span class="badge-desc" id="badge-century-desc" style="font-size: 0.7rem; color: var(--android-secondary);">0 / 100 km</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Running Shoes Card -->
+                            <div class="card android-card profile-only-edit" id="profile-shoes-card">
+                                <div class="section-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                    <div class="section-label-inner" style="margin-bottom: 0;">MY RUNNING SHOES</div>
+                                    <button type="button" class="btn-solid-android" id="btn-add-shoe-modal" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 8px;">+ ADD</button>
+                                </div>
+                                <div class="shoes-list-container" id="shoes-list-container">
+                                    <!-- Shoes will be populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Generator Launcher Card (Profile Only) -->
+                            <div class="card android-card profile-only-edit" id="card-generator-launcher">
+                                <div class="generator-promo-content">
+                                    <h4 class="title-lime">Ready to start a new training?</h4>
+                                    <p class="muted-text">Create a customized 12-week schedule tailored to your fitness level and race goals.</p>
+                                    <button class="btn-solid-android w-full-btn" id="btn-launch-generator">CREATE NEW TRAINING PLAN</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Sync & Cloud Operations Card -->
+                            <div class="card android-card profile-only-edit">
+                                <div class="section-label-inner">CLOUD & INTEGRATIONS</div>
+                                
+                                <div class="sync-id-box">
+                                    <label class="label-lime" style="font-size:0.75rem;">RUNNER ID FOR CLOUD SYNC</label>
+                                    <div class="sync-input-row">
+                                        <input type="text" id="profile-sync-id-input" class="form-control-android" placeholder="e.g. CH020721" style="text-transform: uppercase;">
+                                        <button class="btn-solid-android" id="btn-sync-profile-id">SYNC</button>
+                                    </div>
+                                    <span class="help-text">Connect this dashboard with your Android app by entering your unique Runner ID. <em>(Syncing connects and pulls from the cloud; it does not overwrite your cloud data).</em></span>
+                                </div>
+                                
+                                <!-- Admin Control Panel Box -->
+                                <div class="sync-id-box admin-only-section" id="admin-sync-section" style="display: none; margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 15px;">
+                                    <label class="label-lime" style="font-size:0.75rem; color: #ff9500; font-weight: bold;">ADMIN CONTROL PANEL</label>
+                                    <div style="margin-top: 8px;">
+                                        <button class="btn-solid-android" id="btn-open-admin-dashboard" style="background: linear-gradient(135deg, #ff9500, #ff3b30); color: white; width: 100%; font-weight: bold; letter-spacing: 0.5px; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                            <i class="fa-solid fa-users-gear"></i> OPEN USER DIRECTORY
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="cloud-buttons-row">
+                                    <button class="btn-outline-android" id="btn-restore-cloud"><i class="fa-solid fa-cloud-arrow-down"></i> RESTORE FROM CLOUD</button>
+                                    <button class="btn-outline-android btn-danger-android" id="btn-delete-nuclear"><i class="fa-solid fa-trash-can"></i> DELETE ALL DATA</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Shared Link / Read-Only Box -->
+                            <div class="card android-card profile-read-only-msg" style="display: none;">
+                                <div class="read-only-notice">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <div>
+                                        <strong>View-Only Share Mode:</strong>
+                                        You are viewing another runner's profile. All edits, synchronization, and plan generator tools are disabled.
+                                        <div style="margin-top: 8px; display: flex; gap: 15px;">
+                                            <a href="#" class="link-exit-read-only-action" style="color: var(--android-lime); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Return to my profile</a>
+                                            <a href="#" class="link-claim-profile-action claim-profile-only" style="color: var(--android-pace); text-decoration: underline; font-weight: bold; font-size: 0.85rem; display: inline-block;">Make this my active profile</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- iPhone Notifications Guide Card -->
+                            <div class="card android-card" id="profile-alerts-card">
+                                <div class="section-label-inner">IPHONE DAILY ALERTS</div>
+                                <div class="iphone-alerts-box">
+                                    <div class="alerts-icon">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <div class="alerts-meta">
+                                        <h4>Get Morning Alerts (7:00 AM)</h4>
+                                        <p class="muted-text">Receive push notifications on your iPhone every morning with today's scheduled training activities.</p>
+                                    </div>
+                                </div>
+                                <div class="alerts-guide-steps">
+                                    <strong>How to configure on your iPhone:</strong>
+                                    <ol>
+                                        <li>Download the free <strong>ntfy</strong> app from the iOS App Store.</li>
+                                        <li>Open the app and tap <strong>+ (Add Subscription)</strong>.</li>
+                                        <li>Subscribe to topic name:<br><code class="copy-topic-box">maratontrener-alerts-<span class="lbl-my-id-lowercase">ch020721</span></code></li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <!-- App Version details -->
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.8.1 (381)</div>
+                        </div>
+                        
+                        <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->
+                        <div class="app-page" id="page-diet">
+                            
+                            <!-- Portion Scale Control -->
+                            <div class="card android-card">
+                                <div class="diet-portion-header">
+                                    <span>Skaler porsjoner etter vekt</span>
+                                    <label class="switch-container-android">
+                                        <input type="checkbox" id="diet-switch-scale">
+                                        <span class="switch-slider-android"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- Diet Advice Banner -->
+                            <div class="diet-advice-card" id="diet-advice-banner-card">
+                                <div class="advice-header-row">
+                                    <i class="fa-solid fa-lightbulb"></i>
+                                    <h4>Kostholdsveiledning for uke <span id="diet-advice-week">1</span></h4>
+                                </div>
+                                <p id="diet-advice-banner-text">Loading recipes advice...</p>
+                            </div>
+                            
+                            <!-- Scale details display -->
+                            <div class="card android-card diet-scale-factor-card" id="diet-scale-factor-card">
+                                <div class="scale-factor-layout">
+                                    <span id="diet-profile-desc-lbl">Profil: Løper (70 kg standard)</span>
+                                    <span id="diet-scale-factor-badge" class="badge-lime">Skalering: 1.0x</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Tabs selection -->
+                            <div class="diet-navigation-tabs">
+                                <button class="btn-tab-diet active" id="btn-diet-tab-week-vp">Ukesmeny</button>
+                                <button class="btn-tab-diet" id="btn-diet-tab-favorites-vp"><i class="fa-solid fa-star"></i> Favoritter</button>
+                                <button class="btn-tab-diet" id="btn-diet-tab-all-vp">Alle oppskrifter</button>
+                            </div>
+                            
+                            <!-- Empty State for Favorites -->
+                            <div class="empty-state-recipes" id="diet-empty-recipes-state" style="display: none;">
+                                <i class="fa-regular fa-star"></i>
+                                <h4>Ingen favoritter lagret</h4>
+                                <p class="muted-text">Tapp stjernen på oppskriftene for å lagre dem her.</p>
+                            </div>
+                            
+                            <!-- Meals Grid List -->
+                            <div class="meals-list-grid" id="diet-meals-list-vp">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        
+                    </main>
+                    
+                    <!-- Bottom Navigation Bar -->
+                    <nav class="app-bottom-nav">
+                        <button class="nav-item-vp active" id="nav-btn-home">
+                            <i class="fa-solid fa-house"></i>
+                            <span>Hjem</span>
+                        </button>
+                        <button class="nav-item-vp" id="nav-btn-buddies">
+                            <i class="fa-solid fa-user-group"></i>
+                            <span>Buddies</span>
+                        </button>
+                        <button class="nav-item-vp" id="nav-btn-log">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Logg</span>
+                        </button>
+                        <button class="nav-item-vp" id="nav-btn-stats">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <span>Stats</span>
+                        </button>
+                        <button class="nav-item-vp" id="nav-btn-profile">
+                            <i class="fa-solid fa-user"></i>
+                            <span>Profil</span>
+                        </button>
+                    </nav>
+                    
+                </div>
+            </div>
+            <div class="device-bottom-bar"></div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: 12-WEEK TRAINING PLAN GENERATOR ================= -->
+    <div class="modal" id="generator-wizard-modal">
+        <div class="modal-content wizard-content">
+            <div class="modal-header">
+                <h3 id="wizard-title-step">STEP 1 OF 3</h3>
+                <button class="btn-close" id="btn-close-wizard"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- STEP 1: GOAL -->
+            <div class="wizard-page active" id="wiz-page-1">
+                <div class="section-label-modal">THE GOAL</div>
+                <div class="form-group-android">
+                    <label>Event Name</label>
+                    <input type="text" id="wiz-event-name" class="form-control-android" placeholder="e.g. Oslo Maraton" value="Oslo Maraton">
+                </div>
+                <div class="form-group-android">
+                    <label>Location</label>
+                    <input type="text" id="wiz-event-location" class="form-control-android" placeholder="e.g. Oslo">
+                </div>
+                <div class="form-group-android">
+                    <label>Race Date</label>
+                    <input type="date" id="wiz-event-date" class="form-control-android">
+                </div>
+                <div class="form-group-android">
+                    <label>Goal Time (HH:MM:SS)</label>
+                    <input type="text" id="wiz-goal-time" class="form-control-android" placeholder="04:00:00" value="04:00:00">
+                </div>
+                <div class="form-group-android">
+                    <label>Event Type</label>
+                    <select id="wiz-race-type" class="form-control-android">
+                        <option value="Marathon">Marathon</option>
+                        <option value="Half Marathon">Half Marathon</option>
+                        <option value="10K">10K</option>
+                        <option value="5K">5K</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- STEP 2: ATHLETE PROFILE -->
+            <div class="wizard-page" id="wiz-page-2">
+                <div class="section-label-modal">ABOUT YOU</div>
+                <div class="profile-stats-inputs">
+                    <div class="form-group-android">
+                        <label>Age</label>
+                        <input type="number" id="wiz-age" class="form-control-android" placeholder="e.g. 35">
+                    </div>
+                    <div class="form-group-android">
+                        <label>Weight (kg)</label>
+                        <input type="text" id="wiz-weight" class="form-control-android" placeholder="e.g. 70">
+                    </div>
+                    <div class="form-group-android">
+                        <label>Max HR</label>
+                        <input type="number" id="wiz-maxhr" class="form-control-android" placeholder="e.g. 185">
+                    </div>
+                </div>
+                
+                <div class="section-label-modal" style="margin-top:20px;">PERSONAL BESTS</div>
+                <div class="profile-stats-inputs">
+                    <div class="form-group-android">
+                        <label>10K PB</label>
+                        <input type="text" id="wiz-pb10k" class="form-control-android" placeholder="MM:SS">
+                    </div>
+                    <div class="form-group-android">
+                        <label>Half PB</label>
+                        <input type="text" id="wiz-pbhalf" class="form-control-android" placeholder="HH:MM:SS">
+                    </div>
+                    <div class="form-group-android">
+                        <label>Full PB</label>
+                        <input type="text" id="wiz-pbfull" class="form-control-android" placeholder="HH:MM:SS">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 3: SCHEDULE -->
+            <div class="wizard-page" id="wiz-page-3">
+                <div class="section-label-modal">SCHEDULE CONFIGURATION</div>
+                <div class="form-group-android">
+                    <label>Start Training Date</label>
+                    <input type="date" id="wiz-start-date" class="form-control-android">
+                </div>
+                <div class="form-group-android">
+                    <label>Training Days per Week</label>
+                    <select id="wiz-days-per-week" class="form-control-android">
+                        <option value="2">2 Days</option>
+                        <option value="3" selected>3 Days</option>
+                        <option value="4">4 Days</option>
+                        <option value="5">5 Days</option>
+                    </select>
+                </div>
+                
+                <div class="section-label-modal" style="margin-top: 20px; margin-bottom: 10px;">CHOOSE DAYS & WORKOUTS</div>
+                <div class="days-select-grid">
+                    
+                    <!-- Monday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Mon" checked>
+                            <span class="checkmark-android"></span>
+                            Monday
+                        </label>
+                        <select id="wiz-type-Mon" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN">Steady Run</option>
+                            <option value="INTERVALS" selected>Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Tuesday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Tue">
+                            <span class="checkmark-android"></span>
+                            Tuesday
+                        </label>
+                        <select id="wiz-type-Tue" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN" selected>Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Wednesday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Wed">
+                            <span class="checkmark-android"></span>
+                            Wednesday
+                        </label>
+                        <select id="wiz-type-Wed" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN" selected>Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Thursday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Thu">
+                            <span class="checkmark-android"></span>
+                            Thursday
+                        </label>
+                        <select id="wiz-type-Thu" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN" selected>Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Friday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Fri">
+                            <span class="checkmark-android"></span>
+                            Friday
+                        </label>
+                        <select id="wiz-type-Fri" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN" selected>Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Saturday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Sat">
+                            <span class="checkmark-android"></span>
+                            Saturday
+                        </label>
+                        <select id="wiz-type-Sat" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN" selected>Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN">Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sunday -->
+                    <div class="day-select-row">
+                        <label class="checkbox-container-android">
+                            <input type="checkbox" id="wiz-check-Sun" checked>
+                            <span class="checkmark-android"></span>
+                            Sunday
+                        </label>
+                        <select id="wiz-type-Sun" class="form-control-android select-sm-day">
+                            <option value="STEADY RUN">Steady Run</option>
+                            <option value="INTERVALS">Intervals</option>
+                            <option value="LONG RUN" selected>Long Run</option>
+                            <option value="TEMPO RUN">Tempo Run</option>
+                            <option value="STRENGTH & CORE">Strength</option>
+                        </select>
+                    </div>
+                    
+                </div>
+                
+                <div class="form-group-android checkbox-group-android" style="margin-top:20px;">
+                    <label class="checkbox-container-android">
+                        <input type="checkbox" id="wiz-check-strength" checked>
+                        <span class="checkmark-android"></span>
+                        Include Strength & Core on Fridays
+                    </label>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-outline-android" id="btn-wiz-back" style="display:none;">BACK</button>
+                <button type="button" class="btn-solid-android" id="btn-wiz-next">NEXT STEP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: EDIT WORKOUT DETAILS ================= -->
+    <div class="modal" id="workout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Log a New Workout</h3>
+                <button class="btn-close" id="btn-close-workout-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="workout-form">
+                <input type="hidden" id="workout-id">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="workout-date">Scheduled Date</label>
+                        <input type="date" id="workout-date" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="workout-week">Training Week #</label>
+                        <input type="number" id="workout-week" min="1" max="52" required class="form-control" placeholder="e.g. 5">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="workout-type">Workout Type</label>
+                        <select id="workout-type" required class="form-control">
+                            <option value="LONG RUN">🏃‍♂️ Long Run</option>
+                            <option value="INTERVALS">⚡ Intervals</option>
+                            <option value="TEMPO RUN">🔥 Tempo Run</option>
+                            <option value="STEADY RUN">🕊️ Steady Run</option>
+                            <option value="EASY RUN">🕊️ Easy Run</option>
+                            <option value="RECOVERY RUN">🔋 Recovery Run</option>
+                            <option value="STRENGTH & CORE">💪 Strength & Core</option>
+                            <option value="WALKING">🚶‍♂️ Walking</option>
+                            <option value="REST DAY">🛋️ Rest Day</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="workout-plan">Plan Name</label>
+                        <input type="text" id="workout-plan" required class="form-control" placeholder="e.g. Oslo Maraton Plan">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="workout-distance">Planned Distance (km)</label>
+                        <input type="number" id="workout-distance" step="0.1" min="0" required class="form-control" placeholder="e.g. 10.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="workout-pace">Planned Pace (min/km)</label>
+                        <input type="text" id="workout-pace" required class="form-control" placeholder="e.g. 5:30">
+                    </div>
+                </div>
+
+                <!-- Interval Specific Fields (Toggled in JS) -->
+                <div id="workout-interval-section" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="workout-interval-count">Interval Sets (Count)</label>
+                            <input type="number" id="workout-interval-count" class="form-control" placeholder="e.g. 5">
+                        </div>
+                        <div class="form-group">
+                            <label for="workout-interval-value">Interval Size/Duration</label>
+                            <input type="text" id="workout-interval-value" class="form-control" placeholder="e.g. 800m or 4 min">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="workout-interval-pace">Interval Pace</label>
+                            <input type="text" id="workout-interval-pace" class="form-control" placeholder="e.g. 4:15 or 14 km/h">
+                        </div>
+                        <div class="form-group">
+                            <label for="workout-max-hr">Max Heart Rate (BPM)</label>
+                            <input type="number" id="workout-max-hr" class="form-control" placeholder="e.g. 185">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="workout-duration">Duration (minutes)</label>
+                        <input type="number" id="workout-duration" step="1" min="0" class="form-control" placeholder="e.g. 60">
+                    </div>
+                    <div class="form-group">
+                        <label for="workout-avg-hr">Avg Heart Rate (BPM)</label>
+                        <input type="number" id="workout-avg-hr" step="1" min="0" class="form-control" placeholder="e.g. 145">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workout-description">Description / Purpose</label>
+                    <textarea id="workout-description" rows="2" class="form-control" placeholder="e.g. Warm up, 5k race pace, cool down"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="workout-notes">Post-Workout Notes / How did it feel?</label>
+                    <textarea id="workout-notes" rows="2" class="form-control" placeholder="e.g. Felt strong, HR stable."></textarea>
+                </div>
+
+                <div class="form-group" id="workout-shoe-group">
+                    <label for="workout-shoe">Running Shoe Used</label>
+                    <select id="workout-shoe" class="form-control">
+                        <option value="">-- No Shoe Selected --</option>
+                    </select>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="workout-completed">
+                        <span class="checkmark"></span>
+                        Mark as Completed
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-workout">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-workout">Save Workout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ADD BUDDY ================= -->
+    <div class="modal" id="buddy-modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3>Add Training Buddy</h3>
+                <button class="btn-close" id="btn-close-buddy-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="buddy-form">
+                <div class="form-group">
+                    <label for="buddy-id-input">Buddy ID</label>
+                    <input type="text" id="buddy-id-input" required class="form-control" placeholder="e.g. CH020721" style="text-transform: uppercase;">
+                    <small class="form-help">Ask your buddy for their ID, copyable from the 'Buddies' tab in the Android App.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-buddy">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Buddy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ADD/EDIT SHOE ================= -->
+    <div class="modal" id="shoe-modal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h3 id="shoe-modal-title">Add Running Shoe</h3>
+                <button class="btn-close" id="btn-close-shoe-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="shoe-form">
+                <input type="hidden" id="shoe-id-input">
+                <div class="form-group">
+                    <label for="shoe-name-input">Shoe Name / Model</label>
+                    <input type="text" id="shoe-name-input" required class="form-control" placeholder="e.g. Nike Air Zoom Pegasus 40">
+                </div>
+                <div class="form-group">
+                    <label for="shoe-initial-mileage-input">Initial Mileage (km)</label>
+                    <input type="number" step="0.1" id="shoe-initial-mileage-input" class="form-control" placeholder="e.g. 150.0" value="0">
+                    <small class="form-help">Any mileage already run in this shoe before tracking in MarathonTrainer.</small>
+                </div>
+                <div class="form-group">
+                    <label for="shoe-limit-input">Mileage Limit (km)</label>
+                    <input type="number" step="10" id="shoe-limit-input" required class="form-control" placeholder="e.g. 800" value="800">
+                    <small class="form-help">Standard shoes last between 500 and 800 km.</small>
+                </div>
+                <div class="form-group checkbox-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+                    <label class="checkbox-container" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="shoe-retired-input">
+                        <span class="checkmark" style="position: static; display: inline-block;"></span>
+                        Retire this shoe
+                    </label>
+                </div>
+                <div class="modal-footer" style="display: flex; justify-content: space-between; margin-top: 16px;">
+                    <button type="button" class="btn btn-secondary btn-danger-android" id="btn-delete-shoe" style="display: none;">Delete</button>
+                    <div style="display: flex; gap: 8px; margin-left: auto;">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-shoe">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-shoe">Save Shoe</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ================= LEFT NAVIGATION DRAWER ================= -->
+    <div class="nav-drawer" id="nav-drawer">
+        <div class="drawer-header">
+            <div class="drawer-profile">
+                <div class="drawer-avatar" id="drawer-avatar-display">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="drawer-profile-info">
+                    <h4 id="drawer-user-name">Runner</h4>
+                    <span id="drawer-user-id">MT-XXXXXX</span>
+                </div>
+            </div>
+            <button class="btn-close-drawer" id="btn-close-drawer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-menu-item" id="drawer-link-home">
+                <i class="fa-solid fa-house"></i> Hjem (Dashboard)
+            </div>
+            <div class="drawer-menu-item" id="drawer-link-buddies">
+                <i class="fa-solid fa-user-group"></i> Buddies
+            </div>
+            <div class="drawer-menu-item" id="drawer-link-log">
+                <i class="fa-solid fa-calendar-days"></i> Logg (Trening)
+            </div>
+            <div class="drawer-menu-item" id="drawer-link-stats">
+                <i class="fa-solid fa-chart-simple"></i> Statistikk
+            </div>
+            <div class="drawer-menu-item" id="drawer-link-profile">
+                <i class="fa-solid fa-user"></i> Profil
+            </div>
+            <div class="drawer-divider"></div>
+            <div class="drawer-menu-item drawer-edit-only" id="drawer-action-generator">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Opprett Treningsplan
+            </div>
+            <div class="drawer-menu-item" id="drawer-action-sync">
+                <i class="fa-solid fa-rotate"></i> Synkroniser ID
+            </div>
+        </div>
+    </div>
+    <div class="drawer-overlay" id="drawer-overlay"></div>
+
+    <!-- ================= MODAL: EDIT RACE INFO ================= -->
+    <div class="modal" id="race-info-modal">
+        <div class="modal-content">
+            <h3 id="race-modal-title">Edit Race Details</h3>
+            <button class="btn-close" id="btn-close-race-modal"><i class="fa-solid fa-xmark"></i></button>
+            
+            <form id="race-info-form">
+                <div class="form-group">
+                    <label for="race-input-name">Race / Event Name</label>
+                    <input type="text" id="race-input-name" required class="form-control" placeholder="e.g. Oslo Maraton">
+                </div>
+                
+                <div class="form-group">
+                    <label for="race-input-type">Race Category</label>
+                    <select id="race-input-type" required class="form-control">
+                        <option value="Marathon">Marathon</option>
+                        <option value="Half Marathon">Half Marathon</option>
+                        <option value="10K">10K</option>
+                        <option value="5K">5K</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="race-input-date">Race Date</label>
+                    <input type="date" id="race-input-date" required class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="race-input-location">Place, Country</label>
+                    <input type="text" id="race-input-location" required class="form-control" placeholder="e.g. Oslo, Norway">
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>GPX Race Route</label>
+                    <div id="gpx-status-container" style="margin-bottom: 10px; font-size: 0.9rem; display: none; align-items: center; justify-content: space-between;">
+                        <span id="gpx-status-text" style="color: var(--android-lime); font-weight: bold;">Route Loaded</span>
+                        <button type="button" id="btn-remove-gpx" class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: #ee4444; border: none; color: white; border-radius: 4px; cursor: pointer;">Remove</button>
+                    </div>
+                    <div id="gpx-upload-box" class="gpx-drop-zone" style="border: 2px dashed #444; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; background: #111;">
+                        <i class="fa-solid fa-map-location-dot" style="font-size: 2rem; color: var(--android-lime); margin-bottom: 8px;"></i>
+                        <p style="margin: 0; font-size: 0.85rem; color: #aaa;">Click or drag GPX file here to load route</p>
+                        <input type="file" id="gpx-file-input" accept=".gpx" style="display: none;" />
+                    </div>
+                </div>
+
+                <div id="gpx-viewer-section" style="display: none; margin-top: 15px;">
+                    <div id="gpx-map" style="height: 220px; border-radius: 8px; border: 1px solid #444; margin-bottom: 12px; position: relative;"></div>
+                    <div style="position: relative; height: 110px; margin-bottom: 10px; background: #111; padding: 8px; border-radius: 8px; border: 1px solid #333;">
+                        <canvas id="gpx-elevation-chart"></canvas>
+                    </div>
+                    <div id="gpx-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; font-size: 0.8rem; color: #aaa; margin-top: 10px;">
+                        <div style="background: #111; padding: 6px; border-radius: 6px; border: 1px solid #222;">
+                            <span style="display: block; font-size: 0.7rem; color: #666; text-transform: uppercase;">Distance</span>
+                            <strong id="gpx-stat-distance" style="color: #fff; font-size: 0.95rem;">--</strong>
+                        </div>
+                        <div style="background: #111; padding: 6px; border-radius: 6px; border: 1px solid #222;">
+                            <span style="display: block; font-size: 0.7rem; color: #666; text-transform: uppercase;">Elev. Gain</span>
+                            <strong id="gpx-stat-gain" style="color: #fff; font-size: 0.95rem;">--</strong>
+                        </div>
+                        <div style="background: #111; padding: 6px; border-radius: 6px; border: 1px solid #222;">
+                            <span style="display: block; font-size: 0.7rem; color: #666; text-transform: uppercase;">Avg. Slope</span>
+                            <strong id="gpx-stat-slope" style="color: #fff; font-size: 0.95rem;">--</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-race">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-race">Save Details</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: RACE SPLIT CARD ================= -->
+    <div class="modal" id="modal-splits">
+        <div class="modal-content" style="max-width: 500px; background: var(--android-card); color: #fff;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: var(--android-lime); font-weight: bold; font-size: 1.2rem;">Race Split Card</h3>
+                <button class="btn-close" id="btn-close-splits-modal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="splits-table-container" style="max-height: 350px; overflow-y: auto; margin-top: 15px; border: 1px solid #333; border-radius: 8px;">
+                <table class="splits-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #333; color: var(--android-lime); background: rgba(0,0,0,0.2);">
+                            <th style="padding: 12px 10px;">KM</th>
+                            <th style="padding: 12px 10px;">EVEN SPLIT (CUM)</th>
+                            <th style="padding: 12px 10px;">NEG SPLIT (CUM)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="splits-table-body">
+                        <!-- Dynamically populated splits -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button type="button" class="btn-solid-android w-full-btn" id="btn-close-splits-action">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL: ADMIN USER DIRECTORY ================= -->
+    <div class="modal" id="modal-admin-dashboard">
+        <div class="modal-content" style="max-width: 800px; width: 95%; background: var(--android-card); color: #fff;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: #fff; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-users-gear" style="color: var(--electric-lime);"></i> Runner Directory
+                </h3>
+                <button class="btn-close" id="btn-close-admin-modal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body" style="padding-top: 15px;">
+                <!-- Search and Filter Bar -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 1; position: relative;">
+                        <input type="text" id="admin-search-input" class="form-control-android" placeholder="Search by name, email or ID..." style="padding-left: 30px; width: 100%; box-sizing: border-box;">
+                        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 12px; color: rgba(255,255,255,0.5);"></i>
+                    </div>
+                    <button type="button" class="btn-outline-android" id="btn-refresh-admin" style="padding: 0 15px; border-radius: 8px;"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+                
+                <!-- Quick Stats Row -->
+                <div class="admin-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    <div class="stat-card" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px;">TOTAL RUNNERS</div>
+                        <div id="admin-stat-total" style="font-size: 1.4rem; font-weight: bold; color: var(--electric-lime); margin-top: 4px;">0</div>
+                    </div>
+                    <div class="stat-card" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px;">ACTIVE (7 DAYS)</div>
+                        <div id="admin-stat-active" style="font-size: 1.4rem; font-weight: bold; color: #34c759; margin-top: 4px;">0</div>
+                    </div>
+                    <div class="stat-card" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 0.5px;">COMPLETED RUNS</div>
+                        <div id="admin-stat-runs" style="font-size: 1.4rem; font-weight: bold; color: #ff9500; margin-top: 4px;">0</div>
+                    </div>
+                </div>
+                
+                <!-- Users Table Container -->
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(0,0,0,0.2);">
+                    <table class="splits-table" style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <th style="padding: 10px; text-align: left;">RUNNER / EMAIL</th>
+                                <th style="padding: 10px; text-align: left;">GOAL / RACE</th>
+                                <th style="padding: 10px; text-align: center;">RUNS</th>
+                                <th style="padding: 10px; text-align: center;">LAST SYNC</th>
+                                <th style="padding: 10px; text-align: center;">ID</th>
+                                <th style="padding: 10px; text-align: center;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-runners-table-body">
+                            <tr>
+                                <td colspan="6" style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                                    <i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Loading directory...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-solid-android" id="btn-close-admin-footer" style="padding: 8px 20px; border-radius: 8px; cursor: pointer;">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Application Scripts -->
+    <script src="firebase-config.js?v=5.2"></script>
+    <script src="app.js?v=5.2"></script>
+</body>
+</html>

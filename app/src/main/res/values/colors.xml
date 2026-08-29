@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern Endurance Palette (Deep Dark) -->
+    <color name="carbon_black">#000000</color>
+    <color name="surface_dark">#121212</color>
+    <color name="card_dark">#1C1C1E</color>
+    <color name="electric_lime">#CCFF00</color>
+    <color name="cyan_pace">#00E5FF</color>
+    <color name="ice_white">#F8F9FA</color>
+
+    <!-- UI Standard Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8E8E93</color>
+    <color name="divider_color">#1AFFFFFF</color>
+    <color name="error_red">#FF3B30</color>
+    <color name="success_green">#34C759</color>
+
+    <!-- Legacy compatibility -->
+    <color name="carbon_dark">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="stat_consistency">#CCFF00</color>
+</resources>

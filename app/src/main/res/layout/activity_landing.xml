@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:gravity="center"
+    android:padding="32dp"
+    android:fitsSystemWindows="true">
+
+    <TextView
+        android:id="@+id/textLandingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MarathonTrainer"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        android:gravity="center"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/textVersionDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#55FFFFFF"
+        android:textSize="10sp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        android:layout_marginBottom="32dp">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:src="@drawable/logo_rum"
+            android:scaleType="centerInside"
+            android:padding="16dp"
+            android:contentDescription="I Thought They Said Rum Logo" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WELCOME RUNNER!"
+        android:textColor="@color/electric_lime"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.2"
+        android:gravity="center"
+        android:layout_marginBottom="40dp" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNewPlan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/card_dark"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="START NEW RACE PLAN"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContinuePlan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/card_dark"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CONTINUE CURRENT PLAN"
+                android:textColor="@color/electric_lime"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
+
+            <TextView
+                android:id="@+id/textCurrentPlanInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginTop="24dp">
+
+        <!-- Left side spacer to avoid overlapping with the runner background image -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1.1" />
+
+        <!-- Right side description text -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Get your personalized AI training plan for distances up to full marathon, based on your race date."
+            android:textColor="#99FFFFFF"
+            android:textSize="11sp"
+            android:lineSpacingMultiplier="1.25"
+            android:gravity="start"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,6 @@
+Read-only: 
+https://maratontrener.onrender.com/?view=CH020721
+https://maratontrener.onrender.com/?runner=CH020721
+
+Edit-mode:
+https://maratontrener.onrender.com/?edit=true

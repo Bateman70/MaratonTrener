@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="@color/card_dark"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgBuddy"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_person"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_toEndOf="@id/imgBuddy"
+                android:layout_marginStart="12dp"
+                android:layout_centerVertical="true">
+
+                <TextView
+                    android:id="@+id/txtBuddyName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buddy"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/txtActivityTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2h ago"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/txtActivityType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STEADY RUN"
+            android:textColor="@color/electric_lime"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/txtActivityStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10.0 km in 55:00 (5:30/km)"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_color"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCheers"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👏 CHEERS"
+                android:textColor="@color/electric_lime"
+                android:textSize="12sp"
+                app:icon="@android:drawable/btn_star_big_on"
+                app:iconTint="@color/electric_lime"
+                app:iconSize="16dp" />
+
+            <Button
+                android:id="@+id/btnComment"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬 COMMENT"
+                android:textColor="@color/white"
+                android:alpha="0.7"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
