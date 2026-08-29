@@ -6177,11 +6177,49 @@ function setupSupabaseAuthUI() {
             if (session && session.user) {
                 appState.supabaseUser = session.user;
                 console.log("Supabase Auth User:", session.user.email);
+                updateAuthButtonsUI(session.user);
                 await syncLocalDataToSupabase(session.user);
             } else {
                 appState.supabaseUser = null;
+                updateAuthButtonsUI(null);
             }
         });
+    }
+}
+
+function updateAuthButtonsUI(user) {
+    const syncBtn = document.getElementById('btn-open-auth-sync');
+    const profileBtn = document.getElementById('btn-open-auth-profile');
+
+    if (user) {
+        const connectedHTML = `<i class="fa-solid fa-circle-check" style="color: #34c759; margin-right: 6px;"></i> CONNECTED: ${user.email} <span onclick="supabaseSignOut()" style="margin-left: 12px; font-size: 0.75rem; text-decoration: underline; color: #ff3b30; cursor: pointer;">(Sign Out)</span>`;
+        if (syncBtn) {
+            syncBtn.style.background = 'rgba(52, 199, 89, 0.15)';
+            syncBtn.style.color = '#fff';
+            syncBtn.style.border = '1px solid rgba(52, 199, 89, 0.4)';
+            syncBtn.innerHTML = connectedHTML;
+        }
+        if (profileBtn) {
+            profileBtn.style.background = 'rgba(52, 199, 89, 0.15)';
+            profileBtn.style.color = '#fff';
+            profileBtn.style.border = '1px solid rgba(52, 199, 89, 0.4)';
+            profileBtn.innerHTML = connectedHTML;
+        }
+        const profileEmailEl = document.getElementById('profile-title-email');
+        if (profileEmailEl) profileEmailEl.innerText = user.email;
+    } else {
+        if (syncBtn) {
+            syncBtn.style.background = 'var(--android-lime)';
+            syncBtn.style.color = '#000';
+            syncBtn.style.border = 'none';
+            syncBtn.innerHTML = '<i class="fa-solid fa-user-shield" style="margin-right: 6px;"></i> SIGN IN WITH EMAIL / GOOGLE / APPLE';
+        }
+        if (profileBtn) {
+            profileBtn.style.background = 'var(--android-surface)';
+            profileBtn.style.color = '#fff';
+            profileBtn.style.border = '1px solid var(--android-divider)';
+            profileBtn.innerHTML = '<i class="fa-solid fa-user-shield" style="margin-right: 6px;"></i> SIGN IN / SYNC ACCOUNT';
+        }
     }
 }
 
