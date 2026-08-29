@@ -17,10 +17,14 @@ if (typeof supabase !== 'undefined' && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE"
 
 async function supabaseSignInWithEmail(email) {
     if (!supabaseClient) throw new Error("Supabase client not initialized.");
+    const currentOrigin = (window.location.origin && !window.location.origin.includes('localhost')) 
+        ? window.location.origin 
+        : 'https://maratontrener.onrender.com';
+
     const { error } = await supabaseClient.auth.signInWithOtp({
         email: email,
         options: {
-            emailRedirectTo: window.location.origin
+            emailRedirectTo: currentOrigin
         }
     });
     if (error) throw error;
@@ -29,10 +33,14 @@ async function supabaseSignInWithEmail(email) {
 
 async function supabaseSignInWithOAuth(provider) {
     if (!supabaseClient) throw new Error("Supabase client not initialized.");
+    const currentOrigin = (window.location.origin && !window.location.origin.includes('localhost')) 
+        ? window.location.origin 
+        : 'https://maratontrener.onrender.com';
+
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: provider,
         options: {
-            redirectTo: window.location.origin
+            redirectTo: currentOrigin
         }
     });
     if (error) throw error;
