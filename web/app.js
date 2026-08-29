@@ -6127,7 +6127,11 @@ function setupSupabaseAuthUI() {
                 alert("Magic login link sent to " + email + "! Check your email inbox.");
                 closeAuthModal();
             } catch (err) {
-                alert("Auth Error: " + err.message);
+                if (err.message && err.message.toLowerCase().includes('rate limit')) {
+                    alert("E-postgrense nådd: Supabase tillater kun 3 magic links per time for å forhindre søppelpost. Vent noen minutter eller prøv Google/Apple-innlogging!");
+                } else {
+                    alert("Auth Error: " + err.message);
+                }
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane" style="margin-right: 6px;"></i> SEND MAGIC LINK';
