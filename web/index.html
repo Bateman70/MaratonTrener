@@ -422,6 +422,14 @@
                             <div class="card android-card profile-only-edit">
                                 <div class="section-label-inner">CLOUD & INTEGRATIONS</div>
                                 
+                                <div style="margin-bottom: 20px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.25); padding: 14px; border-radius: 10px;">
+                                    <label class="label-lime" style="font-size:0.75rem; display: block; margin-bottom: 6px;">SUPABASE CLOUD AUTHENTICATION</label>
+                                    <span class="help-text" style="display: block; margin-bottom: 10px;">Sign in with Email, Google, or Apple to automatically back up your plan, sync across devices, and link your profile securely.</span>
+                                    <button type="button" class="btn-solid-android btn-auth-trigger" id="btn-open-auth-sync" style="width: 100%; padding: 12px; font-weight: bold; background: var(--android-lime); color: #000; border-radius: 8px;">
+                                        <i class="fa-solid fa-user-shield" style="margin-right: 6px;"></i> SIGN IN WITH EMAIL / GOOGLE / APPLE
+                                    </button>
+                                </div>
+                                
                                 <div class="sync-id-box">
                                     <label class="label-lime" style="font-size:0.75rem;">RUNNER ID FOR CLOUD SYNC</label>
                                     <div class="sync-input-row">
@@ -489,6 +497,9 @@
                                     <input type="file" id="profile-avatar-file" accept="image/*" style="display: none;">
                                     <h3 class="profile-title" id="profile-title-name">Athlete</h3>
                                     <span class="profile-email-sub" id="profile-title-email">athlete@example.com</span>
+                                    <button type="button" class="btn-solid-android btn-auth-trigger" id="btn-open-auth-profile" style="margin-top: 12px; font-size: 0.85rem; padding: 8px 16px; border-radius: 8px; font-weight: bold;">
+                                        <i class="fa-solid fa-user-shield" style="margin-right: 6px;"></i> SIGN IN / SYNC ACCOUNT
+                                    </button>
                                 </div>
                                 
                                 <form id="form-profile-setup">
@@ -633,7 +644,7 @@
                             </div>
                             
                             <!-- App Version details -->
-                            <div class="app-version-footer" id="lbl-app-version">Version 3.9.2 (392)</div>
+                            <div class="app-version-footer" id="lbl-app-version">Version 3.9.3 (393)</div>
                         </div>
                         
                         <!-- ================= PAGE 6: DIET / NUTRITION (SLIDE-IN CONTENT) ================= -->

@@ -6149,6 +6149,11 @@ function setupSupabaseAuthUI() {
         });
     }
 
+    // Attach click to any .btn-auth-trigger buttons
+    document.querySelectorAll('.btn-auth-trigger').forEach(btn => {
+        btn.addEventListener('click', openAuthModal);
+    });
+
     // Attach click to toolbar avatar if not logged in
     const toolbarAvatar = document.getElementById('toolbar-avatar');
     if (toolbarAvatar) {
