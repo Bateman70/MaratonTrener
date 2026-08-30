@@ -621,9 +621,9 @@ function setupEventListeners() {
     if (elements.btnStravaAction) {
         elements.btnStravaAction.addEventListener('click', handleStravaAction);
     }
-    if (elements.btnForceReloadApp) {
-        elements.btnForceReloadApp.addEventListener('click', handleForceReloadApp);
-    }
+    document.querySelectorAll('#btn-force-reload-app').forEach(btn => {
+        btn.addEventListener('click', handleForceReloadApp);
+    });
     if (elements.btnExpandWorkoutMap) {
         elements.btnExpandWorkoutMap.addEventListener('click', handleExpandWorkoutMap);
     }
