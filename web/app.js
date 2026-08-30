@@ -2054,13 +2054,21 @@ function updateNextAndLatestUI() {
     let nextWorkout = null;
     let labelText = "NEXT ACTIVITY";
     
+    // Helper to get clean YYYY-MM-DD from any workout date representation
+    function getNormalizedWDate(w) {
+        if (!w || !w.scheduledDate) return '';
+        const d = new Date(w.scheduledDate);
+        return isNaN(d.getTime()) ? String(w.scheduledDate).substring(0, 10) : getLocalDateString(d);
+    }
+
     // Sort logically by date
     const sorted = [...appState.workouts].sort((a,b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
     
     // Find first uncompleted workout before today (MISSED)
     for (let w of sorted) {
         if (!w.isCompleted && w.scheduledDate) {
-            if (w.scheduledDate < todayStr) {
+            const wDateStr = getNormalizedWDate(w);
+            if (wDateStr < todayStr) {
                 nextWorkout = w;
                 labelText = "MISSED ACTIVITY";
                 break;
@@ -2072,7 +2080,8 @@ function updateNextAndLatestUI() {
     if (!nextWorkout) {
         for (let w of sorted) {
             if (!w.isCompleted && w.scheduledDate) {
-                if (w.scheduledDate === todayStr) {
+                const wDateStr = getNormalizedWDate(w);
+                if (wDateStr === todayStr) {
                     nextWorkout = w;
                     labelText = "TODAY'S ACTIVITY";
                     break;
@@ -2085,9 +2094,10 @@ function updateNextAndLatestUI() {
     if (!nextWorkout) {
         for (let w of sorted) {
             if (!w.isCompleted && w.scheduledDate) {
-                if (w.scheduledDate > todayStr) {
+                const wDateStr = getNormalizedWDate(w);
+                if (wDateStr > todayStr) {
                     nextWorkout = w;
-                    labelText = w.scheduledDate === tomorrowStr ? "TOMORROW'S ACTIVITY" : "NEXT ACTIVITY";
+                    labelText = wDateStr === tomorrowStr ? "TOMORROW'S ACTIVITY" : "NEXT ACTIVITY";
                     break;
                 }
             }
@@ -6207,6 +6217,8 @@ function updateAuthButtonsUI(user) {
         }
         const profileEmailEl = document.getElementById('profile-title-email');
         if (profileEmailEl) profileEmailEl.innerText = user.email;
+        const profileInputEmail = document.getElementById('profile-input-email');
+        if (profileInputEmail) profileInputEmail.value = user.email;
     } else {
         if (syncBtn) {
             syncBtn.style.background = 'var(--android-lime)';
