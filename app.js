@@ -6238,6 +6238,11 @@ function updateAuthButtonsUI(user) {
 async function syncLocalDataToSupabase(user) {
     if (!supabaseClient || !user) return;
     try {
+        // Sync email to global appState so updateProfileUI() retains it permanently
+        appState.userEmail = user.email;
+        if (appState.userProfile) appState.userProfile.email = user.email;
+        localStorage.setItem('userEmail', user.email);
+
         // 1. Upsert Profile
         const profileData = {
             id: user.id,
