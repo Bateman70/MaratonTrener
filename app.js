@@ -1898,8 +1898,8 @@ async function updateWeatherForecast(location, raceDateObj, countdownDays) {
         return;
     }
 
-    // Determine mode: "Currently" (diff > 3 days) or "Race Day" (diff >= 0 and diff <= 3 days)
-    const isRaceDayForecast = (countdownDays <= 3);
+    // Determine mode: "Currently" (diff > 7 days) or "Race Day" (diff >= 0 and diff <= 7 days)
+    const isRaceDayForecast = (countdownDays <= 7);
     const labelText = isRaceDayForecast ? "Race Day" : "Currently";
 
     // Set cache key
@@ -1934,7 +1934,7 @@ async function updateWeatherForecast(location, raceDateObj, countdownDays) {
         // Step 2: Fetch weather
         let weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&timezone=auto`;
         if (isRaceDayForecast) {
-            weatherUrl += `&daily=weather_code,temperature_2m_max,temperature_2m_min`;
+            weatherUrl += `&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=14`;
         } else {
             weatherUrl += `&current=temperature_2m,weather_code`;
         }
@@ -1948,7 +1948,7 @@ async function updateWeatherForecast(location, raceDateObj, countdownDays) {
         if (isRaceDayForecast) {
             if (weatherData.daily && weatherData.daily.time) {
                 // Find index matching race date
-                const raceDateISO = new Date(raceDateObj.getTime() - raceDateObj.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                const raceDateISO = getLocalDateString(raceDateObj);
                 const idx = weatherData.daily.time.indexOf(raceDateISO);
                 if (idx !== -1) {
                     const minTemp = Math.round(weatherData.daily.temperature_2m_min[idx]);
