@@ -551,134 +551,131 @@ window.setViewportMode = setViewportMode;
 
 // Setup event bindings
 function setupEventListeners() {
+    const on = (el, evt, fn, opts) => {
+        if (el && typeof el.addEventListener === 'function') {
+            el.addEventListener(evt, fn, opts);
+        }
+    };
+
     // Bottom Nav Click Handlers
-    elements.navBtnHome.addEventListener('click', () => navTo('home'));
-    elements.navBtnBuddies.addEventListener('click', () => navTo('buddies'));
-    elements.navBtnLog.addEventListener('click', () => navTo('log'));
-    elements.navBtnStats.addEventListener('click', () => navTo('stats'));
-    elements.navBtnSync.addEventListener('click', () => navTo('sync'));
-    elements.navBtnProfile.addEventListener('click', () => navTo('profile'));
-    elements.navBtnHelp.addEventListener('click', () => openHelpModal());
+    on(elements.navBtnHome, 'click', () => navTo('home'));
+    on(elements.navBtnBuddies, 'click', () => navTo('buddies'));
+    on(elements.navBtnLog, 'click', () => navTo('log'));
+    on(elements.navBtnStats, 'click', () => navTo('stats'));
+    on(elements.navBtnSync, 'click', () => navTo('sync'));
+    on(elements.navBtnProfile, 'click', () => navTo('profile'));
+    on(elements.navBtnHelp, 'click', () => openHelpModal());
     
     // Toolbar Avatar Click -> Profile
-    elements.btnToolbarRight.addEventListener('click', () => navTo('profile'));
+    on(elements.btnToolbarRight, 'click', () => navTo('profile'));
     
     // Toolbar Left Click -> Context Action (either Menu/Start or Back arrow)
-    elements.btnToolbarLeft.addEventListener('click', handleToolbarLeftClick);
+    on(elements.btnToolbarLeft, 'click', handleToolbarLeftClick);
     
     // Nutrition Card Click -> slide-in Diet screen
-    elements.cardNutritionLink.addEventListener('click', () => navTo('diet'));
+    on(elements.cardNutritionLink, 'click', () => navTo('diet'));
     
     // Calculator Auto Format & Live Calculations
     setupCalculatorBindings();
     
     // Profile Management
-    elements.formProfileSetup.addEventListener('submit', handleProfileSave);
+    on(elements.formProfileSetup, 'submit', handleProfileSave);
     setupProfileFormFormatting();
     
-    elements.btnSyncProfileId.addEventListener('click', handleSyncIdClick);
-    elements.btnRestoreCloud.addEventListener('click', restoreFromCloud);
-    elements.btnDeleteNuclear.addEventListener('click', confirmDeleteData);
-    elements.btnLaunchGenerator.addEventListener('click', openGeneratorModal);
-    if (elements.btnLogCreatePlan) {
-        elements.btnLogCreatePlan.addEventListener('click', openGeneratorModal);
-    }
+    on(elements.btnSyncProfileId, 'click', handleSyncIdClick);
+    on(elements.btnRestoreCloud, 'click', restoreFromCloud);
+    on(elements.btnDeleteNuclear, 'click', confirmDeleteData);
+    on(elements.btnLaunchGenerator, 'click', openGeneratorModal);
+    on(elements.btnLogCreatePlan, 'click', openGeneratorModal);
     
     // Log Page Dropdown & FAB
-    elements.planFilterDropdown.addEventListener('change', renderWorkoutsList);
-    elements.fabAddWorkout.addEventListener('click', () => openWorkoutModal(null));
+    on(elements.planFilterDropdown, 'change', renderWorkoutsList);
+    on(elements.fabAddWorkout, 'click', () => openWorkoutModal(null));
     
     // Wizard Form Stepper bindings
     
     // Load API Key
     if (elements.inputGeminiApiKey) {
         elements.inputGeminiApiKey.value = localStorage.getItem('geminiApiKey') || '';
-        elements.inputGeminiApiKey.addEventListener('input', (e) => {
+        on(elements.inputGeminiApiKey, 'input', (e) => {
             localStorage.setItem('geminiApiKey', e.target.value.trim());
         });
     }
     
-    elements.btnCloseWizard.addEventListener('click', closeWizardModal);
-    elements.btnWizBack.addEventListener('click', navigateWizardBack);
-    elements.btnWizNext.addEventListener('click', navigateWizardNext);
-    if (elements.btnWizFinish) elements.btnWizFinish.addEventListener('click', navigateWizardNext);
-    if (elements.btnWizMethodAuto) elements.btnWizMethodAuto.addEventListener('click', () => { appState.wizardPage = 1; updateWizardUI(); });
-    if (elements.btnWizMethodImport) elements.btnWizMethodImport.addEventListener('click', () => { appState.wizardPage = 4; updateWizardUI(); });
-    if (elements.btnWizImportFinish) elements.btnWizImportFinish.addEventListener('click', processImportedPlan);
+    on(elements.btnCloseWizard, 'click', closeWizardModal);
+    on(elements.btnWizBack, 'click', navigateWizardBack);
+    on(elements.btnWizNext, 'click', navigateWizardNext);
+    on(elements.btnWizFinish, 'click', navigateWizardNext);
+    on(elements.btnWizMethodAuto, 'click', () => { appState.wizardPage = 1; updateWizardUI(); });
+    on(elements.btnWizMethodImport, 'click', () => { appState.wizardPage = 4; updateWizardUI(); });
+    on(elements.btnWizImportFinish, 'click', processImportedPlan);
     
     // File upload triggers
     if (elements.importUploadZone) {
-        elements.importUploadZone.addEventListener('click', () => elements.importFileInput.click());
+        on(elements.importUploadZone, 'click', () => elements.importFileInput && elements.importFileInput.click());
     }
-    if (elements.importFileInput) {
-        elements.importFileInput.addEventListener('change', handleFileImport);
-    }
+    on(elements.importFileInput, 'change', handleFileImport);
     setupWizardAutoFormatting();
     
     // Add Buddy inline form
-    elements.formAddBuddyInline.addEventListener('submit', handleBuddySubmitInline);
-    elements.btnShareIdCopy.addEventListener('click', copyShareId);
-    if (elements.btnStravaAction) {
-        elements.btnStravaAction.addEventListener('click', handleStravaAction);
-    }
+    on(elements.formAddBuddyInline, 'submit', handleBuddySubmitInline);
+    on(elements.btnShareIdCopy, 'click', copyShareId);
+    on(elements.btnStravaAction, 'click', handleStravaAction);
+    
     document.querySelectorAll('#btn-force-reload-app').forEach(btn => {
         btn.addEventListener('click', handleForceReloadApp);
     });
-    if (elements.btnExpandWorkoutMap) {
-        elements.btnExpandWorkoutMap.addEventListener('click', handleExpandWorkoutMap);
-    }
+    on(elements.btnExpandWorkoutMap, 'click', handleExpandWorkoutMap);
     
     // Diet Tab buttons
-    elements.btnDietTabWeekVp.addEventListener('click', () => switchDietTab('week'));
-    elements.btnDietTabFavoritesVp.addEventListener('click', () => switchDietTab('favorites'));
-    elements.btnDietTabAllVp.addEventListener('click', () => switchDietTab('all'));
-    elements.dietSwitchScale.addEventListener('change', handleScalePortionsChange);
+    on(elements.btnDietTabWeekVp, 'click', () => switchDietTab('week'));
+    on(elements.btnDietTabFavoritesVp, 'click', () => switchDietTab('favorites'));
+    on(elements.btnDietTabAllVp, 'click', () => switchDietTab('all'));
+    on(elements.dietSwitchScale, 'change', handleScalePortionsChange);
     
     // Workout details Form
-    elements.workoutForm.addEventListener('submit', handleWorkoutSubmit);
-    elements.btnCloseWorkoutModal.addEventListener('click', closeWorkoutModal);
-    elements.btnCancelWorkout.addEventListener('click', closeWorkoutModal);
-    elements.workoutType.addEventListener('change', handleWorkoutTypeChange);
+    on(elements.workoutForm, 'submit', handleWorkoutSubmit);
+    on(elements.btnCloseWorkoutModal, 'click', closeWorkoutModal);
+    on(elements.btnCancelWorkout, 'click', closeWorkoutModal);
+    on(elements.workoutType, 'change', handleWorkoutTypeChange);
     
     // Race Info Modal
-    if (elements.raceInfoForm) {
-        elements.raceInfoForm.addEventListener('submit', handleRaceInfoSubmit);
-        elements.btnCloseRaceModal.addEventListener('click', closeRaceInfoModal);
-        elements.btnCancelRace.addEventListener('click', closeRaceInfoModal);
+    on(elements.raceInfoForm, 'submit', handleRaceInfoSubmit);
+    on(elements.btnCloseRaceModal, 'click', closeRaceInfoModal);
+    on(elements.btnCancelRace, 'click', closeRaceInfoModal);
+    
+    // GPX File Uploading Listeners
+    if (elements.gpxUploadBox) {
+        on(elements.gpxUploadBox, 'click', () => elements.gpxFileInput && elements.gpxFileInput.click());
+        on(elements.gpxFileInput, 'change', handleGpxFileSelect);
+        on(elements.btnRemoveGpx, 'click', removeUploadedGpx);
         
-        // GPX File Uploading Listeners
-        if (elements.gpxUploadBox) {
-            elements.gpxUploadBox.addEventListener('click', () => elements.gpxFileInput.click());
-            elements.gpxFileInput.addEventListener('change', handleGpxFileSelect);
-            elements.btnRemoveGpx.addEventListener('click', removeUploadedGpx);
-            
-            // Drag and drop listeners
-            elements.gpxUploadBox.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                elements.gpxUploadBox.classList.add('dragover');
-            });
-            elements.gpxUploadBox.addEventListener('dragleave', () => {
-                elements.gpxUploadBox.classList.remove('dragover');
-            });
-            elements.gpxUploadBox.addEventListener('drop', (e) => {
-                e.preventDefault();
-                elements.gpxUploadBox.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    const file = e.dataTransfer.files[0];
-                    if (file.name.toLowerCase().endsWith('.gpx')) {
-                        processGpxFile(file);
-                    } else {
-                        alert('Please drop a valid .gpx file.');
-                    }
+        // Drag and drop listeners
+        on(elements.gpxUploadBox, 'dragover', (e) => {
+            e.preventDefault();
+            elements.gpxUploadBox.classList.add('dragover');
+        });
+        on(elements.gpxUploadBox, 'dragleave', () => {
+            elements.gpxUploadBox.classList.remove('dragover');
+        });
+        on(elements.gpxUploadBox, 'drop', (e) => {
+            e.preventDefault();
+            elements.gpxUploadBox.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.name.toLowerCase().endsWith('.gpx')) {
+                    processGpxFile(file);
+                } else {
+                    alert('Please drop a valid .gpx file.');
                 }
-            });
-        }
+            }
+        });
     }
     
     // Buddy Modal close
-    elements.btnCloseBuddyModal.addEventListener('click', closeBuddyModal);
-    elements.btnCancelBuddy.addEventListener('click', closeBuddyModal);
-    elements.buddyForm.addEventListener('submit', handleBuddySubmitModal);
+    on(elements.btnCloseBuddyModal, 'click', closeBuddyModal);
+    on(elements.btnCancelBuddy, 'click', closeBuddyModal);
+    on(elements.buddyForm, 'submit', handleBuddySubmitModal);
 
     // Shoe Modal Listeners
     if (elements.btnAddShoeModal) {
@@ -756,19 +753,19 @@ function setupEventListeners() {
     });
     
     // Navigation Drawer open/close & item click listeners
-    if (elements.btnCloseDrawer && elements.drawerOverlay) {
-        elements.btnCloseDrawer.addEventListener('click', closeDrawer);
-        elements.drawerOverlay.addEventListener('click', closeDrawer);
+    if (elements.btnCloseDrawer || elements.drawerOverlay) {
+        on(elements.btnCloseDrawer, 'click', closeDrawer);
+        on(elements.drawerOverlay, 'click', closeDrawer);
         
-        elements.drawerLinkHome.addEventListener('click', () => { closeDrawer(); navTo('home'); });
-        elements.drawerLinkBuddies.addEventListener('click', () => { closeDrawer(); navTo('buddies'); });
-        elements.drawerLinkLog.addEventListener('click', () => { closeDrawer(); navTo('log'); });
-        elements.drawerLinkStats.addEventListener('click', () => { closeDrawer(); navTo('stats'); });
-        elements.drawerLinkSync.addEventListener('click', () => { closeDrawer(); navTo('sync'); });
-        elements.drawerLinkProfile.addEventListener('click', () => { closeDrawer(); navTo('profile'); });
+        on(elements.drawerLinkHome, 'click', () => { closeDrawer(); navTo('home'); });
+        on(elements.drawerLinkBuddies, 'click', () => { closeDrawer(); navTo('buddies'); });
+        on(elements.drawerLinkLog, 'click', () => { closeDrawer(); navTo('log'); });
+        on(elements.drawerLinkStats, 'click', () => { closeDrawer(); navTo('stats'); });
+        on(elements.drawerLinkSync, 'click', () => { closeDrawer(); navTo('sync'); });
+        on(elements.drawerLinkProfile, 'click', () => { closeDrawer(); navTo('profile'); });
         
-        elements.drawerActionGenerator.addEventListener('click', () => { closeDrawer(); openGeneratorModal(); });
-        elements.drawerActionHelp.addEventListener('click', () => { closeDrawer(); openHelpModal(); });
+        on(elements.drawerActionGenerator, 'click', () => { closeDrawer(); openGeneratorModal(); });
+        on(elements.drawerActionHelp, 'click', () => { closeDrawer(); openHelpModal(); });
     }
 
     // Dashboard Cards Click Handlers (Parity with Android)
