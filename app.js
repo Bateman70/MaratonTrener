@@ -204,6 +204,7 @@ const weatherCache = {
 // Initialize App
 function startApp() {
     cacheElements();
+    document.querySelectorAll('.modal, .drawer-overlay, .nav-drawer').forEach(el => el.classList.remove('active'));
     initializeModeAndUser();
     setupEventListeners();
     checkFirebaseConnection();
@@ -986,16 +987,28 @@ function updateHeaderForTab(tab) {
 
 // Navigation Tabs Switcher
 function navTo(tab) {
+    if (!tab) return;
     if (tab === 'buddies' && appState.readOnly) return;
     
     updateHeaderForTab(tab);
     
+    // Sync bottom nav item active state
+    document.querySelectorAll('.nav-item-vp').forEach(btn => btn.classList.remove('active'));
+    const navBtn = document.getElementById('nav-btn-' + tab);
+    if (navBtn) navBtn.classList.add('active');
+
+    // Sync app-page active state and position
+    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
     const pageEl = document.getElementById('page-' + tab);
-    if (pageEl && elements.appContentScroll) {
-        elements.appContentScroll.scrollTo({
-            left: pageEl.offsetLeft,
-            behavior: 'smooth'
-        });
+    if (pageEl) {
+        pageEl.classList.add('active');
+        if (elements.appContentScroll) {
+            elements.appContentScroll.scrollLeft = pageEl.offsetLeft;
+            elements.appContentScroll.scrollTo({
+                left: pageEl.offsetLeft,
+                behavior: 'smooth'
+            });
+        }
     }
 }
 
