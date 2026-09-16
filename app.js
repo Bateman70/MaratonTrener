@@ -1860,20 +1860,19 @@ function updateCountdown() {
         today.setHours(0,0,0,0);
         const diffTime = raceDateObj.getTime() - today.getTime();
         countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (countdownDays < 0) countdownDays = 0;
         
         if (elements.homeRaceDate) {
             elements.homeRaceDate.innerText = raceDateObj.toLocaleDateString('no-NO', { day: 'numeric', month: 'short', year: 'numeric' });
         }
-    } else {
-        if (elements.homeRaceDate) {
-            elements.homeRaceDate.innerText = 'Sett løpsdato';
+        
+        if (elements.textCountdown) {
+            if (diffTime < 0) {
+                elements.textCountdown.innerText = "LØPET ER GJENNOMFØRT! 🎉";
+            } else {
+                elements.textCountdown.innerText = `${countdownDays} DAGER`;
+            }
         }
-    }
-    
-    if (elements.textCountdown) {
-        elements.textCountdown.innerText = `${countdownDays} DAGER`;
-    }
+    } else {
 
     // Call weather forecast update
     const eventLocation = appState.userProfile.eventLocation || "";

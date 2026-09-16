@@ -7,8 +7,20 @@ let supabaseClient = null;
 if (typeof supabase !== 'undefined' && SUPABASE_URL !== "YOUR_SUPABASE_URL_HERE") {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     console.log("Supabase Client initialized successfully.");
+    pingSupabaseKeepAlive();
 } else {
     console.warn("Supabase Client pending configuration or SDK load.");
+}
+
+// Keep-Alive Ping to prevent Supabase Free Tier auto-pause after 7 days of inactivity
+async function pingSupabaseKeepAlive() {
+    if (!supabaseClient) return;
+    try {
+        await supabaseClient.from('profiles').select('id').limit(1);
+        console.log("Supabase keep-alive ping completed.");
+    } catch (e) {
+        console.warn("Supabase keep-alive ping note:", e.message);
+    }
 }
 
 // ----------------------------------------------------
