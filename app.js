@@ -3548,8 +3548,17 @@ function generateTrainingPlanFromWizard() {
         const isPreferred = preferredDays.has(dayName);
         const isAutoStrengthDay = (includeStrength && dayName === strengthDay);
         
+        const daysToRace = Math.round((raceDate - current) / (1000 * 60 * 60 * 24));
+        
+        // Final 7 days before race are Taper week (no intense long runs/intervals right before race day)
+        if (daysToRace <= 1) {
+            // Day right before race day is a dedicated rest day
+            if (dayOfWeek === 0) currentWeek++;
+            current.setDate(current.getDate() + 1);
+            continue;
+        }
+
         if (isPreferred || isAutoStrengthDay) {
-            
             const createWorkout = (workoutType) => {
                 const w = {
                     planName: eventName,
@@ -3561,9 +3570,30 @@ function generateTrainingPlanFromWizard() {
                 };
                 
                 const progress = currentWeek / totalWeeks;
-                const phase = progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE");
+                const isFinalWeek = (daysToRace <= 7);
+                const phase = isFinalWeek ? "TAPER" : (progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE"));
                 
-                if (workoutType.toUpperCase() === 'LONG RUN') {
+                if (isFinalWeek) {
+                    // Race week taper adjustments
+                    if (workoutType.toUpperCase() === 'LONG RUN' || workoutType.toUpperCase() === 'STEADY RUN') {
+                        w.distance = 4.0;
+                        w.pace = formatPace(racePaceMinPerKm * 1.15);
+                        w.description = `Taper Shakeout: Easy 4.0 km. Save your energy and stay relaxed for race day!`;
+                    } else if (workoutType.toUpperCase() === 'INTERVALS') {
+                        w.intervalCount = 3;
+                        w.intervalValue = "400m";
+                        w.intervalPace = formatPace(racePaceMinPerKm * 0.98);
+                        w.description = `Taper Strides: 3x400m light strides. Keep legs loose and sharp!`;
+                    } else if (workoutType.toUpperCase() === 'STRENGTH & CORE') {
+                        w.distance = 0;
+                        w.pace = "";
+                        w.description = "Taper Mobility: Light stretching and foam rolling. No heavy lifting before the race!";
+                    } else {
+                        w.distance = 3.0;
+                        w.pace = formatPace(racePaceMinPerKm * 1.15);
+                        w.description = `Taper Shakeout: Easy 3.0 km. Keep heart rate low.`;
+                    }
+                } else if (workoutType.toUpperCase() === 'LONG RUN') {
                     let base = 12.0, max = 30.0;
                     if (raceType.includes("5K")) { base = 4.0; max = 7.0; }
                     else if (raceType.includes("10K")) { base = 6.0; max = 12.0; }
@@ -3618,7 +3648,6 @@ function generateTrainingPlanFromWizard() {
                 planWorkouts.push(createWorkout(type));
             }
             
-            // Add auto-strength separately if it wasn't manually requested via preferred dropdowns
             if (isAutoStrengthDay) {
                 const manualAssigned = isPreferred ? (assignments[dayName] || "") : "";
                 if (manualAssigned !== "STRENGTH & CORE") {
@@ -3634,72 +3663,105 @@ function generateTrainingPlanFromWizard() {
         current.setDate(current.getDate() + 1);
     }
     
-    // Save in Database
+    // Add official RACE DAY event workout on race date
+    planWorkouts.push({
+        planName: eventName,
+        weekNumber: totalWeeks,
+        scheduledDate: eventDateStr,
+        isCompleted: false,
+        notes: "RACE DAY!",
+        workoutType: "RACE DAY",
+        distance: raceDistance,
+        pace: formatPace(racePaceMinPerKm),
+        description: `🏁 RACE DAY! ${eventName} (${raceType}). Target pace: ${formatPace(racePaceMinPerKm)} min/km. Good luck!`
+    });
+
+    // Save in Database / Local State (Clean wipe of uncompleted old plan workouts)
+    const planStartVal = new Date(startDateStr).getTime();
+    appState.userProfile.planStartDate = planStartVal;
+    
+    // 1. Wipe uncompleted workouts from local appState
+    appState.workouts = appState.workouts.filter(w => w.isCompleted);
+    planWorkouts.forEach(w => {
+        w.id = `off_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+        appState.workouts.push(w);
+    });
+    saveWorkoutsLocally();
+
+    // 2. Wipe uncompleted workouts from Supabase if active
+    if (supabaseClient && appState.supabaseUser) {
+        (async () => {
+            try {
+                // Delete uncompleted workouts from old plans in Supabase
+                await supabaseClient
+                    .from('workouts')
+                    .delete()
+                    .eq('user_id', appState.supabaseUser.id)
+                    .eq('is_completed', false);
+
+                // Insert new plan workouts into Supabase
+                const supabaseWorkouts = planWorkouts.map(w => ({
+                    user_id: appState.supabaseUser.id,
+                    scheduled_date: w.scheduledDate,
+                    week_number: w.weekNumber || 1,
+                    workout_type: w.workoutType || 'EASY',
+                    distance: w.distance || 0,
+                    total_duration: w.totalDuration || 0,
+                    avg_heart_rate: w.avgHeartRate || 0,
+                    description: w.description || '',
+                    notes: w.notes || '',
+                    is_completed: false
+                }));
+
+                await supabaseClient.from('workouts').upsert(supabaseWorkouts);
+            } catch (err) {
+                console.error("Error syncing new plan to Supabase:", err);
+            }
+        })();
+    }
+
+    // 3. Wipe uncompleted workouts from Firebase if connected
     if (db && appState.firebaseConnected) {
-        // Wipe old uncompleted logs in Firebase
         db.ref(`workouts/${appState.userId}`).once('value', (snap) => {
             const val = snap.val();
             const updates = {};
             if (val) {
                 Object.keys(val).forEach(k => {
                     if (!val[k].isCompleted) {
-                        updates[k] = null; // delete
+                        updates[k] = null;
                     }
                 });
             }
-            
-            // Push new ones
             planWorkouts.forEach(w => {
                 const key = `workout_${Date.now()}_${Math.floor(Math.random()*1000)}`;
                 updates[key] = w;
             });
-            
-            db.ref(`workouts/${appState.userId}`).update(updates)
-                .then(() => {
-                    // Save profile details
-                    const planStartVal = new Date(startDateStr).getTime();
-                    appState.userProfile.planStartDate = planStartVal;
-                    db.ref(`profiles/${appState.userId}`).update({
-                        name: appState.fullName || appState.userName,
-                        nickname: appState.userName,
-                        currentRace: appState.userProfile.currentRace,
-                        eventLocation: eventLocation,
-                        age: appState.age,
-                        weight: appState.weight,
-                        maxHr: appState.maxHr,
-                        pb10k: appState.pb10k,
-                        pbHalf: appState.pbHalf,
-                        pbFull: appState.pbFull,
-                        planStartDate: planStartVal,
-                        lastUpdate: Date.now()
-                    });
-                    
-                    closeWizardModal();
-                    alert("12-Week customized plan successfully created!");
-                    navTo('log');
-                    setTimeout(() => { openHelpModal(); }, 400);
-                });
+            db.ref(`workouts/${appState.userId}`).update(updates);
+            db.ref(`profiles/${appState.userId}`).update({
+                name: appState.fullName || appState.userName,
+                nickname: appState.userName,
+                currentRace: appState.userProfile.currentRace,
+                eventLocation: eventLocation,
+                age: appState.age,
+                weight: appState.weight,
+                maxHr: appState.maxHr,
+                pb10k: appState.pb10k,
+                pbHalf: appState.pbHalf,
+                pbFull: appState.pbFull,
+                planStartDate: planStartVal,
+                lastUpdate: Date.now()
+            });
         });
-    } else {
-        // Demo local state
-        const planStartVal = new Date(startDateStr).getTime();
-        appState.userProfile.planStartDate = planStartVal;
-        appState.workouts = appState.workouts.filter(w => w.isCompleted); // keep completed
-        planWorkouts.forEach(w => {
-            w.id = `off_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-            appState.workouts.push(w);
-        });
-        saveWorkoutsLocally();
-        
-        closeWizardModal();
-        updateProfileUI();
-        renderWorkoutsList();
-        updateAggregatedStats();
-        populatePlanFilters();
-        alert("12-Week customized plan successfully created!");
-        navTo('log');
-        setTimeout(() => { openHelpModal(); }, 400);
     }
+
+    closeWizardModal();
+    updateProfileUI();
+    renderWorkoutsList();
+    updateAggregatedStats();
+    populatePlanFilters();
+    alert(`Customized plan for ${eventName} successfully created!`);
+    navTo('log');
+    setTimeout(() => { openHelpModal(); }, 400);
 }
 
 function parseTime(time) {
