@@ -202,14 +202,20 @@ const weatherCache = {
 };
 
 // Initialize App
-document.addEventListener('DOMContentLoaded', () => {
+function startApp() {
     cacheElements();
     initializeModeAndUser();
     setupEventListeners();
     checkFirebaseConnection();
     loadLocalFallbackData();
     setupViewPagerScroll();
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApp);
+} else {
+    startApp();
+}
 
 function cacheElements() {
     elements = {
