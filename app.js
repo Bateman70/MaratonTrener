@@ -564,56 +564,6 @@ function setupEventListeners() {
         }
     };
 
-    // Failsafe Capturing-Phase Event Delegation for Touch & Click
-    const handleGlobalTap = (e) => {
-        const reloadBtn = e.target.closest('#btn-force-reload-app');
-        if (reloadBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            handleForceReloadApp();
-            return;
-        }
-
-        const navBtn = e.target.closest('.nav-item-vp, [id^="nav-btn-"]');
-        if (navBtn) {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = navBtn.id || '';
-            if (id.includes('home')) navTo('home');
-            else if (id.includes('buddies')) navTo('buddies');
-            else if (id.includes('log')) navTo('log');
-            else if (id.includes('stats')) navTo('stats');
-            else if (id.includes('sync')) navTo('sync');
-            else if (id.includes('profile')) navTo('profile');
-            else if (id.includes('help')) openHelpModal();
-            return;
-        }
-
-        const profileAvatar = e.target.closest('#btn-toolbar-right');
-        if (profileAvatar) {
-            e.preventDefault();
-            e.stopPropagation();
-            navTo('profile');
-            return;
-        }
-
-        const leftMenu = e.target.closest('#btn-toolbar-left');
-        if (leftMenu) {
-            e.preventDefault();
-            e.stopPropagation();
-            handleToolbarLeftClick();
-            return;
-        }
-    };
-
-    document.addEventListener('click', handleGlobalTap, true);
-    document.addEventListener('touchend', (e) => {
-        const target = e.target.closest('#btn-force-reload-app, .nav-item-vp, [id^="nav-btn-"], #btn-toolbar-right, #btn-toolbar-left');
-        if (target) {
-            handleGlobalTap(e);
-        }
-    }, { capture: true, passive: false });
-
     // Bottom Nav Click Handlers
     on(elements.navBtnHome, 'click', () => navTo('home'));
     on(elements.navBtnBuddies, 'click', () => navTo('buddies'));
