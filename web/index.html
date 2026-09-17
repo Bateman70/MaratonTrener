@@ -32,7 +32,7 @@
     </script>
 
     <!-- Vanilla CSS Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=4.1.3">
+    <link rel="stylesheet" href="style.css?v=4.1.4">
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -86,7 +86,9 @@
                     <header class="app-toolbar">
                         <!-- Left Action Button: Context-based -->
                         <button class="toolbar-btn" id="btn-toolbar-left" title="Meny" onclick="handleToolbarLeftClick()">
-                            <i class="fa-solid fa-bars" id="toolbar-left-icon"></i>
+                            <span id="toolbar-left-icon">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                            </span>
                         </button>
                         
                         <span class="toolbar-title" id="app-toolbar-title">DASHBOARD</span>
@@ -94,7 +96,7 @@
                         <!-- Right Profile Icon Link -->
                         <button class="toolbar-btn" id="btn-toolbar-right" title="Profil" onclick="navTo('profile')">
                             <div class="toolbar-profile-avatar" id="toolbar-avatar">
-                                <i class="fa-solid fa-user"></i>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--android-lime)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             </div>
                         </button>
                     </header>
@@ -313,7 +315,7 @@
                             
                             <!-- Floating Action Button -->
                             <button class="fab-btn" id="fab-add-workout" title="Log Workout">
-                                <i class="fa-solid fa-plus"></i>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             </button>
                         </div>
                         
@@ -663,7 +665,7 @@
                             
                             <!-- App Version details -->
                             <div class="app-version-footer" id="lbl-app-version" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                <span>Version 4.1.3 (413)</span>
+                                <span>Version 4.1.4 (414)</span>
                                 <button type="button" id="btn-force-reload-app" style="background: var(--android-lime); color: #000; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" onclick="handleForceReloadApp()">
                                     <i class="fa-solid fa-rotate"></i> OPPDATER APP
                                 </button>
@@ -726,31 +728,31 @@
                     <!-- Bottom Navigation Bar -->
                     <nav class="app-bottom-nav">
                         <button class="nav-item-vp active" id="nav-btn-home" onclick="navTo('home')">
-                            <i class="fa-solid fa-house"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                             <span>Hjem</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-buddies" onclick="navTo('buddies')">
-                            <i class="fa-solid fa-user-group"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                             <span>Buddies</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-log" onclick="navTo('log')">
-                            <i class="fa-solid fa-calendar-days"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                             <span>Log</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-stats" onclick="navTo('stats')">
-                            <i class="fa-solid fa-chart-simple"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                             <span>Stats</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-sync" onclick="navTo('sync')">
-                            <i class="fa-solid fa-rotate"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
                             <span>Sync</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-profile" onclick="navTo('profile')">
-                            <i class="fa-solid fa-user"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Profil</span>
                         </button>
                         <button class="nav-item-vp" id="nav-btn-help" onclick="openHelpModal()">
-                            <i class="fa-solid fa-circle-question"></i>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                             <span>Hjelp</span>
                         </button>
                     </nav>
@@ -1637,8 +1639,8 @@
 
     <!-- JS Application Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=4.1.3"></script>
-    <script src="firebase-config.js?v=4.1.3"></script>
-    <script src="app.js?v=4.1.3"></script>
+    <script src="supabase-config.js?v=4.1.4"></script>
+    <script src="firebase-config.js?v=4.1.4"></script>
+    <script src="app.js?v=4.1.4"></script>
 </body>
 </html>

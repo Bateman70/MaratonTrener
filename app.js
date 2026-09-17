@@ -982,7 +982,6 @@ function closeDrawer() {
 
 // Update header and buttons for a specific tab
 function updateHeaderForTab(tab) {
-    if (appState.activeTab === tab) return;
     appState.activeTab = tab;
 
     // Toggle active tab buttons
@@ -1005,33 +1004,32 @@ function updateHeaderForTab(tab) {
     
     // Adjust header title and buttons
     if (tab === 'diet') {
-        elements.appToolbarTitle.innerText = "MÅLTIDSPLAN";
-        elements.btnToolbarRight.style.visibility = "hidden";
-        renderDietSection();
+        if (elements.appToolbarTitle) elements.appToolbarTitle.innerText = "MÅLTIDSPLAN";
+        if (elements.btnToolbarRight) elements.btnToolbarRight.style.visibility = "hidden";
+        if (typeof renderDietSection === 'function') renderDietSection();
     } else {
-        elements.btnToolbarRight.style.visibility = "visible";
+        if (elements.btnToolbarRight) elements.btnToolbarRight.style.visibility = "visible";
         
-        if (tab === 'home') {
-            elements.appToolbarTitle.innerText = "DASHBOARD";
-        } else if (tab === 'buddies') {
-            elements.appToolbarTitle.innerText = "BUDDIES";
-        } else if (tab === 'log') {
-            elements.appToolbarTitle.innerText = "TRAINING PLAN";
-        } else if (tab === 'stats') {
-            elements.appToolbarTitle.innerText = "STATISTICS";
-            renderAnalyticsCharts(); // render/refresh charts
-        } else if (tab === 'sync') {
-            elements.appToolbarTitle.innerText = "SYNC & CLOUD";
-        } else if (tab === 'profile') {
-            elements.appToolbarTitle.innerText = "PROFILE";
+        if (elements.appToolbarTitle) {
+            if (tab === 'home') elements.appToolbarTitle.innerText = "DASHBOARD";
+            else if (tab === 'buddies') elements.appToolbarTitle.innerText = "BUDDIES";
+            else if (tab === 'log') elements.appToolbarTitle.innerText = "TRAINING PLAN";
+            else if (tab === 'stats') {
+                elements.appToolbarTitle.innerText = "STATISTICS";
+                if (typeof renderAnalyticsCharts === 'function') renderAnalyticsCharts();
+            } else if (tab === 'sync') elements.appToolbarTitle.innerText = "SYNC & CLOUD";
+            else if (tab === 'profile') elements.appToolbarTitle.innerText = "PROFILE";
         }
     }
     
-    // Toggle left button
-    if (tab === 'home') {
-        elements.toolbarLeftIcon.className = "fa-solid fa-ellipsis-vertical";
-    } else {
-        elements.toolbarLeftIcon.className = "fa-solid fa-arrow-left";
+    // Toggle left toolbar button SVG icon
+    const leftIcon = elements.toolbarLeftIcon || document.getElementById('toolbar-left-icon');
+    if (leftIcon) {
+        if (tab === 'home') {
+            leftIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+        } else {
+            leftIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
+        }
     }
 }
 
@@ -1040,73 +1038,31 @@ function navTo(tab) {
     if (!tab) return;
     if (tab === 'buddies' && appState.readOnly) return;
     
-    updateHeaderForTab(tab);
-    
     // Sync bottom nav item active state
     document.querySelectorAll('.nav-item-vp').forEach(btn => btn.classList.remove('active'));
     const navBtn = document.getElementById('nav-btn-' + tab);
     if (navBtn) navBtn.classList.add('active');
 
-    // Sync app-page active state and position
-    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    // Sync app-page active state (fail-safe display block/none)
+    document.querySelectorAll('.app-page').forEach(p => {
+        p.style.display = 'none';
+        p.classList.remove('active');
+    });
+    
     const pageEl = document.getElementById('page-' + tab);
     if (pageEl) {
+        pageEl.style.display = 'block';
         pageEl.classList.add('active');
-        const container = elements.appContentScroll || document.getElementById('app-content-scroll');
-        if (container) {
-            container.style.scrollSnapType = 'none';
-            
-            if (typeof pageEl.scrollIntoView === 'function') {
-                pageEl.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
-            }
-            
-            const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet'];
-            const idx = pages.indexOf(tab);
-            if (idx !== -1 && container.clientWidth > 0) {
-                container.scrollLeft = idx * container.clientWidth;
-            }
-
-            setTimeout(() => {
-                container.style.scrollSnapType = 'x mandatory';
-            }, 50);
-        }
+        pageEl.scrollTop = 0;
     }
+
+    updateHeaderForTab(tab);
 }
 window.navTo = navTo;
 
 // Continuous scroll listener for ViewPager syncing
 function setupViewPagerScroll() {
-    if (!elements.appContentScroll) return;
-    
-    const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet']; // ordered by DOM layout
     const parallaxBg = document.querySelector('.parallax-bg');
-    
-    elements.appContentScroll.addEventListener('scroll', () => {
-        const scrollLeft = elements.appContentScroll.scrollLeft;
-        const width = elements.appContentScroll.clientWidth;
-        const maxScroll = elements.appContentScroll.scrollWidth - width;
-        
-        // 1. Sync Parallax
-        if (parallaxBg && maxScroll > 0) {
-            const scrollPercent = (scrollLeft / maxScroll) * 100;
-            parallaxBg.style.backgroundPosition = `${100 - scrollPercent}% center`;
-        }
-        
-        // 2. Sync Active Tab UI & Bottom Nav Buttons
-        if (width > 0) {
-            const pageIndex = Math.round(scrollLeft / width);
-            if (pageIndex >= 0 && pageIndex < pages.length) {
-                const currentTab = pages[pageIndex];
-                updateHeaderForTab(currentTab);
-                
-                document.querySelectorAll('.nav-item-vp').forEach(btn => btn.classList.remove('active'));
-                const navBtn = document.getElementById('nav-btn-' + currentTab);
-                if (navBtn) navBtn.classList.add('active');
-            }
-        }
-    }, { passive: true });
-    
-    // Set initial position to 100% (Left side)
     if (parallaxBg) {
         parallaxBg.style.backgroundPosition = '100% center';
     }
