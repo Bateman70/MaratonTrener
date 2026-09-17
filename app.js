@@ -1065,6 +1065,7 @@ function navTo(tab) {
         }
     }
 }
+window.navTo = navTo;
 
 // Continuous scroll listener for ViewPager syncing
 function setupViewPagerScroll() {
@@ -5923,6 +5924,7 @@ function handleForceReloadApp() {
     const cleanUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
     window.location.href = cleanUrl;
 }
+window.handleForceReloadApp = handleForceReloadApp;
 
 function decodeGooglePolyline(encoded) {
     if (!encoded) return [];
