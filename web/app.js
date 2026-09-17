@@ -564,6 +564,28 @@ function setupEventListeners() {
         }
     };
 
+    // Global Event Delegation for Bottom Nav, Toolbar, and Reload Actions (guarantees click responsiveness on mobile)
+    document.addEventListener('click', (e) => {
+        const reloadBtn = e.target.closest('#btn-force-reload-app');
+        if (reloadBtn) {
+            e.preventDefault();
+            handleForceReloadApp();
+            return;
+        }
+
+        const navBtn = e.target.closest('.nav-item-vp, [id^="nav-btn-"]');
+        if (navBtn) {
+            const id = navBtn.id || '';
+            if (id.includes('home')) navTo('home');
+            else if (id.includes('buddies')) navTo('buddies');
+            else if (id.includes('log')) navTo('log');
+            else if (id.includes('stats')) navTo('stats');
+            else if (id.includes('sync')) navTo('sync');
+            else if (id.includes('profile')) navTo('profile');
+            else if (id.includes('help')) openHelpModal();
+        }
+    });
+
     // Bottom Nav Click Handlers
     on(elements.navBtnHome, 'click', () => navTo('home'));
     on(elements.navBtnBuddies, 'click', () => navTo('buddies'));
@@ -5847,31 +5869,27 @@ function formatStravaPace(metersPerSec) {
 }
 
 function handleForceReloadApp() {
-    if (!confirm("Dette vil tømme nettleserens mellomlager og laste appen på nytt. Fortsette?\n\n(Note: Du vil IKKE miste brukerprofilen din eller kalenderen din)")) return;
-    
-    // 1. Unregister active service workers
-    if (window.navigator && window.navigator.serviceWorker) {
-        window.navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let registration of registrations) {
-                registration.unregister();
-            }
-        });
+    try {
+        if (window.navigator && window.navigator.serviceWorker) {
+            window.navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        if (window.caches) {
+            caches.keys().then(names => {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
+        sessionStorage.clear();
+    } catch(e) {
+        console.error("Cache clear error:", e);
     }
-    
-    // 2. Clear browser cache storage
-    if (window.caches) {
-        caches.keys().then(names => {
-            for (let name of names) {
-                caches.delete(name);
-            }
-        });
-    }
-    
-    // 3. Clear session storage
-    sessionStorage.clear();
-    
-    // 4. Force reload (bypass local cache)
-    window.location.reload(true);
+    const cleanUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
+    window.location.href = cleanUrl;
 }
 
 function decodeGooglePolyline(encoded) {
