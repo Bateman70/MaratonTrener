@@ -3634,76 +3634,82 @@ function generateTrainingPlanFromWizard() {
         current.setDate(current.getDate() + 1);
     }
     
-    // Save in Database
+    // ----------------------------------------------------
+    // PERSISTENCE: CLEAN WIPE OLD UNCOMPLETED & SAVE NEW PLAN
+    // ----------------------------------------------------
+    // 1. In-Memory & Local Storage: Keep completed workouts, purge old uncompleted
+    appState.workouts = (appState.workouts || []).filter(w => w.isCompleted === true);
+    planWorkouts.forEach((w, idx) => {
+        w.id = `plan_${Date.now()}_${idx}_${Math.floor(Math.random() * 1000)}`;
+        appState.workouts.push(w);
+    });
+    appState.workouts.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+    saveWorkoutsLocally();
+    renderWorkoutsList();
+    updateAggregatedStats();
+    populatePlanFilters();
+
+    // 2. Profile & Dashboard Update
+    const planStartVal = new Date(startDateStr).getTime();
+    appState.userProfile.planStartDate = planStartVal;
+    appState.userProfile.currentRace = `${eventName} - ${raceType}${eventDateStr ? ': ' + eventDateStr : ''}`;
+    appState.userProfile.eventLocation = eventLocation;
+    saveProfileLocally();
+    updateProfileUI();
+
+    // 3. Cloud Database: Firebase Realtime Database
     if (db && appState.firebaseConnected) {
-        // Wipe old uncompleted logs in Firebase
         db.ref(`workouts/${appState.userId}`).once('value', (snap) => {
             const val = snap.val();
             const updates = {};
             if (val) {
                 Object.keys(val).forEach(k => {
                     if (!val[k].isCompleted) {
-                        updates[k] = null; // delete
+                        updates[k] = null; // delete old uncompleted
                     }
                 });
             }
-            
-            // Push new ones
             planWorkouts.forEach(w => {
-                const key = `workout_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-                updates[key] = w;
+                updates[`workout_${w.id}`] = w;
             });
-            
-            db.ref(`workouts/${appState.userId}`).update(updates)
-                .then(() => {
-                    // Save profile details
-                    const planStartVal = new Date(startDateStr).getTime();
-                    appState.userProfile.planStartDate = planStartVal;
-                    db.ref(`profiles/${appState.userId}`).update({
-                        name: appState.fullName || appState.userName,
-                        nickname: appState.userName,
-                        currentRace: appState.userProfile.currentRace,
-                        eventLocation: eventLocation,
-                        age: appState.age,
-                        weight: appState.weight,
-                        maxHr: appState.maxHr,
-                        pb10k: appState.pb10k,
-                        pbHalf: appState.pbHalf,
-                        pbFull: appState.pbFull,
-                        planStartDate: planStartVal,
-                        lastUpdate: Date.now()
-                    }).then(() => {
-                        saveProfileLocally();
-                        updateProfileUI();
-                    });
-                    
-                    closeWizardModal();
-                    updateProfileUI();
-                    alert("12-Week customized plan successfully created!");
-                    navTo('log');
-                    setTimeout(() => { openHelpModal(); }, 400);
-                });
+            db.ref(`workouts/${appState.userId}`).update(updates);
         });
-    } else {
-        // Demo local state
-        const planStartVal = new Date(startDateStr).getTime();
-        appState.userProfile.planStartDate = planStartVal;
-        appState.workouts = appState.workouts.filter(w => w.isCompleted); // keep completed
-        planWorkouts.forEach(w => {
-            w.id = `off_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-            appState.workouts.push(w);
+
+        db.ref(`profiles/${appState.userId}`).update({
+            name: appState.fullName || appState.userName,
+            nickname: appState.userName,
+            currentRace: appState.userProfile.currentRace,
+            eventLocation: eventLocation,
+            age: appState.age,
+            weight: appState.weight,
+            maxHr: appState.maxHr,
+            pb10k: appState.pb10k,
+            pbHalf: appState.pbHalf,
+            pbFull: appState.pbFull,
+            planStartDate: planStartVal,
+            lastUpdate: Date.now()
         });
-        saveWorkoutsLocally();
-        
-        closeWizardModal();
-        updateProfileUI();
-        renderWorkoutsList();
-        updateAggregatedStats();
-        populatePlanFilters();
-        alert("12-Week customized plan successfully created!");
-        navTo('log');
-        setTimeout(() => { openHelpModal(); }, 400);
     }
+
+    // 4. Cloud Database: Supabase PostgreSQL
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        supabaseClient.auth.getUser().then(({ data: { user } }) => {
+            if (user) {
+                supabaseClient.from('workouts')
+                    .delete()
+                    .eq('user_id', user.id)
+                    .eq('is_completed', false)
+                    .then(() => {
+                        syncLocalDataToSupabase(user);
+                    });
+            }
+        });
+    }
+
+    closeWizardModal();
+    alert("12-Week customized plan successfully created!");
+    navTo('log');
+    setTimeout(() => { openHelpModal(); }, 400);
 }
 
 function parseTime(time) {
