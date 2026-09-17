@@ -1054,14 +1054,21 @@ function navTo(tab) {
         pageEl.classList.add('active');
         const container = elements.appContentScroll || document.getElementById('app-content-scroll');
         if (container) {
+            container.style.scrollSnapType = 'none';
+            
+            if (typeof pageEl.scrollIntoView === 'function') {
+                pageEl.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+            }
+            
             const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet'];
             const idx = pages.indexOf(tab);
-            const targetLeft = idx !== -1 ? (idx * container.clientWidth) : pageEl.offsetLeft;
-            container.scrollLeft = targetLeft;
-            container.scrollTo({
-                left: targetLeft,
-                behavior: 'instant'
-            });
+            if (idx !== -1 && container.clientWidth > 0) {
+                container.scrollLeft = idx * container.clientWidth;
+            }
+
+            setTimeout(() => {
+                container.style.scrollSnapType = 'x mandatory';
+            }, 50);
         }
     }
 }
@@ -1082,15 +1089,20 @@ function setupViewPagerScroll() {
         // 1. Sync Parallax
         if (parallaxBg && maxScroll > 0) {
             const scrollPercent = (scrollLeft / maxScroll) * 100;
-            // Invert the percentage so 100% is at the start (putting the runner on the left), 
-            // and it drops toward 0% as we scroll right (moving the runner to the right).
             parallaxBg.style.backgroundPosition = `${100 - scrollPercent}% center`;
         }
         
-        // 2. Sync Active Tab UI
-        const pageIndex = Math.round(scrollLeft / width);
-        if (pageIndex >= 0 && pageIndex < pages.length) {
-            updateHeaderForTab(pages[pageIndex]);
+        // 2. Sync Active Tab UI & Bottom Nav Buttons
+        if (width > 0) {
+            const pageIndex = Math.round(scrollLeft / width);
+            if (pageIndex >= 0 && pageIndex < pages.length) {
+                const currentTab = pages[pageIndex];
+                updateHeaderForTab(currentTab);
+                
+                document.querySelectorAll('.nav-item-vp').forEach(btn => btn.classList.remove('active'));
+                const navBtn = document.getElementById('nav-btn-' + currentTab);
+                if (navBtn) navBtn.classList.add('active');
+            }
         }
     }, { passive: true });
     
