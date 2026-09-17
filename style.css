@@ -38,18 +38,10 @@ html, body {
     height: 100%;
     height: 100dvh;
     overflow: hidden;
-    position: relative;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
+    position: fixed;
     background-color: var(--android-black);
     color: var(--android-white);
     font-family: var(--font-body);
-}
-
-button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
-    touch-action: manipulation;
-    cursor: pointer;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
 }
 
 
@@ -67,7 +59,6 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
     transform: translate3d(0,0,0);
     transition: background-position 0.6s cubic-bezier(0.25, 1, 0.5, 1);
     z-index: 0;
-    pointer-events: none !important;
 }
 
 .dark-overlay {
@@ -262,15 +253,15 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
 }
 
 /* Adjust top toolbar to clear simulated camera notch in Portrait/Landscape modes on desktop */
-@media (min-width: 1025px) and (hover: hover) {
+@media (min-width: 769px) {
     .device-simulator:not(.fullscreen) .app-toolbar {
         padding-top: 16px;
         height: 72px;
     }
 }
 
-/* Natively Responsive on Mobile Screens & Touch Devices */
-@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+/* Natively Responsive on Mobile Screens */
+@media (max-width: 768px) {
     .viewport-control-bar {
         display: none !important;
     }
@@ -310,17 +301,12 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
         left: 0 !important;
         width: 100vw !important;
         z-index: 1000 !important;
-        pointer-events: auto !important;
-        touch-action: manipulation !important;
     }
     
     .nav-item-vp {
         flex: 1 !important;
         height: 48px !important;
         justify-content: center !important;
-        touch-action: manipulation !important;
-        pointer-events: auto !important;
-        cursor: pointer !important;
     }
     
     .app-content {
@@ -407,23 +393,29 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
 .app-content {
     flex-grow: 1;
     width: 100%;
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch; /* smooth native-like touch scroll for iOS */
+}
+
+.app-content::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
 }
 
 /* Tab View Switcher logic */
 .app-page {
+    flex: 0 0 100%;
     width: 100%;
     height: 100%;
+    scroll-snap-align: start;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 16px 16px 110px 16px;
+    padding: 16px 16px 85px 16px;
     -webkit-overflow-scrolling: touch;
-    display: none;
-}
-
-.app-page.active {
-    display: block !important;
 }
 
 /* Bottom Nav bar */
@@ -458,28 +450,27 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
     height: 100%;
 }
 
-.nav-item-vp i, .nav-item-vp svg {
-    width: 20px;
-    height: 20px;
+.nav-item-vp i {
     font-size: 1.15rem;
-    stroke: var(--android-secondary);
     transition: var(--transition);
 }
 
 .nav-item-vp span {
     font-size: 0.68rem;
     font-weight: 600;
-    display: block !important;
-    white-space: nowrap;
+    display: none;
 }
 
 .nav-item-vp.active {
     color: var(--android-lime);
 }
 
-.nav-item-vp.active i, .nav-item-vp.active svg {
-    stroke: var(--android-lime);
+.nav-item-vp.active i {
     transform: scale(1.08);
+}
+
+.nav-item-vp.active span {
+    display: inline-block;
 }
 
 /* ====================================================
@@ -2231,13 +2222,11 @@ textarea.form-control {
     backdrop-filter: blur(4px);
     z-index: 1999;
     opacity: 0;
-    display: none;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
 
 .drawer-overlay.active {
-    display: block;
     opacity: 1;
     pointer-events: auto;
 }

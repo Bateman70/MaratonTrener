@@ -202,21 +202,14 @@ const weatherCache = {
 };
 
 // Initialize App
-function startApp() {
-    try { cacheElements(); } catch(e) { console.error("cacheElements init error:", e); }
-    try { document.querySelectorAll('.modal, .drawer-overlay, .nav-drawer').forEach(el => el.classList.remove('active')); } catch(e) {}
-    try { initializeModeAndUser(); } catch(e) { console.error("initializeModeAndUser init error:", e); }
-    try { setupEventListeners(); } catch(e) { console.error("setupEventListeners init error:", e); }
-    try { checkFirebaseConnection(); } catch(e) { console.error("checkFirebaseConnection init error:", e); }
-    try { loadLocalFallbackData(); } catch(e) { console.error("loadLocalFallbackData init error:", e); }
-    try { setupViewPagerScroll(); } catch(e) { console.error("setupViewPagerScroll init error:", e); }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', startApp);
-} else {
-    startApp();
-}
+document.addEventListener('DOMContentLoaded', () => {
+    cacheElements();
+    initializeModeAndUser();
+    setupEventListeners();
+    checkFirebaseConnection();
+    loadLocalFallbackData();
+    setupViewPagerScroll();
+});
 
 function cacheElements() {
     elements = {
@@ -558,131 +551,134 @@ window.setViewportMode = setViewportMode;
 
 // Setup event bindings
 function setupEventListeners() {
-    const on = (el, evt, fn, opts) => {
-        if (el && typeof el.addEventListener === 'function') {
-            el.addEventListener(evt, fn, opts);
-        }
-    };
-
     // Bottom Nav Click Handlers
-    on(elements.navBtnHome, 'click', () => navTo('home'));
-    on(elements.navBtnBuddies, 'click', () => navTo('buddies'));
-    on(elements.navBtnLog, 'click', () => navTo('log'));
-    on(elements.navBtnStats, 'click', () => navTo('stats'));
-    on(elements.navBtnSync, 'click', () => navTo('sync'));
-    on(elements.navBtnProfile, 'click', () => navTo('profile'));
-    on(elements.navBtnHelp, 'click', () => openHelpModal());
+    elements.navBtnHome.addEventListener('click', () => navTo('home'));
+    elements.navBtnBuddies.addEventListener('click', () => navTo('buddies'));
+    elements.navBtnLog.addEventListener('click', () => navTo('log'));
+    elements.navBtnStats.addEventListener('click', () => navTo('stats'));
+    elements.navBtnSync.addEventListener('click', () => navTo('sync'));
+    elements.navBtnProfile.addEventListener('click', () => navTo('profile'));
+    elements.navBtnHelp.addEventListener('click', () => openHelpModal());
     
     // Toolbar Avatar Click -> Profile
-    on(elements.btnToolbarRight, 'click', () => navTo('profile'));
+    elements.btnToolbarRight.addEventListener('click', () => navTo('profile'));
     
     // Toolbar Left Click -> Context Action (either Menu/Start or Back arrow)
-    on(elements.btnToolbarLeft, 'click', handleToolbarLeftClick);
+    elements.btnToolbarLeft.addEventListener('click', handleToolbarLeftClick);
     
     // Nutrition Card Click -> slide-in Diet screen
-    on(elements.cardNutritionLink, 'click', () => navTo('diet'));
+    elements.cardNutritionLink.addEventListener('click', () => navTo('diet'));
     
     // Calculator Auto Format & Live Calculations
     setupCalculatorBindings();
     
     // Profile Management
-    on(elements.formProfileSetup, 'submit', handleProfileSave);
+    elements.formProfileSetup.addEventListener('submit', handleProfileSave);
     setupProfileFormFormatting();
     
-    on(elements.btnSyncProfileId, 'click', handleSyncIdClick);
-    on(elements.btnRestoreCloud, 'click', restoreFromCloud);
-    on(elements.btnDeleteNuclear, 'click', confirmDeleteData);
-    on(elements.btnLaunchGenerator, 'click', openGeneratorModal);
-    on(elements.btnLogCreatePlan, 'click', openGeneratorModal);
+    elements.btnSyncProfileId.addEventListener('click', handleSyncIdClick);
+    elements.btnRestoreCloud.addEventListener('click', restoreFromCloud);
+    elements.btnDeleteNuclear.addEventListener('click', confirmDeleteData);
+    elements.btnLaunchGenerator.addEventListener('click', openGeneratorModal);
+    if (elements.btnLogCreatePlan) {
+        elements.btnLogCreatePlan.addEventListener('click', openGeneratorModal);
+    }
     
     // Log Page Dropdown & FAB
-    on(elements.planFilterDropdown, 'change', renderWorkoutsList);
-    on(elements.fabAddWorkout, 'click', () => openWorkoutModal(null));
+    elements.planFilterDropdown.addEventListener('change', renderWorkoutsList);
+    elements.fabAddWorkout.addEventListener('click', () => openWorkoutModal(null));
     
     // Wizard Form Stepper bindings
     
     // Load API Key
     if (elements.inputGeminiApiKey) {
         elements.inputGeminiApiKey.value = localStorage.getItem('geminiApiKey') || '';
-        on(elements.inputGeminiApiKey, 'input', (e) => {
+        elements.inputGeminiApiKey.addEventListener('input', (e) => {
             localStorage.setItem('geminiApiKey', e.target.value.trim());
         });
     }
     
-    on(elements.btnCloseWizard, 'click', closeWizardModal);
-    on(elements.btnWizBack, 'click', navigateWizardBack);
-    on(elements.btnWizNext, 'click', navigateWizardNext);
-    on(elements.btnWizFinish, 'click', navigateWizardNext);
-    on(elements.btnWizMethodAuto, 'click', () => { appState.wizardPage = 1; updateWizardUI(); });
-    on(elements.btnWizMethodImport, 'click', () => { appState.wizardPage = 4; updateWizardUI(); });
-    on(elements.btnWizImportFinish, 'click', processImportedPlan);
+    elements.btnCloseWizard.addEventListener('click', closeWizardModal);
+    elements.btnWizBack.addEventListener('click', navigateWizardBack);
+    elements.btnWizNext.addEventListener('click', navigateWizardNext);
+    if (elements.btnWizFinish) elements.btnWizFinish.addEventListener('click', navigateWizardNext);
+    if (elements.btnWizMethodAuto) elements.btnWizMethodAuto.addEventListener('click', () => { appState.wizardPage = 1; updateWizardUI(); });
+    if (elements.btnWizMethodImport) elements.btnWizMethodImport.addEventListener('click', () => { appState.wizardPage = 4; updateWizardUI(); });
+    if (elements.btnWizImportFinish) elements.btnWizImportFinish.addEventListener('click', processImportedPlan);
     
     // File upload triggers
     if (elements.importUploadZone) {
-        on(elements.importUploadZone, 'click', () => elements.importFileInput && elements.importFileInput.click());
+        elements.importUploadZone.addEventListener('click', () => elements.importFileInput.click());
     }
-    on(elements.importFileInput, 'change', handleFileImport);
+    if (elements.importFileInput) {
+        elements.importFileInput.addEventListener('change', handleFileImport);
+    }
     setupWizardAutoFormatting();
     
     // Add Buddy inline form
-    on(elements.formAddBuddyInline, 'submit', handleBuddySubmitInline);
-    on(elements.btnShareIdCopy, 'click', copyShareId);
-    on(elements.btnStravaAction, 'click', handleStravaAction);
-    
+    elements.formAddBuddyInline.addEventListener('submit', handleBuddySubmitInline);
+    elements.btnShareIdCopy.addEventListener('click', copyShareId);
+    if (elements.btnStravaAction) {
+        elements.btnStravaAction.addEventListener('click', handleStravaAction);
+    }
     document.querySelectorAll('#btn-force-reload-app').forEach(btn => {
         btn.addEventListener('click', handleForceReloadApp);
     });
-    on(elements.btnExpandWorkoutMap, 'click', handleExpandWorkoutMap);
+    if (elements.btnExpandWorkoutMap) {
+        elements.btnExpandWorkoutMap.addEventListener('click', handleExpandWorkoutMap);
+    }
     
     // Diet Tab buttons
-    on(elements.btnDietTabWeekVp, 'click', () => switchDietTab('week'));
-    on(elements.btnDietTabFavoritesVp, 'click', () => switchDietTab('favorites'));
-    on(elements.btnDietTabAllVp, 'click', () => switchDietTab('all'));
-    on(elements.dietSwitchScale, 'change', handleScalePortionsChange);
+    elements.btnDietTabWeekVp.addEventListener('click', () => switchDietTab('week'));
+    elements.btnDietTabFavoritesVp.addEventListener('click', () => switchDietTab('favorites'));
+    elements.btnDietTabAllVp.addEventListener('click', () => switchDietTab('all'));
+    elements.dietSwitchScale.addEventListener('change', handleScalePortionsChange);
     
     // Workout details Form
-    on(elements.workoutForm, 'submit', handleWorkoutSubmit);
-    on(elements.btnCloseWorkoutModal, 'click', closeWorkoutModal);
-    on(elements.btnCancelWorkout, 'click', closeWorkoutModal);
-    on(elements.workoutType, 'change', handleWorkoutTypeChange);
+    elements.workoutForm.addEventListener('submit', handleWorkoutSubmit);
+    elements.btnCloseWorkoutModal.addEventListener('click', closeWorkoutModal);
+    elements.btnCancelWorkout.addEventListener('click', closeWorkoutModal);
+    elements.workoutType.addEventListener('change', handleWorkoutTypeChange);
     
     // Race Info Modal
-    on(elements.raceInfoForm, 'submit', handleRaceInfoSubmit);
-    on(elements.btnCloseRaceModal, 'click', closeRaceInfoModal);
-    on(elements.btnCancelRace, 'click', closeRaceInfoModal);
-    
-    // GPX File Uploading Listeners
-    if (elements.gpxUploadBox) {
-        on(elements.gpxUploadBox, 'click', () => elements.gpxFileInput && elements.gpxFileInput.click());
-        on(elements.gpxFileInput, 'change', handleGpxFileSelect);
-        on(elements.btnRemoveGpx, 'click', removeUploadedGpx);
+    if (elements.raceInfoForm) {
+        elements.raceInfoForm.addEventListener('submit', handleRaceInfoSubmit);
+        elements.btnCloseRaceModal.addEventListener('click', closeRaceInfoModal);
+        elements.btnCancelRace.addEventListener('click', closeRaceInfoModal);
         
-        // Drag and drop listeners
-        on(elements.gpxUploadBox, 'dragover', (e) => {
-            e.preventDefault();
-            elements.gpxUploadBox.classList.add('dragover');
-        });
-        on(elements.gpxUploadBox, 'dragleave', () => {
-            elements.gpxUploadBox.classList.remove('dragover');
-        });
-        on(elements.gpxUploadBox, 'drop', (e) => {
-            e.preventDefault();
-            elements.gpxUploadBox.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                const file = e.dataTransfer.files[0];
-                if (file.name.toLowerCase().endsWith('.gpx')) {
-                    processGpxFile(file);
-                } else {
-                    alert('Please drop a valid .gpx file.');
+        // GPX File Uploading Listeners
+        if (elements.gpxUploadBox) {
+            elements.gpxUploadBox.addEventListener('click', () => elements.gpxFileInput.click());
+            elements.gpxFileInput.addEventListener('change', handleGpxFileSelect);
+            elements.btnRemoveGpx.addEventListener('click', removeUploadedGpx);
+            
+            // Drag and drop listeners
+            elements.gpxUploadBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                elements.gpxUploadBox.classList.add('dragover');
+            });
+            elements.gpxUploadBox.addEventListener('dragleave', () => {
+                elements.gpxUploadBox.classList.remove('dragover');
+            });
+            elements.gpxUploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                elements.gpxUploadBox.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.name.toLowerCase().endsWith('.gpx')) {
+                        processGpxFile(file);
+                    } else {
+                        alert('Please drop a valid .gpx file.');
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     
     // Buddy Modal close
-    on(elements.btnCloseBuddyModal, 'click', closeBuddyModal);
-    on(elements.btnCancelBuddy, 'click', closeBuddyModal);
-    on(elements.buddyForm, 'submit', handleBuddySubmitModal);
+    elements.btnCloseBuddyModal.addEventListener('click', closeBuddyModal);
+    elements.btnCancelBuddy.addEventListener('click', closeBuddyModal);
+    elements.buddyForm.addEventListener('submit', handleBuddySubmitModal);
 
     // Shoe Modal Listeners
     if (elements.btnAddShoeModal) {
@@ -760,19 +756,19 @@ function setupEventListeners() {
     });
     
     // Navigation Drawer open/close & item click listeners
-    if (elements.btnCloseDrawer || elements.drawerOverlay) {
-        on(elements.btnCloseDrawer, 'click', closeDrawer);
-        on(elements.drawerOverlay, 'click', closeDrawer);
+    if (elements.btnCloseDrawer && elements.drawerOverlay) {
+        elements.btnCloseDrawer.addEventListener('click', closeDrawer);
+        elements.drawerOverlay.addEventListener('click', closeDrawer);
         
-        on(elements.drawerLinkHome, 'click', () => { closeDrawer(); navTo('home'); });
-        on(elements.drawerLinkBuddies, 'click', () => { closeDrawer(); navTo('buddies'); });
-        on(elements.drawerLinkLog, 'click', () => { closeDrawer(); navTo('log'); });
-        on(elements.drawerLinkStats, 'click', () => { closeDrawer(); navTo('stats'); });
-        on(elements.drawerLinkSync, 'click', () => { closeDrawer(); navTo('sync'); });
-        on(elements.drawerLinkProfile, 'click', () => { closeDrawer(); navTo('profile'); });
+        elements.drawerLinkHome.addEventListener('click', () => { closeDrawer(); navTo('home'); });
+        elements.drawerLinkBuddies.addEventListener('click', () => { closeDrawer(); navTo('buddies'); });
+        elements.drawerLinkLog.addEventListener('click', () => { closeDrawer(); navTo('log'); });
+        elements.drawerLinkStats.addEventListener('click', () => { closeDrawer(); navTo('stats'); });
+        elements.drawerLinkSync.addEventListener('click', () => { closeDrawer(); navTo('sync'); });
+        elements.drawerLinkProfile.addEventListener('click', () => { closeDrawer(); navTo('profile'); });
         
-        on(elements.drawerActionGenerator, 'click', () => { closeDrawer(); openGeneratorModal(); });
-        on(elements.drawerActionHelp, 'click', () => { closeDrawer(); openHelpModal(); });
+        elements.drawerActionGenerator.addEventListener('click', () => { closeDrawer(); openGeneratorModal(); });
+        elements.drawerActionHelp.addEventListener('click', () => { closeDrawer(); openHelpModal(); });
     }
 
     // Dashboard Cards Click Handlers (Parity with Android)
@@ -932,6 +928,7 @@ function closeDrawer() {
 
 // Update header and buttons for a specific tab
 function updateHeaderForTab(tab) {
+    if (appState.activeTab === tab) return;
     appState.activeTab = tab;
 
     // Toggle active tab buttons
@@ -954,65 +951,79 @@ function updateHeaderForTab(tab) {
     
     // Adjust header title and buttons
     if (tab === 'diet') {
-        if (elements.appToolbarTitle) elements.appToolbarTitle.innerText = "MÅLTIDSPLAN";
-        if (elements.btnToolbarRight) elements.btnToolbarRight.style.visibility = "hidden";
-        if (typeof renderDietSection === 'function') renderDietSection();
+        elements.appToolbarTitle.innerText = "MÅLTIDSPLAN";
+        elements.btnToolbarRight.style.visibility = "hidden";
+        renderDietSection();
     } else {
-        if (elements.btnToolbarRight) elements.btnToolbarRight.style.visibility = "visible";
+        elements.btnToolbarRight.style.visibility = "visible";
         
-        if (elements.appToolbarTitle) {
-            if (tab === 'home') elements.appToolbarTitle.innerText = "DASHBOARD";
-            else if (tab === 'buddies') elements.appToolbarTitle.innerText = "BUDDIES";
-            else if (tab === 'log') elements.appToolbarTitle.innerText = "TRAINING PLAN";
-            else if (tab === 'stats') {
-                elements.appToolbarTitle.innerText = "STATISTICS";
-                if (typeof renderAnalyticsCharts === 'function') renderAnalyticsCharts();
-            } else if (tab === 'sync') elements.appToolbarTitle.innerText = "SYNC & CLOUD";
-            else if (tab === 'profile') elements.appToolbarTitle.innerText = "PROFILE";
+        if (tab === 'home') {
+            elements.appToolbarTitle.innerText = "DASHBOARD";
+        } else if (tab === 'buddies') {
+            elements.appToolbarTitle.innerText = "BUDDIES";
+        } else if (tab === 'log') {
+            elements.appToolbarTitle.innerText = "TRAINING PLAN";
+        } else if (tab === 'stats') {
+            elements.appToolbarTitle.innerText = "STATISTICS";
+            renderAnalyticsCharts(); // render/refresh charts
+        } else if (tab === 'sync') {
+            elements.appToolbarTitle.innerText = "SYNC & CLOUD";
+        } else if (tab === 'profile') {
+            elements.appToolbarTitle.innerText = "PROFILE";
         }
     }
     
-    // Toggle left toolbar button SVG icon
-    const leftIcon = elements.toolbarLeftIcon || document.getElementById('toolbar-left-icon');
-    if (leftIcon) {
-        if (tab === 'home') {
-            leftIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
-        } else {
-            leftIcon.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>`;
-        }
+    // Toggle left button
+    if (tab === 'home') {
+        elements.toolbarLeftIcon.className = "fa-solid fa-ellipsis-vertical";
+    } else {
+        elements.toolbarLeftIcon.className = "fa-solid fa-arrow-left";
     }
 }
 
 // Navigation Tabs Switcher
 function navTo(tab) {
-    if (!tab) return;
     if (tab === 'buddies' && appState.readOnly) return;
     
-    // Sync bottom nav item active state
-    document.querySelectorAll('.nav-item-vp').forEach(btn => btn.classList.remove('active'));
-    const navBtn = document.getElementById('nav-btn-' + tab);
-    if (navBtn) navBtn.classList.add('active');
-
-    // Sync app-page active state (fail-safe display block/none)
-    document.querySelectorAll('.app-page').forEach(p => {
-        p.style.display = 'none';
-        p.classList.remove('active');
-    });
+    updateHeaderForTab(tab);
     
     const pageEl = document.getElementById('page-' + tab);
-    if (pageEl) {
-        pageEl.style.display = 'block';
-        pageEl.classList.add('active');
-        pageEl.scrollTop = 0;
+    if (pageEl && elements.appContentScroll) {
+        elements.appContentScroll.scrollTo({
+            left: pageEl.offsetLeft,
+            behavior: 'smooth'
+        });
     }
-
-    updateHeaderForTab(tab);
 }
-window.navTo = navTo;
 
 // Continuous scroll listener for ViewPager syncing
 function setupViewPagerScroll() {
+    if (!elements.appContentScroll) return;
+    
+    const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet']; // ordered by DOM layout
     const parallaxBg = document.querySelector('.parallax-bg');
+    
+    elements.appContentScroll.addEventListener('scroll', () => {
+        const scrollLeft = elements.appContentScroll.scrollLeft;
+        const width = elements.appContentScroll.clientWidth;
+        const maxScroll = elements.appContentScroll.scrollWidth - width;
+        
+        // 1. Sync Parallax
+        if (parallaxBg && maxScroll > 0) {
+            const scrollPercent = (scrollLeft / maxScroll) * 100;
+            // Invert the percentage so 100% is at the start (putting the runner on the left), 
+            // and it drops toward 0% as we scroll right (moving the runner to the right).
+            parallaxBg.style.backgroundPosition = `${100 - scrollPercent}% center`;
+        }
+        
+        // 2. Sync Active Tab UI
+        const pageIndex = Math.round(scrollLeft / width);
+        if (pageIndex >= 0 && pageIndex < pages.length) {
+            updateHeaderForTab(pages[pageIndex]);
+        }
+    }, { passive: true });
+    
+    // Set initial position to 100% (Left side)
     if (parallaxBg) {
         parallaxBg.style.backgroundPosition = '100% center';
     }
@@ -1849,19 +1860,20 @@ function updateCountdown() {
         today.setHours(0,0,0,0);
         const diffTime = raceDateObj.getTime() - today.getTime();
         countdownDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (countdownDays < 0) countdownDays = 0;
         
         if (elements.homeRaceDate) {
             elements.homeRaceDate.innerText = raceDateObj.toLocaleDateString('no-NO', { day: 'numeric', month: 'short', year: 'numeric' });
         }
-        
-        if (elements.textCountdown) {
-            if (diffTime < 0) {
-                elements.textCountdown.innerText = "LØPET ER GJENNOMFØRT! 🎉";
-            } else {
-                elements.textCountdown.innerText = `${countdownDays} DAGER`;
-            }
-        }
     } else {
+        if (elements.homeRaceDate) {
+            elements.homeRaceDate.innerText = 'Sett løpsdato';
+        }
+    }
+    
+    if (elements.textCountdown) {
+        elements.textCountdown.innerText = `${countdownDays} DAGER`;
+    }
 
     // Call weather forecast update
     const eventLocation = appState.userProfile.eventLocation || "";
@@ -3536,17 +3548,8 @@ function generateTrainingPlanFromWizard() {
         const isPreferred = preferredDays.has(dayName);
         const isAutoStrengthDay = (includeStrength && dayName === strengthDay);
         
-        const daysToRace = Math.round((raceDate - current) / (1000 * 60 * 60 * 24));
-        
-        // Final 7 days before race are Taper week (no intense long runs/intervals right before race day)
-        if (daysToRace <= 1) {
-            // Day right before race day is a dedicated rest day
-            if (dayOfWeek === 0) currentWeek++;
-            current.setDate(current.getDate() + 1);
-            continue;
-        }
-
         if (isPreferred || isAutoStrengthDay) {
+            
             const createWorkout = (workoutType) => {
                 const w = {
                     planName: eventName,
@@ -3558,30 +3561,9 @@ function generateTrainingPlanFromWizard() {
                 };
                 
                 const progress = currentWeek / totalWeeks;
-                const isFinalWeek = (daysToRace <= 7);
-                const phase = isFinalWeek ? "TAPER" : (progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE"));
+                const phase = progress > 0.85 ? "TAPER" : (progress > 0.4 ? "PEAK" : "BASE");
                 
-                if (isFinalWeek) {
-                    // Race week taper adjustments
-                    if (workoutType.toUpperCase() === 'LONG RUN' || workoutType.toUpperCase() === 'STEADY RUN') {
-                        w.distance = 4.0;
-                        w.pace = formatPace(racePaceMinPerKm * 1.15);
-                        w.description = `Taper Shakeout: Easy 4.0 km. Save your energy and stay relaxed for race day!`;
-                    } else if (workoutType.toUpperCase() === 'INTERVALS') {
-                        w.intervalCount = 3;
-                        w.intervalValue = "400m";
-                        w.intervalPace = formatPace(racePaceMinPerKm * 0.98);
-                        w.description = `Taper Strides: 3x400m light strides. Keep legs loose and sharp!`;
-                    } else if (workoutType.toUpperCase() === 'STRENGTH & CORE') {
-                        w.distance = 0;
-                        w.pace = "";
-                        w.description = "Taper Mobility: Light stretching and foam rolling. No heavy lifting before the race!";
-                    } else {
-                        w.distance = 3.0;
-                        w.pace = formatPace(racePaceMinPerKm * 1.15);
-                        w.description = `Taper Shakeout: Easy 3.0 km. Keep heart rate low.`;
-                    }
-                } else if (workoutType.toUpperCase() === 'LONG RUN') {
+                if (workoutType.toUpperCase() === 'LONG RUN') {
                     let base = 12.0, max = 30.0;
                     if (raceType.includes("5K")) { base = 4.0; max = 7.0; }
                     else if (raceType.includes("10K")) { base = 6.0; max = 12.0; }
@@ -3636,6 +3618,7 @@ function generateTrainingPlanFromWizard() {
                 planWorkouts.push(createWorkout(type));
             }
             
+            // Add auto-strength separately if it wasn't manually requested via preferred dropdowns
             if (isAutoStrengthDay) {
                 const manualAssigned = isPreferred ? (assignments[dayName] || "") : "";
                 if (manualAssigned !== "STRENGTH & CORE") {
@@ -3651,105 +3634,72 @@ function generateTrainingPlanFromWizard() {
         current.setDate(current.getDate() + 1);
     }
     
-    // Add official RACE DAY event workout on race date
-    planWorkouts.push({
-        planName: eventName,
-        weekNumber: totalWeeks,
-        scheduledDate: eventDateStr,
-        isCompleted: false,
-        notes: "RACE DAY!",
-        workoutType: "RACE DAY",
-        distance: raceDistance,
-        pace: formatPace(racePaceMinPerKm),
-        description: `🏁 RACE DAY! ${eventName} (${raceType}). Target pace: ${formatPace(racePaceMinPerKm)} min/km. Good luck!`
-    });
-
-    // Save in Database / Local State (Clean wipe of uncompleted old plan workouts)
-    const planStartVal = new Date(startDateStr).getTime();
-    appState.userProfile.planStartDate = planStartVal;
-    
-    // 1. Wipe uncompleted workouts from local appState
-    appState.workouts = appState.workouts.filter(w => w.isCompleted);
-    planWorkouts.forEach(w => {
-        w.id = `off_${Date.now()}_${Math.floor(Math.random()*1000)}`;
-        appState.workouts.push(w);
-    });
-    saveWorkoutsLocally();
-
-    // 2. Wipe uncompleted workouts from Supabase if active
-    if (supabaseClient && appState.supabaseUser) {
-        (async () => {
-            try {
-                // Delete uncompleted workouts from old plans in Supabase
-                await supabaseClient
-                    .from('workouts')
-                    .delete()
-                    .eq('user_id', appState.supabaseUser.id)
-                    .eq('is_completed', false);
-
-                // Insert new plan workouts into Supabase
-                const supabaseWorkouts = planWorkouts.map(w => ({
-                    user_id: appState.supabaseUser.id,
-                    scheduled_date: w.scheduledDate,
-                    week_number: w.weekNumber || 1,
-                    workout_type: w.workoutType || 'EASY',
-                    distance: w.distance || 0,
-                    total_duration: w.totalDuration || 0,
-                    avg_heart_rate: w.avgHeartRate || 0,
-                    description: w.description || '',
-                    notes: w.notes || '',
-                    is_completed: false
-                }));
-
-                await supabaseClient.from('workouts').upsert(supabaseWorkouts);
-            } catch (err) {
-                console.error("Error syncing new plan to Supabase:", err);
-            }
-        })();
-    }
-
-    // 3. Wipe uncompleted workouts from Firebase if connected
+    // Save in Database
     if (db && appState.firebaseConnected) {
+        // Wipe old uncompleted logs in Firebase
         db.ref(`workouts/${appState.userId}`).once('value', (snap) => {
             const val = snap.val();
             const updates = {};
             if (val) {
                 Object.keys(val).forEach(k => {
                     if (!val[k].isCompleted) {
-                        updates[k] = null;
+                        updates[k] = null; // delete
                     }
                 });
             }
+            
+            // Push new ones
             planWorkouts.forEach(w => {
                 const key = `workout_${Date.now()}_${Math.floor(Math.random()*1000)}`;
                 updates[key] = w;
             });
-            db.ref(`workouts/${appState.userId}`).update(updates);
-            db.ref(`profiles/${appState.userId}`).update({
-                name: appState.fullName || appState.userName,
-                nickname: appState.userName,
-                currentRace: appState.userProfile.currentRace,
-                eventLocation: eventLocation,
-                age: appState.age,
-                weight: appState.weight,
-                maxHr: appState.maxHr,
-                pb10k: appState.pb10k,
-                pbHalf: appState.pbHalf,
-                pbFull: appState.pbFull,
-                planStartDate: planStartVal,
-                lastUpdate: Date.now()
-            });
+            
+            db.ref(`workouts/${appState.userId}`).update(updates)
+                .then(() => {
+                    // Save profile details
+                    const planStartVal = new Date(startDateStr).getTime();
+                    appState.userProfile.planStartDate = planStartVal;
+                    db.ref(`profiles/${appState.userId}`).update({
+                        name: appState.fullName || appState.userName,
+                        nickname: appState.userName,
+                        currentRace: appState.userProfile.currentRace,
+                        eventLocation: eventLocation,
+                        age: appState.age,
+                        weight: appState.weight,
+                        maxHr: appState.maxHr,
+                        pb10k: appState.pb10k,
+                        pbHalf: appState.pbHalf,
+                        pbFull: appState.pbFull,
+                        planStartDate: planStartVal,
+                        lastUpdate: Date.now()
+                    });
+                    
+                    closeWizardModal();
+                    alert("12-Week customized plan successfully created!");
+                    navTo('log');
+                    setTimeout(() => { openHelpModal(); }, 400);
+                });
         });
+    } else {
+        // Demo local state
+        const planStartVal = new Date(startDateStr).getTime();
+        appState.userProfile.planStartDate = planStartVal;
+        appState.workouts = appState.workouts.filter(w => w.isCompleted); // keep completed
+        planWorkouts.forEach(w => {
+            w.id = `off_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+            appState.workouts.push(w);
+        });
+        saveWorkoutsLocally();
+        
+        closeWizardModal();
+        updateProfileUI();
+        renderWorkoutsList();
+        updateAggregatedStats();
+        populatePlanFilters();
+        alert("12-Week customized plan successfully created!");
+        navTo('log');
+        setTimeout(() => { openHelpModal(); }, 400);
     }
-
-    closeWizardModal();
-    updateProfileUI();
-    renderWorkoutsList();
-    updateAggregatedStats();
-    populatePlanFilters();
-    alert(`Customized plan for ${eventName} successfully created!`);
-    navTo('log');
-    setTimeout(() => { openHelpModal(); }, 400);
 }
 
 function parseTime(time) {
@@ -5820,29 +5770,32 @@ function formatStravaPace(metersPerSec) {
 }
 
 function handleForceReloadApp() {
-    try {
-        if (window.navigator && window.navigator.serviceWorker) {
-            window.navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-        if (window.caches) {
-            caches.keys().then(names => {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
-        }
-        sessionStorage.clear();
-    } catch(e) {
-        console.error("Cache clear error:", e);
+    if (!confirm("Dette vil tømme nettleserens mellomlager og laste appen på nytt. Fortsette?\n\n(Note: Du vil IKKE miste brukerprofilen din eller kalenderen din)")) return;
+    
+    // 1. Unregister active service workers
+    if (window.navigator && window.navigator.serviceWorker) {
+        window.navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        });
     }
-    const cleanUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
-    window.location.href = cleanUrl;
+    
+    // 2. Clear browser cache storage
+    if (window.caches) {
+        caches.keys().then(names => {
+            for (let name of names) {
+                caches.delete(name);
+            }
+        });
+    }
+    
+    // 3. Clear session storage
+    sessionStorage.clear();
+    
+    // 4. Force reload (bypass local cache)
+    window.location.reload(true);
 }
-window.handleForceReloadApp = handleForceReloadApp;
 
 function decodeGooglePolyline(encoded) {
     if (!encoded) return [];
