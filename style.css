@@ -261,15 +261,15 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
 }
 
 /* Adjust top toolbar to clear simulated camera notch in Portrait/Landscape modes on desktop */
-@media (min-width: 769px) {
+@media (min-width: 1025px) and (hover: hover) {
     .device-simulator:not(.fullscreen) .app-toolbar {
         padding-top: 16px;
         height: 72px;
     }
 }
 
-/* Natively Responsive on Mobile Screens */
-@media (max-width: 768px) {
+/* Natively Responsive on Mobile Screens & Touch Devices */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
     .viewport-control-bar {
         display: none !important;
     }

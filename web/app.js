@@ -203,13 +203,13 @@ const weatherCache = {
 
 // Initialize App
 function startApp() {
-    cacheElements();
-    document.querySelectorAll('.modal, .drawer-overlay, .nav-drawer').forEach(el => el.classList.remove('active'));
-    initializeModeAndUser();
-    setupEventListeners();
-    checkFirebaseConnection();
-    loadLocalFallbackData();
-    setupViewPagerScroll();
+    try { cacheElements(); } catch(e) { console.error("cacheElements init error:", e); }
+    try { document.querySelectorAll('.modal, .drawer-overlay, .nav-drawer').forEach(el => el.classList.remove('active')); } catch(e) {}
+    try { initializeModeAndUser(); } catch(e) { console.error("initializeModeAndUser init error:", e); }
+    try { setupEventListeners(); } catch(e) { console.error("setupEventListeners init error:", e); }
+    try { checkFirebaseConnection(); } catch(e) { console.error("checkFirebaseConnection init error:", e); }
+    try { loadLocalFallbackData(); } catch(e) { console.error("loadLocalFallbackData init error:", e); }
+    try { setupViewPagerScroll(); } catch(e) { console.error("setupViewPagerScroll init error:", e); }
 }
 
 if (document.readyState === 'loading') {
@@ -564,17 +564,20 @@ function setupEventListeners() {
         }
     };
 
-    // Global Event Delegation for Bottom Nav, Toolbar, and Reload Actions (guarantees click responsiveness on mobile)
-    document.addEventListener('click', (e) => {
+    // Failsafe Capturing-Phase Event Delegation for Touch & Click
+    const handleGlobalTap = (e) => {
         const reloadBtn = e.target.closest('#btn-force-reload-app');
         if (reloadBtn) {
             e.preventDefault();
+            e.stopPropagation();
             handleForceReloadApp();
             return;
         }
 
         const navBtn = e.target.closest('.nav-item-vp, [id^="nav-btn-"]');
         if (navBtn) {
+            e.preventDefault();
+            e.stopPropagation();
             const id = navBtn.id || '';
             if (id.includes('home')) navTo('home');
             else if (id.includes('buddies')) navTo('buddies');
@@ -583,8 +586,33 @@ function setupEventListeners() {
             else if (id.includes('sync')) navTo('sync');
             else if (id.includes('profile')) navTo('profile');
             else if (id.includes('help')) openHelpModal();
+            return;
         }
-    });
+
+        const profileAvatar = e.target.closest('#btn-toolbar-right');
+        if (profileAvatar) {
+            e.preventDefault();
+            e.stopPropagation();
+            navTo('profile');
+            return;
+        }
+
+        const leftMenu = e.target.closest('#btn-toolbar-left');
+        if (leftMenu) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleToolbarLeftClick();
+            return;
+        }
+    };
+
+    document.addEventListener('click', handleGlobalTap, true);
+    document.addEventListener('touchend', (e) => {
+        const target = e.target.closest('#btn-force-reload-app, .nav-item-vp, [id^="nav-btn-"], #btn-toolbar-right, #btn-toolbar-left');
+        if (target) {
+            handleGlobalTap(e);
+        }
+    }, { capture: true, passive: false });
 
     // Bottom Nav Click Handlers
     on(elements.navBtnHome, 'click', () => navTo('home'));
@@ -1024,11 +1052,15 @@ function navTo(tab) {
     const pageEl = document.getElementById('page-' + tab);
     if (pageEl) {
         pageEl.classList.add('active');
-        if (elements.appContentScroll) {
-            elements.appContentScroll.scrollLeft = pageEl.offsetLeft;
-            elements.appContentScroll.scrollTo({
-                left: pageEl.offsetLeft,
-                behavior: 'smooth'
+        const container = elements.appContentScroll || document.getElementById('app-content-scroll');
+        if (container) {
+            const pages = ['home', 'buddies', 'log', 'stats', 'sync', 'profile', 'diet'];
+            const idx = pages.indexOf(tab);
+            const targetLeft = idx !== -1 ? (idx * container.clientWidth) : pageEl.offsetLeft;
+            container.scrollLeft = targetLeft;
+            container.scrollTo({
+                left: targetLeft,
+                behavior: 'instant'
             });
         }
     }
