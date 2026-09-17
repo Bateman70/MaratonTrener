@@ -3487,7 +3487,7 @@ function generateTrainingPlanFromWizard() {
     appState.pb10k = elements.wizPb10k.value;
     appState.pbHalf = elements.wizPbhalf.value;
     appState.pbFull = elements.wizPbfull.value;
-    appState.userProfile.currentRace = `${eventName} - ${raceType}`;
+    appState.userProfile.currentRace = `${eventName} - ${raceType}${eventDateStr ? ': ' + eventDateStr : ''}`;
     appState.userProfile.eventLocation = eventLocation;
     
     // Determine target race distance
@@ -3672,9 +3672,13 @@ function generateTrainingPlanFromWizard() {
                         pbFull: appState.pbFull,
                         planStartDate: planStartVal,
                         lastUpdate: Date.now()
+                    }).then(() => {
+                        saveProfileLocally();
+                        updateProfileUI();
                     });
                     
                     closeWizardModal();
+                    updateProfileUI();
                     alert("12-Week customized plan successfully created!");
                     navTo('log');
                     setTimeout(() => { openHelpModal(); }, 400);
