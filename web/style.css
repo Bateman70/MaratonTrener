@@ -472,7 +472,8 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
 .nav-item-vp span {
     font-size: 0.68rem;
     font-weight: 600;
-    display: none;
+    display: block !important;
+    white-space: nowrap;
 }
 
 .nav-item-vp.active {
@@ -481,10 +482,6 @@ button, a, .nav-item-vp, .toolbar-btn, .btn-vp, .card {
 
 .nav-item-vp.active i {
     transform: scale(1.08);
-}
-
-.nav-item-vp.active span {
-    display: inline-block;
 }
 
 /* ====================================================
