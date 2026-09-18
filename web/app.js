@@ -1128,9 +1128,33 @@ function setupFirebaseSync() {
         
         workoutsList.sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
         
+        // Universal self-healing 1: Purge uncompleted workouts belonging to old inactive plans, keep completed runs
+        const activePlan = appState.userProfile.currentRace ? appState.userProfile.currentRace.split(' - ')[0].trim().toLowerCase() : '';
+        if (activePlan) {
+            const uncompletedOldKeys = [];
+            workoutsList = workoutsList.filter(w => {
+                const isDone = (w.isCompleted === true || w.isCompleted === 'true');
+                if (isDone) return true; // always preserve completed workouts
+                const pName = (w.planName || '').trim().toLowerCase();
+                if (pName && pName !== activePlan) {
+                    uncompletedOldKeys.push(w.id);
+                    return false; // drop uncompleted workouts from previous plans
+                }
+                return true;
+            });
+
+            if (uncompletedOldKeys.length > 0 && db && appState.firebaseConnected) {
+                const delUpdates = {};
+                uncompletedOldKeys.forEach(id => {
+                    delUpdates[`workout_${id}`] = null;
+                });
+                db.ref(`workouts/${appState.userId}`).update(delUpdates);
+            }
+        }
+
         appState.workouts = workoutsList;
         
-        // Universal self-healing: clear strava keys from any incomplete workouts
+        // Universal self-healing 2: clear strava keys from any incomplete workouts
         let dbUpdated = false;
         workoutsList.forEach(w => {
             if (!w.isCompleted && (w.stravaActivityId || w.stravaSummaryPolyline)) {
@@ -1238,6 +1262,24 @@ function loadLocalFallbackData() {
     if (stored) {
         try {
             appState.workouts = JSON.parse(stored);
+
+            // Self-healing: Purge uncompleted workouts from previous/inactive plans, keep all completed runs
+            const activePlan = appState.userProfile.currentRace ? appState.userProfile.currentRace.split(' - ')[0].trim().toLowerCase() : '';
+            if (activePlan && Array.isArray(appState.workouts)) {
+                const initialCount = appState.workouts.length;
+                appState.workouts = appState.workouts.filter(w => {
+                    const isDone = (w.isCompleted === true || w.isCompleted === 'true');
+                    if (isDone) return true; // always preserve completed workouts
+                    const pName = (w.planName || '').trim().toLowerCase();
+                    if (pName && pName !== activePlan) {
+                        return false; // drop uncompleted workouts from previous plans
+                    }
+                    return true;
+                });
+                if (appState.workouts.length !== initialCount) {
+                    saveWorkoutsLocally();
+                }
+            }
         } catch (e) {
             console.error("Error parsing stored workouts:", e);
         }
