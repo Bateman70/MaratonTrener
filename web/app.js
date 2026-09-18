@@ -2431,7 +2431,11 @@ function renderWorkoutsList() {
     weeks.forEach(week => {
         const weekDiv = document.createElement('div');
         weekDiv.className = 'log-week-section';
-        weekDiv.innerHTML = `<div class="log-week-header">Week ${week}</div>`;
+        const weekWorkouts = grouped[week];
+        const weekPlan = weekWorkouts && weekWorkouts[0] ? (weekWorkouts[0].planName || '') : '';
+        const weekPlanNum = weekWorkouts && weekWorkouts[0] ? weekWorkouts[0].weekNumber : null;
+        const weekSub = weekPlan ? ` · ${weekPlan}${weekPlanNum ? ' (Uke ' + weekPlanNum + ')' : ''}` : '';
+        weekDiv.innerHTML = `<div class="log-week-header">Week ${week}${weekSub}</div>`;
         
         grouped[week].forEach(w => {
             const card = document.createElement('div');
@@ -2464,10 +2468,16 @@ function renderWorkoutsList() {
                 getWorkoutTypeWithIcon(w.workoutType).split(' ')[0] + ' ' + w.customTitle : 
                 getWorkoutTypeWithIcon(w.workoutType);
             
+            const planBadge = w.planName ? 
+                `<span style="font-size: 0.65rem; background: rgba(200, 255, 0, 0.12); color: var(--android-lime); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">${w.planName}</span>` : '';
+            
             card.innerHTML = `
                 <div class="workout-card-layout">
                     <div class="workout-card-details" onclick="editWorkout('${w.id}')">
-                        <span class="workout-card-date">${formattedDate}</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                            <span class="workout-card-date">${formattedDate}</span>
+                            ${planBadge}
+                        </div>
                         <div class="workout-card-type ${colorClass}" style="text-transform: uppercase;">${displayHeader}</div>
                         <div class="workout-card-metrics">${detailsText}</div>
                         <div class="workout-card-desc">${w.description || ''}</div>
