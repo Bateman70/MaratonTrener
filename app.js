@@ -1397,6 +1397,7 @@ function updateProfileUI() {
 
     updateHRZonesDisplay();
     updateNextAndLatestUI();
+    updateCountdown();
     
     if (elements.adminSyncSection) {
         elements.adminSyncSection.style.display = (appState.userId === 'CH020721') ? 'block' : 'none';
@@ -1869,14 +1870,14 @@ function updateCountdown() {
     const currentRace = appState.userProfile.currentRace || "";
     if (currentRace.includes(" - ")) {
         const parts = currentRace.split(" - ");
-        raceName = parts[0];
+        raceName = parts[0].trim();
         const categoryAndDate = parts[1];
         if (categoryAndDate.includes(": ")) {
             const catParts = categoryAndDate.split(": ");
-            raceCategory = catParts[0];
-            raceDateStr = catParts[1];
+            raceCategory = catParts[0].trim();
+            raceDateStr = catParts[1].trim();
         } else {
-            raceCategory = categoryAndDate;
+            raceCategory = categoryAndDate.trim();
         }
     }
     
@@ -1885,6 +1886,12 @@ function updateCountdown() {
     
     if (raceDateStr) {
         raceDateObj = new Date(raceDateStr);
+        if (isNaN(raceDateObj.getTime()) && raceDateStr.includes('.')) {
+            const parts = raceDateStr.split('.');
+            if (parts.length === 3) {
+                raceDateObj = new Date(`${parts[2].trim()}-${parts[1].trim()}-${parts[0].trim()}`);
+            }
+        }
     }
     
     if (!raceDateObj || isNaN(raceDateObj.getTime())) {
@@ -1917,8 +1924,15 @@ function updateCountdown() {
         elements.textCountdown.innerText = `${countdownDays} DAGER`;
     }
 
-    // Call weather forecast update
-    const eventLocation = appState.userProfile.eventLocation || "";
+    // Call weather forecast update with smart fallback location (e.g. city extracted from raceName)
+    let eventLocation = (appState.userProfile.eventLocation || "").trim();
+    if (!eventLocation || eventLocation.toLowerCase() === 'location' || eventLocation.toLowerCase() === 'norway') {
+        if (raceName) {
+            eventLocation = raceName.split(' ')[0] || 'Molde';
+        } else {
+            eventLocation = 'Molde';
+        }
+    }
     updateWeatherForecast(eventLocation, raceDateObj, countdownDays);
 }
 
@@ -1934,10 +1948,14 @@ async function updateWeatherForecast(location, raceDateObj, countdownDays) {
         return;
     }
 
-    const cleanLocation = location.trim();
-    if (cleanLocation.toLowerCase() === 'location' || cleanLocation.toLowerCase() === 'place, country' || cleanLocation.toLowerCase() === 'norway') {
+    let cleanLocation = location.trim();
+    if (cleanLocation.toLowerCase() === 'location' || cleanLocation.toLowerCase() === 'place, country') {
         container.style.display = 'none';
         return;
+    }
+    if (cleanLocation.toLowerCase() === 'norway') {
+        const currentRace = appState.userProfile.currentRace || "";
+        cleanLocation = currentRace ? currentRace.split(' - ')[0].split(' ')[0] : 'Molde';
     }
 
     // Determine mode: "Currently" (diff > 7 days) or "Race Day" (diff >= 0 and diff <= 7 days)
@@ -2341,9 +2359,44 @@ function updateWeeklyChecklistUI() {
 }
 
 // ----------------------------------------------------
-// WORKOUT LOG RENDERING
+// WORKOUT LOG RENDERING & INACTIVE PLAN PURGE
 // ----------------------------------------------------
+function purgeInactivePlanWorkouts() {
+    const activeRace = appState.userProfile.currentRace || '';
+    const activePlanName = activeRace.split(' - ')[0].trim().toLowerCase().replace(/\s+plan$/i, '');
+    if (!activePlanName || !Array.isArray(appState.workouts) || appState.workouts.length === 0) return;
+
+    const uncompletedOldKeys = [];
+    const initialCount = appState.workouts.length;
+    
+    appState.workouts = appState.workouts.filter(w => {
+        // ALWAYS keep completed workouts under all circumstances
+        if (w.isCompleted === true || w.isCompleted === 'true') return true;
+        
+        // For uncompleted workouts: check plan name
+        const pName = (w.planName || '').trim().toLowerCase().replace(/\s+plan$/i, '');
+        if (pName && pName !== activePlanName) {
+            uncompletedOldKeys.push(w.id);
+            return false;
+        }
+        return true;
+    });
+
+    if (appState.workouts.length !== initialCount) {
+        saveWorkoutsLocally();
+        if (typeof populatePlanFilters === 'function') populatePlanFilters();
+        if (db && appState.firebaseConnected && uncompletedOldKeys.length > 0) {
+            const delUpdates = {};
+            uncompletedOldKeys.forEach(id => {
+                delUpdates[`workout_${id}`] = null;
+            });
+            db.ref(`workouts/${appState.userId}`).update(delUpdates);
+        }
+    }
+}
+
 function renderWorkoutsList() {
+    purgeInactivePlanWorkouts();
     const listContainer = elements.logWorkoutsList;
     listContainer.innerHTML = '';
     
