@@ -645,7 +645,7 @@
                             
                             <!-- App Version details -->
                             <div class="app-version-footer" id="lbl-app-version" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                <span>Version 4.3.1 (431)</span>
+                                <span>Version 4.4.0 (440)</span>
                                 <button type="button" id="btn-force-reload-app" style="background: var(--android-lime); color: #000; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
                                     <i class="fa-solid fa-rotate"></i> OPPDATER APP
                                 </button>
@@ -836,10 +836,29 @@
             <!-- STEP 3: SCHEDULE -->
             <div class="wizard-page" id="wiz-page-3">
                 <div class="section-label-modal">SCHEDULE CONFIGURATION</div>
+                <!-- Plan Duration (Tailored 2 options based on distance) -->
                 <div class="form-group-android">
-                    <label>Training Plan Start Date</label>
+                    <label id="lbl-wiz-plan-duration">Oppkjøringsvarighet</label>
+                    <select id="wiz-plan-duration" class="form-control-android">
+                        <!-- Populated dynamically: 16/12 uker for hel, 12/8 uker for halv/10k -->
+                    </select>
+                </div>
+
+                <!-- Coach Guidance & Calculated Start Date Box -->
+                <div id="wiz-coach-hint-box" style="background: rgba(200, 255, 0, 0.08); border-left: 3px solid var(--android-lime); padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.4; color: #e0e0e0;">
+                    <!-- Dynamic message inserted by JS -->
+                </div>
+
+                <!-- Collapsible Custom Start Date Override -->
+                <div class="form-group-android" id="wiz-start-date-container" style="display: none;">
+                    <label>Egendefinert startdato (valgfritt)</label>
                     <input type="date" id="wiz-start-date" class="form-control-android" onclick="if(this.showPicker) this.showPicker();">
-                    <p style="font-size: 0.75rem; color: #888; margin-top: 5px;">We will build the progressive load from this exact date.</p>
+                    <p style="font-size: 0.75rem; color: #888; margin-top: 5px;">Uke 1 vil starte mandagen i denne uken.</p>
+                </div>
+                <div style="margin-bottom: 15px; text-align: right;">
+                    <button type="button" id="btn-toggle-custom-start-date" style="background: none; border: none; color: var(--android-lime); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0;">
+                        Endre startdato manuelt
+                    </button>
                 </div>
                 <div class="form-group-android">
                     <label>Training Days per Week</label>
@@ -1619,8 +1638,8 @@
 
     <!-- JS Application Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=4.3.1"></script>
-    <script src="firebase-config.js?v=4.3.1"></script>
-    <script src="app.js?v=4.3.1"></script>
+    <script src="supabase-config.js?v=4.4.0"></script>
+    <script src="firebase-config.js?v=4.4.0"></script>
+    <script src="app.js?v=4.4.0"></script>
 </body>
 </html>

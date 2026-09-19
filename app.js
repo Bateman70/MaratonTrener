@@ -374,6 +374,10 @@ function cacheElements() {
         wizPb10k: document.getElementById('wiz-pb10k'),
         wizPbhalf: document.getElementById('wiz-pbhalf'),
         wizPbfull: document.getElementById('wiz-pbfull'),
+        wizPlanDuration: document.getElementById('wiz-plan-duration'),
+        wizCoachHintBox: document.getElementById('wiz-coach-hint-box'),
+        wizStartDateContainer: document.getElementById('wiz-start-date-container'),
+        btnToggleCustomStartDate: document.getElementById('btn-toggle-custom-start-date'),
         wizStartDate: document.getElementById('wiz-start-date'),
         wizDaysPerWeek: document.getElementById('wiz-days-per-week'),
         wizCheckStrength: document.getElementById('wiz-check-strength'),
@@ -614,6 +618,39 @@ function setupEventListeners() {
         elements.importFileInput.addEventListener('change', handleFileImport);
     }
     setupWizardAutoFormatting();
+    
+    // Smart Wizard Plan Duration & Coach Hint listeners
+    if (elements.wizRaceType) {
+        elements.wizRaceType.addEventListener('change', updateWizardDurationAndCoachHint);
+    }
+    if (elements.wizEventDate) {
+        elements.wizEventDate.addEventListener('change', updateWizardDurationAndCoachHint);
+    }
+    if (elements.wizPlanDuration) {
+        elements.wizPlanDuration.addEventListener('change', () => {
+            window.wizardCustomStartDateManuallySet = false;
+            updateWizardDurationAndCoachHint();
+        });
+    }
+    if (elements.btnToggleCustomStartDate) {
+        elements.btnToggleCustomStartDate.addEventListener('click', () => {
+            if (!elements.wizStartDateContainer) return;
+            const isHidden = (elements.wizStartDateContainer.style.display === 'none');
+            elements.wizStartDateContainer.style.display = isHidden ? 'block' : 'none';
+            elements.btnToggleCustomStartDate.innerText = isHidden ? 'Bruk automatisk startdato' : 'Endre startdato manuelt';
+            if (!isHidden) {
+                window.wizardCustomStartDateManuallySet = false;
+                updateWizardDurationAndCoachHint();
+            } else {
+                window.wizardCustomStartDateManuallySet = true;
+            }
+        });
+    }
+    if (elements.wizStartDate) {
+        elements.wizStartDate.addEventListener('change', () => {
+            window.wizardCustomStartDateManuallySet = true;
+        });
+    }
     
     // Add Buddy inline form
     elements.formAddBuddyInline.addEventListener('submit', handleBuddySubmitInline);
@@ -3443,23 +3480,157 @@ function handleWorkoutSubmit(e) {
 }
 
 // ----------------------------------------------------
+// SMART PLAN DURATION & START DATE CALCULATION
+// ----------------------------------------------------
+function getMondayOfDate(d) {
+    const date = new Date(d);
+    const day = date.getDay(); // 0 is Sun, 1 is Mon...
+    const diff = (day === 0 ? -6 : 1 - day);
+    date.setDate(date.getDate() + diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+}
+
+function calculatePlanStartDate(raceDateStr, numWeeks) {
+    if (!raceDateStr) return new Date();
+    const parts = raceDateStr.split('-');
+    if (parts.length !== 3) return new Date();
+    const raceDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 12, 0, 0);
+    if (isNaN(raceDate.getTime())) return new Date();
+    
+    const raceMonday = getMondayOfDate(raceDate);
+    const startMonday = new Date(raceMonday);
+    startMonday.setDate(raceMonday.getDate() - ((numWeeks - 1) * 7));
+    return startMonday;
+}
+
+function updateWizardDurationAndCoachHint() {
+    if (!elements.wizPlanDuration || !elements.wizCoachHintBox) return;
+
+    const raceType = elements.wizRaceType ? elements.wizRaceType.value : "Marathon";
+    const isFullMarathon = raceType.includes("Marathon") && !raceType.includes("Half");
+    
+    // Exactly 2 tailored options based on distance
+    const options = isFullMarathon ? [
+        { weeks: 16, label: "16 uker (Trygg oppkjøring - Anbefalt)" },
+        { weeks: 12, label: "12 uker (Erfaren / Kompakt)" }
+    ] : [
+        { weeks: 12, label: "12 uker (Standard oppkjøring - Anbefalt)" },
+        { weeks: 8, label: "8 uker (Ekspress / Godt trent)" }
+    ];
+
+    const currentOptionWeeks = Array.from(elements.wizPlanDuration.options).map(o => parseInt(o.value, 10));
+    const newOptionWeeks = options.map(o => o.weeks);
+    const isDifferent = currentOptionWeeks.length !== newOptionWeeks.length || currentOptionWeeks.some((w, idx) => w !== newOptionWeeks[idx]);
+
+    if (isDifferent) {
+        const prevVal = parseInt(elements.wizPlanDuration.value, 10);
+        elements.wizPlanDuration.innerHTML = '';
+        options.forEach(opt => {
+            const el = document.createElement('option');
+            el.value = opt.weeks;
+            el.innerText = opt.label;
+            elements.wizPlanDuration.appendChild(el);
+        });
+        if (newOptionWeeks.includes(prevVal)) {
+            elements.wizPlanDuration.value = prevVal;
+        } else {
+            elements.wizPlanDuration.value = options[0].weeks;
+        }
+    }
+
+    const selectedWeeks = parseInt(elements.wizPlanDuration.value, 10) || (isFullMarathon ? 16 : 12);
+    const raceDateStr = elements.wizEventDate.value;
+    
+    if (!raceDateStr) {
+        elements.wizCoachHintBox.innerHTML = `<span>💡 Velg løpsdato i steg 1 for å beregne optimal startdato.</span>`;
+        return;
+    }
+
+    const startMonday = calculatePlanStartDate(raceDateStr, selectedWeeks);
+    const formatYMD = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+    const startMondayStr = formatYMD(startMonday);
+    
+    if (!window.wizardCustomStartDateManuallySet) {
+        elements.wizStartDate.value = startMondayStr;
+    }
+
+    // Calculate total weeks between today and race
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMonday = getMondayOfDate(today);
+    const raceParts = raceDateStr.split('-');
+    const raceDate = new Date(parseInt(raceParts[0], 10), parseInt(raceParts[1], 10) - 1, parseInt(raceParts[2], 10), 12, 0, 0);
+    const raceMonday = getMondayOfDate(raceDate);
+    const totalWeeksUntilRace = Math.round((raceMonday - todayMonday) / (1000 * 60 * 60 * 24 * 7)) + 1;
+
+    const formattedStart = startMonday.toLocaleDateString('no-NO', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    const capStart = formattedStart.charAt(0).toUpperCase() + formattedStart.slice(1);
+
+    if (totalWeeksUntilRace > selectedWeeks) {
+        elements.wizCoachHintBox.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <i class="fa-solid fa-lightbulb" style="color: var(--android-lime); font-size: 1.15rem; margin-top: 2px;"></i>
+                <div>
+                    <strong style="color: #fff;">Det er ${totalWeeksUntilRace} uker til løpsdagen!</strong><br>
+                    Det strukturerte oppkjøringsprogrammet ditt (${selectedWeeks} uker) starter automatisk <strong>${capStart}</strong>.<br>
+                    <span style="opacity: 0.85; display: inline-block; margin-top: 5px;">
+                        Frem til da: Hold bena i gang med 2–3 rolige turer i uken for å bygge et solid aerobt fundament. Turene du løper før programstart kan du logge fritt her eller via Strava.
+                    </span>
+                </div>
+            </div>
+        `;
+    } else if (totalWeeksUntilRace < selectedWeeks && totalWeeksUntilRace > 0) {
+        elements.wizCoachHintBox.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <i class="fa-solid fa-bolt" style="color: #ff9500; font-size: 1.15rem; margin-top: 2px;"></i>
+                <div>
+                    <strong style="color: #fff;">Løpet er om ${totalWeeksUntilRace} uker!</strong><br>
+                    Programmet starter umiddelbart denne uken for å gi deg maksimal forberedelsestid frem mot løpsdagen.
+                </div>
+            </div>
+        `;
+    } else {
+        elements.wizCoachHintBox.innerHTML = `
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <i class="fa-solid fa-flag-checkered" style="color: var(--android-lime); font-size: 1.15rem; margin-top: 2px;"></i>
+                <div>
+                    <strong style="color: #fff;">Perfekt timing!</strong> Det er ${selectedWeeks} uker til løpsdagen. Programmet starter <strong>${capStart}</strong>.
+                </div>
+            </div>
+        `;
+    }
+}
+
+// ----------------------------------------------------
 // SETUP GENERATOR WIZARD STEPS
 // ----------------------------------------------------
 function openGeneratorModal() {
     if (appState.readOnly) return;
     appState.wizardPage = 0; // Start at method selection
     
-    // Reset import state
+    // Reset import and custom date states
     window.pendingImportPlan = null;
+    window.wizardCustomStartDateManuallySet = false;
+    if (elements.wizStartDateContainer) elements.wizStartDateContainer.style.display = 'none';
+    if (elements.btnToggleCustomStartDate) elements.btnToggleCustomStartDate.innerText = 'Endre startdato manuelt';
     if (elements.importPreviewContainer) elements.importPreviewContainer.style.display = 'none';
     if (elements.btnWizImportFinish) elements.btnWizImportFinish.disabled = true;
     if (elements.importFileInput) elements.importFileInput.value = '';
 
     elements.generatorWizardModal.classList.add('active');
     
-    // Set standard dates
-    elements.wizEventDate.value = new Date(Date.now() + (1000*60*60*24*84)).toISOString().split('T')[0]; // 12 weeks out
-    elements.wizStartDate.value = new Date().toISOString().split('T')[0];
+    // Set default race date if empty (12 weeks ahead)
+    if (!elements.wizEventDate.value) {
+        elements.wizEventDate.value = new Date(Date.now() + (1000*60*60*24*84)).toISOString().split('T')[0];
+    }
     
     // Populate profile inputs from state
     elements.wizAge.value = appState.age || '';
@@ -3469,6 +3640,7 @@ function openGeneratorModal() {
     elements.wizPbhalf.value = appState.pbHalf || '';
     elements.wizPbfull.value = appState.pbFull || '';
     
+    updateWizardDurationAndCoachHint();
     updateWizardUI();
 }
 
@@ -3488,7 +3660,6 @@ function navigateWizardBack() {
 
 function navigateWizardNext() {
     if (appState.wizardPage === 0) {
-        // Can't click Next on page 0
         return;
     } else if (appState.wizardPage === 1) {
         if (!elements.wizEventName.value.trim() || !elements.wizEventDate.value) {
@@ -3499,6 +3670,7 @@ function navigateWizardNext() {
         updateWizardUI();
     } else if (appState.wizardPage === 2) {
         appState.wizardPage = 3;
+        updateWizardDurationAndCoachHint();
         updateWizardUI();
     } else if (appState.wizardPage === 3) {
         generateTrainingPlanFromWizard();
@@ -3511,6 +3683,10 @@ function updateWizardUI() {
     document.getElementById('wiz-page-2').classList.toggle('active', appState.wizardPage === 2);
     document.getElementById('wiz-page-3').classList.toggle('active', appState.wizardPage === 3);
     document.getElementById('wiz-page-4').classList.toggle('active', appState.wizardPage === 4);
+    
+    if (appState.wizardPage === 3) {
+        updateWizardDurationAndCoachHint();
+    }
     
     const titleStep = document.getElementById('wizard-title-step');
     if (titleStep) {
@@ -3629,13 +3805,22 @@ function generateTrainingPlanFromWizard() {
         return;
     }
     
-    // Loop dates day by day
-    const startDate = new Date(startDateStr);
-    const raceDate = new Date(eventDateStr);
+    // Loop dates day by day using safe local date parsing
+    const startParts = startDateStr.split('-');
+    const startDate = new Date(parseInt(startParts[0], 10), parseInt(startParts[1], 10) - 1, parseInt(startParts[2], 10), 12, 0, 0);
+    const raceParts = eventDateStr.split('-');
+    const raceDate = new Date(parseInt(raceParts[0], 10), parseInt(raceParts[1], 10) - 1, parseInt(raceParts[2], 10), 12, 0, 0);
     
-    const totalDays = (raceDate - startDate) / (1000 * 60 * 60 * 24);
+    const totalDays = Math.round((raceDate - startDate) / (1000 * 60 * 60 * 24));
     let totalWeeks = Math.ceil(totalDays / 7);
     if (totalWeeks < 1) totalWeeks = 1;
+    
+    const formatYMD = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
     
     const planWorkouts = [];
     let current = new Date(startDate);
@@ -3659,7 +3844,7 @@ function generateTrainingPlanFromWizard() {
                 const w = {
                     planName: eventName,
                     weekNumber: currentWeek + 1,
-                    scheduledDate: current.toISOString().split('T')[0],
+                    scheduledDate: formatYMD(current),
                     isCompleted: false,
                     notes: "",
                     workoutType: workoutType
