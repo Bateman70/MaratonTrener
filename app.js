@@ -3830,7 +3830,11 @@ function generateTrainingPlanFromWizard() {
     const runningTypes = ["INTERVALS", "STEADY RUN", "LONG RUN"];
     let runCounter = 0;
     
-    while (current < raceDate) {
+    // Regular training schedule stops 1 week (7 days) before race date for full recovery/taper
+    const regularScheduleCutoff = new Date(raceDate);
+    regularScheduleCutoff.setDate(raceDate.getDate() - 7);
+    
+    while (current <= regularScheduleCutoff) {
         const dayOfWeek = current.getDay(); // Sunday is 0, Monday is 1...
         const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const dayName = dayNames[dayOfWeek];
@@ -3923,6 +3927,32 @@ function generateTrainingPlanFromWizard() {
         }
         current.setDate(current.getDate() + 1);
     }
+
+    // Race Week Shakeout Run: exactly 3 days before race date
+    const shakeoutDate = new Date(raceDate);
+    shakeoutDate.setDate(raceDate.getDate() - 3);
+
+    let shakeoutDist = 5.0; // Marathon default
+    if (raceType.includes("Half")) shakeoutDist = 4.0;
+    else if (raceType.includes("10K")) shakeoutDist = 3.0;
+    else if (raceType.includes("5K")) shakeoutDist = 2.0;
+
+    const shakeoutPace = formatPace(racePaceMinPerKm * 1.25);
+    const shakeoutDuration = Math.round(shakeoutDist * parsePaceToDecimal(shakeoutPace));
+
+    planWorkouts.push({
+        planName: eventName,
+        weekNumber: totalWeeks,
+        scheduledDate: formatYMD(shakeoutDate),
+        isCompleted: false,
+        workoutType: "RECOVERY",
+        customTitle: "Meget rolig joggetur (Shakeout)",
+        distance: shakeoutDist,
+        pace: shakeoutPace,
+        totalDuration: shakeoutDuration,
+        description: "Vekke beina: Meget rolig joggetur 3 dager før løpet for å stimulere blodsirkulasjonen og holde beina i gang uten å tappe overskudd. Avslutt gjerne med 2-3 lette stigningsløp (strides).",
+        notes: ""
+    });
     
     // ----------------------------------------------------
     // PERSISTENCE: CLEAN WIPE OLD UNCOMPLETED & SAVE NEW PLAN
